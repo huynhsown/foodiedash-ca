@@ -25,30 +25,23 @@ public class CustomerAddress extends BaseEntity {
     private boolean isDefault;
 
     public static CustomerAddress create(
-        Long userId,
-        String label,
-        String address,
-        BigDecimal lat,
-        BigDecimal lng,
-        String receiverName,
-        String receiverPhone,
-        String note
+            String label,
+            String address,
+            BigDecimal lat,
+            BigDecimal lng,
+            String receiverName,
+            String receiverPhone,
+            String note
     ) {
-        if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
-        }
         if (label == null || label.isBlank()) {
             throw new BadRequestException("ADDRESS_LABEL_REQUIRED");
         }
+
         if (address == null || address.isBlank()) {
             throw new BadRequestException("ADDRESS_REQUIRED");
         }
-        if (lat == null || lng == null) {
-            throw new BadRequestException("ADDRESS_LOCATION_REQUIRED");
-        }
 
         CustomerAddress ca = new CustomerAddress();
-        ca.userId = userId;
         ca.label = label;
         ca.address = address;
         ca.lat = lat;
@@ -56,40 +49,34 @@ public class CustomerAddress extends BaseEntity {
         ca.receiverName = receiverName;
         ca.receiverPhone = receiverPhone;
         ca.note = note;
-        ca.isDefault = false; // match DB default
+        ca.isDefault = false;
+
         return ca;
     }
 
-    public void update(
-        String label,
-        String address,
-        BigDecimal lat,
-        BigDecimal lng,
-        String receiverName,
-        String receiverPhone,
-        String note
-    ) {
-        if (label != null && !label.isBlank()) {
-            this.label = label;
+    public void update(CustomerAddress updated) {
+        if (updated.getLabel() != null) {
+            this.label = updated.getLabel();
         }
-        if (address != null && !address.isBlank()) {
-            this.address = address;
+        if (updated.getAddress() != null) {
+            this.address = updated.getAddress();
         }
-        if (lat != null) {
-            this.lat = lat;
+        if (updated.getLat() != null) {
+            this.lat = updated.getLat();
         }
-        if (lng != null) {
-            this.lng = lng;
+        if (updated.getLng() != null) {
+            this.lng = updated.getLng();
         }
-        if (receiverName != null) {
-            this.receiverName = receiverName;
+        if (updated.getReceiverName() != null) {
+            this.receiverName = updated.getReceiverName();
         }
-        if (receiverPhone != null) {
-            this.receiverPhone = receiverPhone;
+        if (updated.getReceiverPhone() != null) {
+            this.receiverPhone = updated.getReceiverPhone();
         }
-        if (note != null) {
-            this.note = note;
+        if (updated.getNote() != null) {
+            this.note = updated.getNote();
         }
+        this.isDefault = updated.isDefault();
     }
 
     public void setAsDefault() {
