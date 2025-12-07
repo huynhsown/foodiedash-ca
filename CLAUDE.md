@@ -1,12 +1,12 @@
 # FoodieDash AI Development Guide
 
-Tài liệu này cung cấp ngữ cảnh và quy tắc cho AI khi tạo code trong dự án này.
+This document provides context and rules for AI when creating code in this project.
 
 ---
 
-# Tổng Quan Dự Án
+# Project Overview
 
-FoodieDash là hệ thống backend đặt món ăn được xây dựng bằng:
+FoodieDash is a food ordering backend system built with:
 
 - Java
 - Spring Boot
@@ -14,20 +14,20 @@ FoodieDash là hệ thống backend đặt món ăn được xây dựng bằng:
 - Clean Architecture (Hexagonal)
 - Maven
 
-Các tính năng chính bao gồm:
+Main features include:
 
-- Quản lý người dùng
-- Quản lý nhà hàng
+- User management
+- Restaurant management
 - Menu
-- Giỏ hàng
-- Khuyến mãi
-- Tìm kiếm (Meilisearch)
+- Shopping cart
+- Promotions
+- Search (Meilisearch)
 
 ---
 
-# Kiến Trúc
+# Architecture
 
-Dự án này tuân theo **Clean Architecture (Hexagonal Architecture)**.
+This project follows **Clean Architecture (Hexagonal Architecture)**.
 
 ## Dependency Flow
 
@@ -37,45 +37,45 @@ infrastructure → domain
 infrastructure → application (sometimes)
 ```
 
-**Lưu ý quan trọng:**
-- `interfaces` phụ thuộc vào `application`
-- `application` phụ thuộc vào `domain`
-- `infrastructure` implement các interface từ `domain` (dependency inversion)
-- `domain` KHÔNG phụ thuộc vào bất kỳ layer nào khác
+**Important notes:**
+- `interfaces` depends on `application`
+- `application` depends on `domain`
+- `infrastructure` implements interfaces from `domain` (dependency inversion)
+- `domain` does NOT depend on any other layer
 
 ## 1. Domain Layer
 
-**Vị trí:**
+**Location:**
 ```
 src/main/java/com/ute/foodiedash/domain
 ```
 
-**Trách nhiệm:**
+**Responsibilities:**
 - Business entities (domain models)
 - Domain services
-- Domain rules và business logic
+- Domain rules and business logic
 - Repository interfaces (ports)
 - Domain events
 
-**Domain KHÔNG được phụ thuộc vào:**
+**Domain MUST NOT depend on:**
 - Spring
 - JPA
 - Infrastructure
 - Interfaces
 
-**Cấu trúc:**
+**Structure:**
 ```
 domain/
 ├── {module}/
 │   ├── model/          # Domain entities
 │   ├── repository/     # Repository interfaces
-│   ├── service/        # Domain services (nếu cần)
+│   ├── service/        # Domain services (if needed)
 │   ├── enums/          # Domain enums
-│   └── event/          # Domain events (nếu có)
+│   └── event/          # Domain events (if any)
 └── common/             # Shared domain code
 ```
 
-**Ví dụ:**
+**Examples:**
 - `domain/menu/model/Menu`
 - `domain/menu/repository/MenuRepository`
 - `domain/user/model/User`
@@ -85,55 +85,55 @@ domain/
 
 ## 2. Application Layer
 
-**Vị trí:**
+**Location:**
 ```
 src/main/java/com/ute/foodiedash/application
 ```
 
-**Trách nhiệm:**
+**Responsibilities:**
 - Use cases (business workflows)
 - Command / Query handlers
-- Ports (interfaces cho infrastructure)
+- Ports (interfaces for infrastructure)
 - Application services
 
-**Cấu trúc:**
+**Structure:**
 ```
 application/
 ├── {module}/
 │   ├── command/        # Write requests (Commands)
 │   ├── query/          # Read requests (Query Results)
 │   ├── usecase/        # Business logic (Use Cases)
-│   └── port/           # Ports (interfaces cho infrastructure)
+│   └── port/           # Ports (interfaces for infrastructure)
 ```
 
-**Ví dụ:**
+**Examples:**
 - `application/menu/usecase/CreateMenuUseCase`
 - `application/menu/command/CreateMenuCommand`
 - `application/menu/query/MenuQueryResult`
 - `application/menu/port/ImageUploadPort`
 
-**Quy tắc:**
-- Mỗi business action phải là một **Use Case** riêng biệt
-- Use case chứa business logic và gọi domain repositories
-- Use case KHÔNG được chứa persistence logic trực tiếp
+**Rules:**
+- Each business action must be a separate **Use Case**
+- Use case contains business logic and calls domain repositories
+- Use case MUST NOT contain persistence logic directly
 
 ---
 
 ## 3. Infrastructure Layer
 
-**Vị trí:**
+**Location:**
 ```
 src/main/java/com/ute/foodiedash/infrastructure
 ```
 
-**Trách nhiệm:**
+**Responsibilities:**
 - Database persistence (JPA)
 - External services (Cloudinary, Meilisearch)
 - Security
 - Configuration
 - Event publishing
 
-**Cấu trúc:**
+**Structure:**
 ```
 infrastructure/
 ├── persistence/
@@ -149,33 +149,33 @@ infrastructure/
 └── config/                    # Configuration classes
 ```
 
-**Ví dụ:**
+**Examples:**
 - `infrastructure/persistence/menu/adapter/MenuRepositoryAdapter`
 - `infrastructure/persistence/menu/jpa/entity/MenuJpaEntity`
 - `infrastructure/persistence/menu/jpa/mapper/MenuJpaMapper`
 
-**Quy tắc:**
-- JPA entities chỉ tồn tại trong infrastructure
+**Rules:**
+- JPA entities only exist in infrastructure
 - Repository adapters implement domain repository interfaces
-- Sử dụng MapStruct cho mapping giữa domain và JPA entities
+- Use MapStruct for mapping between domain and JPA entities
 
 ---
 
 ## 4. Interfaces Layer
 
-**Vị trí:**
+**Location:**
 ```
 src/main/java/com/ute/foodiedash/interfaces
 ```
 
-**Trách nhiệm:**
+**Responsibilities:**
 - REST controllers
 - Request / Response DTOs
 - API documentation
 - Exception handling
 - DTO mappers
 
-**Cấu trúc:**
+**Structure:**
 ```
 interfaces/
 ├── rest/
@@ -187,19 +187,19 @@ interfaces/
 └── docs/                  # API documentation
 ```
 
-**Ví dụ:**
+**Examples:**
 - `interfaces/rest/menu/MenuController`
 - `interfaces/rest/menu/dto/CreateMenuDTO`
 - `interfaces/rest/menu/mapper/MenuDtoMapper`
 
-**Quy tắc:**
-- Controller chỉ gọi Use Cases, KHÔNG chứa business logic
-- DTO chỉ tồn tại trong interfaces layer
-- Sử dụng MapStruct cho mapping giữa DTO và Command/Query
+**Rules:**
+- Controller only calls Use Cases, MUST NOT contain business logic
+- DTOs only exist in interfaces layer
+- Use MapStruct for mapping between DTO and Command/Query
 
 ---
 
-# Quy Tắc Coding
+# Coding Rules
 
 ## Naming Conventions
 
@@ -219,7 +219,7 @@ interfaces/
 - `MenuDetailDTO`
 - `UserResponseDTO`
 
-**Lưu ý:** Một số module sử dụng `RequestDTO` suffix (ví dụ: `CreatePromotionRequestDTO`), nhưng pattern chính là `{Action}{Entity}DTO`.
+**Note:** Some modules use `RequestDTO` suffix (e.g., `CreatePromotionRequestDTO`), but the main pattern is `{Action}{Entity}DTO`.
 
 ## Mapper Naming
 
@@ -245,7 +245,7 @@ interfaces/
 - `UserJpaEntity`
 - `RestaurantJpaEntity`
 
-**Lưu ý:** KHÔNG được trộn lẫn domain models và JPA entities.
+**Note:** Domain models and JPA entities MUST NOT be mixed.
 
 ---
 
@@ -253,12 +253,12 @@ interfaces/
 
 ## Domain Repository Interface
 
-**Vị trí:**
+**Location:**
 ```
 domain/{module}/repository/{Entity}Repository
 ```
 
-**Ví dụ:**
+**Example:**
 ```java
 package com.ute.foodiedash.domain.menu.repository;
 
@@ -271,12 +271,12 @@ public interface MenuRepository {
 
 ## Infrastructure Repository Adapter
 
-**Vị trí:**
+**Location:**
 ```
 infrastructure/persistence/{module}/adapter/{Entity}RepositoryAdapter
 ```
 
-**Ví dụ:**
+**Example:**
 ```java
 package com.ute.foodiedash.infrastructure.persistence.menu.adapter;
 
@@ -295,29 +295,29 @@ public class MenuRepositoryAdapter implements MenuRepository {
 }
 ```
 
-**Quy tắc:**
-- Adapter implement domain repository interface
-- Sử dụng JPA mapper để chuyển đổi giữa domain và JPA entity
-- Adapter là Spring `@Component`
+**Rules:**
+- Adapter implements domain repository interface
+- Use JPA mapper to convert between domain and JPA entity
+- Adapter is a Spring `@Component`
 
 ---
 
 # Use Case Pattern
 
-Mỗi business action phải là một **Use Case** riêng biệt.
+Each business action must be a separate **Use Case**.
 
-**Vị trí:**
+**Location:**
 ```
 application/{module}/usecase/{Action}{Entity}UseCase
 ```
 
-**Ví dụ:**
+**Examples:**
 - `CreateMenuUseCase`
 - `AddItemToCartUseCase`
 - `ApplyPromotionUseCase`
 - `RegisterCustomerUseCase`
 
-**Cấu trúc Use Case:**
+**Use Case Structure:**
 ```java
 @Component
 @RequiredArgsConstructor
@@ -349,12 +349,12 @@ public class CreateMenuUseCase {
 }
 ```
 
-**Quy tắc:**
-- Use case phải nằm trong application layer
-- Use case chứa business logic
-- Use case gọi domain repositories
-- Use case trả về QueryResult, không trả về domain model trực tiếp
-- Sử dụng `@Transactional` cho write operations
+**Rules:**
+- Use case must be in application layer
+- Use case contains business logic
+- Use case calls domain repositories
+- Use case returns QueryResult, not domain model directly
+- Use `@Transactional` for write operations
 
 ---
 
@@ -362,16 +362,16 @@ public class CreateMenuUseCase {
 
 ## MapStruct Configuration
 
-Dự án sử dụng **MapStruct** cho tất cả mapping operations.
+The project uses **MapStruct** for all mapping operations.
 
 ## DTO Mapper
 
-**Vị trí:**
+**Location:**
 ```
 interfaces/rest/{module}/mapper/{Entity}DtoMapper
 ```
 
-**Ví dụ:**
+**Example:**
 ```java
 @Mapper(componentModel = "spring")
 public interface MenuDtoMapper {
@@ -382,18 +382,18 @@ public interface MenuDtoMapper {
 
 **Mapping flow:**
 ```
-DTO → Command (trong Controller)
-QueryResult → ResponseDTO (trong Controller)
+DTO → Command (in Controller)
+QueryResult → ResponseDTO (in Controller)
 ```
 
 ## JPA Mapper
 
-**Vị trí:**
+**Location:**
 ```
 infrastructure/persistence/{module}/jpa/mapper/{Entity}JpaMapper
 ```
 
-**Ví dụ:**
+**Example:**
 ```java
 @Mapper(componentModel = "spring")
 public interface MenuJpaMapper {
@@ -407,7 +407,7 @@ public interface MenuJpaMapper {
 
 **Mapping flow:**
 ```
-Domain Model ↔ JPA Entity (trong Repository Adapter)
+Domain Model ↔ JPA Entity (in Repository Adapter)
 ```
 
 ---
@@ -425,7 +425,7 @@ PUT    /api/v1/{resources}/{id}      # Update
 DELETE /api/v1/{resources}/{id}     # Delete
 ```
 
-**Ví dụ:**
+**Examples:**
 - `GET /api/v1/restaurants`
 - `GET /api/v1/restaurants/{id}`
 - `POST /api/v1/restaurants`
@@ -453,118 +453,118 @@ public class MenuController {
 }
 ```
 
-**Quy tắc:**
-- Controller chỉ gọi Use Cases
-- Controller sử dụng DTO mapper để chuyển đổi
-- Controller KHÔNG chứa business logic
-- Sử dụng `@Valid` cho request validation
+**Rules:**
+- Controller only calls Use Cases
+- Controller uses DTO mapper for conversion
+- Controller MUST NOT contain business logic
+- Use `@Valid` for request validation
 
 ---
 
 # Testing
 
-**Vị trí:**
+**Location:**
 ```
 src/test/java
 ```
 
-**Unit tests nên được viết cho:**
+**Unit tests should be written for:**
 - Use cases
 - Domain services
 - Domain models (business logic)
 
-**Integration tests nên được viết cho:**
+**Integration tests should be written for:**
 - Repository adapters
 - Controllers
 
 ---
 
-# Quy Trình Phát Triển Tính Năng
+# Feature Development Process
 
-Khi implement một tính năng mới, tuân theo thứ tự sau:
+When implementing a new feature, follow this order:
 
-## 1. Phân tích tính năng
-- Xác định domain model cần thiết
-- Xác định business rules
-- Xác định use cases
+## 1. Feature Analysis
+- Identify required domain models
+- Identify business rules
+- Identify use cases
 
-## 2. Tạo Domain Model
-- Tạo domain entity trong `domain/{module}/model/`
-- Thêm business logic vào domain model
-- Tạo factory methods nếu cần
+## 2. Create Domain Model
+- Create domain entity in `domain/{module}/model/`
+- Add business logic to domain model
+- Create factory methods if needed
 
-## 3. Tạo Repository Interface
-- Định nghĩa repository interface trong `domain/{module}/repository/`
-- Chỉ định nghĩa methods cần thiết
+## 3. Create Repository Interface
+- Define repository interface in `domain/{module}/repository/`
+- Only define necessary methods
 
-## 4. Tạo Use Case
-- Tạo use case trong `application/{module}/usecase/`
-- Tạo Command/Query trong `application/{module}/command/` hoặc `query/`
-- Implement business logic trong use case
+## 4. Create Use Case
+- Create use case in `application/{module}/usecase/`
+- Create Command/Query in `application/{module}/command/` or `query/`
+- Implement business logic in use case
 
-## 5. Tạo Infrastructure Adapter
-- Tạo JPA entity trong `infrastructure/persistence/{module}/jpa/entity/`
-- Tạo JPA mapper trong `infrastructure/persistence/{module}/jpa/mapper/`
-- Tạo JPA repository (Spring Data) trong `infrastructure/persistence/{module}/jpa/repository/`
-- Tạo repository adapter trong `infrastructure/persistence/{module}/adapter/`
+## 5. Create Infrastructure Adapter
+- Create JPA entity in `infrastructure/persistence/{module}/jpa/entity/`
+- Create JPA mapper in `infrastructure/persistence/{module}/jpa/mapper/`
+- Create JPA repository (Spring Data) in `infrastructure/persistence/{module}/jpa/repository/`
+- Create repository adapter in `infrastructure/persistence/{module}/adapter/`
 
-## 6. Tạo REST Controller
-- Tạo DTO trong `interfaces/rest/{module}/dto/`
-- Tạo DTO mapper trong `interfaces/rest/{module}/mapper/`
-- Tạo controller trong `interfaces/rest/{module}/`
+## 6. Create REST Controller
+- Create DTO in `interfaces/rest/{module}/dto/`
+- Create DTO mapper in `interfaces/rest/{module}/mapper/`
+- Create controller in `interfaces/rest/{module}/`
 
 ## 7. Testing
-- Viết unit tests cho use case
-- Viết integration tests cho controller
+- Write unit tests for use case
+- Write integration tests for controller
 
-**Lưu ý:** Tuân theo thứ tự này một cách nghiêm ngặt để đảm bảo Clean Architecture.
+**Note:** Follow this order strictly to ensure Clean Architecture.
 
 ---
 
-# Hướng Dẫn Cho AI
+# Guidelines for AI
 
-Khi tạo code, luôn tuân theo:
+When creating code, always follow:
 
-1. ✅ **Luôn tuân theo Clean Architecture**
-   - Domain không phụ thuộc vào bất kỳ layer nào
-   - Infrastructure implement domain interfaces
-   - Application chỉ phụ thuộc vào domain
+1. ✅ **Always follow Clean Architecture**
+   - Domain does not depend on any layer
+   - Infrastructure implements domain interfaces
+   - Application only depends on domain
 
-2. ✅ **KHÔNG đặt business logic trong controllers**
-   - Controller chỉ gọi Use Cases
-   - Business logic phải ở Use Cases hoặc Domain Models
+2. ✅ **DO NOT put business logic in controllers**
+   - Controller only calls Use Cases
+   - Business logic must be in Use Cases or Domain Models
 
-3. ✅ **Use Cases tương tác với domain repositories**
-   - Use Case gọi domain repository interfaces
-   - Infrastructure implement các interfaces này
+3. ✅ **Use Cases interact with domain repositories**
+   - Use Case calls domain repository interfaces
+   - Infrastructure implements these interfaces
 
-4. ✅ **Infrastructure implement persistence**
-   - Sử dụng JPA entities
-   - Sử dụng MapStruct cho mapping
+4. ✅ **Infrastructure implements persistence**
+   - Use JPA entities
+   - Use MapStruct for mapping
    - Repository adapters implement domain repositories
 
-5. ✅ **DTO chỉ ở interfaces layer**
-   - DTO không được xuất hiện trong domain
-   - DTO không được xuất hiện trong application (trừ Command/Query)
+5. ✅ **DTOs only in interfaces layer**
+   - DTOs must not appear in domain
+   - DTOs must not appear in application (except Command/Query)
 
-6. ✅ **Domain models phải thuần khiết**
-   - Không có JPA annotations
-   - Không có Spring dependencies
-   - Chỉ chứa business logic
+6. ✅ **Domain models must be pure**
+   - No JPA annotations
+   - No Spring dependencies
+   - Only contains business logic
 
-7. ✅ **Sử dụng MapStruct cho tất cả mapping**
+7. ✅ **Use MapStruct for all mapping**
    - DTO ↔ Command/Query
    - Domain ↔ JPA Entity
 
-8. ✅ **Mỗi business action là một Use Case**
-   - Tạo use case riêng cho mỗi action
-   - Use case có tên rõ ràng: `{Action}{Entity}UseCase`
+8. ✅ **Each business action is a Use Case**
+   - Create a separate use case for each action
+   - Use case has a clear name: `{Action}{Entity}UseCase`
 
 ---
 
-# Ví Dụ Hoàn Chỉnh
+# Complete Example
 
-## Tạo Menu Feature
+## Create Menu Feature
 
 ### 1. Domain Model
 ```java
@@ -572,7 +572,7 @@ Khi tạo code, luôn tuân theo:
 public class Menu extends BaseEntity {
     public static Menu create(Long restaurantId, String name, 
                               LocalTime startTime, LocalTime endTime) {
-        // Validation và business logic
+        // Validation and business logic
         Menu menu = new Menu();
         menu.restaurantId = restaurantId;
         menu.name = name;
@@ -695,16 +695,16 @@ public class MenuController {
 
 ---
 
-# Tổng Kết
+# Summary
 
-Dự án này tuân theo **Clean Architecture** một cách nghiêm ngặt. Khi tạo code:
+This project strictly follows **Clean Architecture**. When creating code:
 
-- ✅ Domain là trung tâm, không phụ thuộc vào bất kỳ layer nào
-- ✅ Application chứa business workflows (Use Cases)
-- ✅ Infrastructure implement các interfaces từ domain
-- ✅ Interfaces xử lý HTTP requests và responses
-- ✅ Mỗi layer có trách nhiệm rõ ràng
-- ✅ Sử dụng MapStruct cho tất cả mapping operations
-- ✅ Mỗi business action là một Use Case riêng biệt
+- ✅ Domain is the center, does not depend on any layer
+- ✅ Application contains business workflows (Use Cases)
+- ✅ Infrastructure implements interfaces from domain
+- ✅ Interfaces handle HTTP requests and responses
+- ✅ Each layer has clear responsibilities
+- ✅ Use MapStruct for all mapping operations
+- ✅ Each business action is a separate Use Case
 
-**Nhớ:** Luôn tuân theo dependency flow và không vi phạm các nguyên tắc Clean Architecture!
+**Remember:** Always follow the dependency flow and do not violate Clean Architecture principles!
