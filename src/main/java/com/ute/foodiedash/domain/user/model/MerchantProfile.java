@@ -34,11 +34,11 @@ public class MerchantProfile extends BaseEntity {
     ) {
 
         if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
+            throw new BadRequestException("User ID is required");
         }
 
         if (businessName == null || businessName.isBlank()) {
-            throw new BadRequestException("BUSINESS_NAME_REQUIRED");
+            throw new BadRequestException("Business name is required");
         }
 
         MerchantProfile profile = new MerchantProfile();
@@ -103,7 +103,7 @@ public class MerchantProfile extends BaseEntity {
     public void approve() {
 
         if (this.verificationStatus == MerchantVerificationStatus.APPROVED) {
-            throw new BadRequestException("MERCHANT_ALREADY_APPROVED");
+            throw new BadRequestException("Merchant is already approved");
         }
 
         this.verificationStatus = MerchantVerificationStatus.APPROVED;
@@ -112,7 +112,7 @@ public class MerchantProfile extends BaseEntity {
     public void reject() {
 
         if (this.verificationStatus == MerchantVerificationStatus.REJECTED) {
-            throw new BadRequestException("MERCHANT_ALREADY_REJECTED");
+            throw new BadRequestException("Merchant is already rejected");
         }
 
         this.verificationStatus = MerchantVerificationStatus.REJECTED;

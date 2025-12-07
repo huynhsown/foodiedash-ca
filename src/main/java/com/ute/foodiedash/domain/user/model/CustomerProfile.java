@@ -18,10 +18,6 @@ public class CustomerProfile extends BaseEntity {
     private Gender gender;
 
     public static CustomerProfile create(Long userId, Instant dateOfBirth, Gender gender) {
-        if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
-        }
-
         CustomerProfile profile = new CustomerProfile();
         profile.userId = userId;
         profile.dateOfBirth = dateOfBirth;
