@@ -1,15 +1,15 @@
 CREATE TABLE order_item_options
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id            BIGSERIAL PRIMARY KEY,
     order_item_id BIGINT                              NOT NULL,
     option_id     BIGINT                              NOT NULL,
     option_name   VARCHAR(255)                        NOT NULL,
-    required      TINYINT(1)                          NOT NULL,
+    required      BOOLEAN                             NOT NULL,
     min_value     INT NULL,
     max_value     INT NULL,
 
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by    VARCHAR(255) NULL,
     updated_by    VARCHAR(255) NULL,
     deleted_at    TIMESTAMP NULL,
@@ -19,4 +19,4 @@ CREATE TABLE order_item_options
         FOREIGN KEY (order_item_id)
             REFERENCES order_items (id)
             ON DELETE CASCADE
-) ENGINE = INNODB;
+);

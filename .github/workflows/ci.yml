@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-migrate-postgres:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: foodiedash
+          POSTGRES_USER: foodiedash
+          POSTGRES_PASSWORD: foodiedash
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U foodiedash -d foodiedash"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Maven verify (Flyway on clean Postgres)
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/foodiedash
+          SPRING_DATASOURCE_USERNAME: foodiedash
+          SPRING_DATASOURCE_PASSWORD: foodiedash
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+          SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+          SPRING_FLYWAY_ENABLED: "true"
+          SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+          SEARCH_ENGINE: elasticsearch
+          ELASTICSEARCH_AUTO_INITIALIZE: "false"
+        run: mvn -q -DskipTests=false verify
+

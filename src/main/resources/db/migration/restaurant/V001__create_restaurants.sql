@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS restaurants
 (
-    id          BIGINT         NOT NULL AUTO_INCREMENT,
+    id          BIGSERIAL      PRIMARY KEY,
     code        VARCHAR(25)    NOT NULL UNIQUE,
     name        VARCHAR(255)   NOT NULL,
     description TEXT,
@@ -11,12 +11,10 @@ CREATE TABLE IF NOT EXISTS restaurants
     status      VARCHAR(255)   NOT NULL,
 
     created_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by  VARCHAR(255),
     updated_by  VARCHAR(255),
     deleted_at  TIMESTAMP NULL,
 
-    version     BIGINT         NOT NULL DEFAULT 0,
-
-    PRIMARY KEY (id)
-) ENGINE=InnoDB;
+    version     BIGINT         NOT NULL DEFAULT 0
+);

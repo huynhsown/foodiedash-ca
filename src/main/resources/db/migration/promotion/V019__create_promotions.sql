@@ -1,6 +1,6 @@
 CREATE TABLE promotions
 (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id                  BIGSERIAL PRIMARY KEY,
 
     code                VARCHAR(50)    NOT NULL UNIQUE,
     name                VARCHAR(255)   NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE promotions
     status              VARCHAR(20)    NOT NULL,
 
     created_at          TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by          VARCHAR(255),
     updated_by          VARCHAR(255),
     deleted_at          TIMESTAMP      NULL,

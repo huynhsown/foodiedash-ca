@@ -12,4 +12,4 @@ CREATE TABLE user_roles
     CONSTRAINT fk_ur_role
         FOREIGN KEY (role_name) REFERENCES roles (name)
             ON DELETE CASCADE
-) ENGINE = InnoDB;
+);

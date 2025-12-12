@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "search.engine", havingValue = "meilisearch")
 @ConditionalOnProperty(name = "meilisearch.auto-initialize", havingValue = "true", matchIfMissing = true)
 public class MeilisearchInitializer {
 
