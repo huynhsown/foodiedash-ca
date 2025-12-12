@@ -11,6 +11,7 @@ CREATE TABLE order_deliveries
     note           VARCHAR(500) NULL,
     distance_km    DECIMAL(8, 2) NULL,
     eta_minutes    INT NULL,
+    geometry       TEXT,
     picked_up_at   TIMESTAMP NULL,
     delivered_at   TIMESTAMP NULL,
 

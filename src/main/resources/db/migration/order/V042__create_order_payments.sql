@@ -6,6 +6,7 @@ CREATE TABLE order_payments
     payment_status VARCHAR(30)                         NOT NULL,
     transaction_id VARCHAR(255) NULL,
     paid_at        TIMESTAMP NULL,
+    refunded_at        TIMESTAMP NULL,
 
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
