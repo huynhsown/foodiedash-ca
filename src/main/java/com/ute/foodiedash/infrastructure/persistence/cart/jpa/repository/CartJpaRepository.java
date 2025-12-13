@@ -16,6 +16,16 @@ public interface CartJpaRepository extends JpaRepository<CartJpaEntity, Long> {
     List<CartJpaEntity> findByUserIdAndStatusAndDeletedAtIsNull(Long userId, CartStatus status);
 
     @Query("""
+               SELECT DISTINCT c FROM CartJpaEntity c
+               LEFT JOIN FETCH c.items i
+               LEFT JOIN FETCH i.options o
+               LEFT JOIN FETCH o.values v
+               WHERE c.id = :cartId
+            """
+    )
+    Optional<CartJpaEntity> findCartWithDetail(Long cartId);
+
+    @Query("""
         SELECT c FROM CartJpaEntity c
         WHERE c.userId = :userId
             AND c.restaurantId = :restaurantId

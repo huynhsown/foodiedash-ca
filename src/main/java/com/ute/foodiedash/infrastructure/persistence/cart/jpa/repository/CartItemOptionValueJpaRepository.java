@@ -17,7 +17,7 @@ public interface CartItemOptionValueJpaRepository extends JpaRepository<CartItem
 
     @Query("""
         SELECT c FROM CartItemOptionValueJpaEntity c
-        WHERE c.cartItemOptionId IN :cartItemOptionIds
+        WHERE c.cartItemOption.id IN :cartItemOptionIds
           AND c.deletedAt IS NULL
     """)
     List<CartItemOptionValueJpaEntity> findByCartItemOptionIds(

@@ -16,9 +16,6 @@ public class CartItemOptionValueJpaEntity extends BaseJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cart_item_option_id", nullable = false)
-    private Long cartItemOptionId;
-
     @Column(name = "option_value_id", nullable = false)
     private Long optionValueId;
 
@@ -30,4 +27,8 @@ public class CartItemOptionValueJpaEntity extends BaseJpaEntity {
 
     @Column(name = "extra_price", precision = 12, scale = 2, nullable = false)
     private BigDecimal extraPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_item_option_id")
+    private CartItemOptionJpaEntity cartItemOption;
 }

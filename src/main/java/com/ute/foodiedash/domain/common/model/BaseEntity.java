@@ -23,6 +23,10 @@ public abstract class BaseEntity {
         this.deletedAt = Instant.now();
     }
 
+    public void restored() {
+        this.deletedAt = null;
+    }
+
     protected void restoreAudit(
             Instant createdAt,
             Instant updatedAt,

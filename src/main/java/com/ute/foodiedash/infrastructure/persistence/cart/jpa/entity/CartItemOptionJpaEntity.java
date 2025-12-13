@@ -5,6 +5,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -13,9 +18,6 @@ public class CartItemOptionJpaEntity extends BaseJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "cart_item_id", nullable = false)
-    private Long cartItemId;
 
     @Column(name = "option_id", nullable = false)
     private Long optionId;
@@ -31,4 +33,15 @@ public class CartItemOptionJpaEntity extends BaseJpaEntity {
 
     @Column(name = "max_value")
     private Integer maxValue;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_item_id")
+    private CartItemJpaEntity cartItem;
+
+    @OneToMany(
+        mappedBy = "cartItemOption",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private Set<CartItemOptionValueJpaEntity> values = new HashSet<>();
 }

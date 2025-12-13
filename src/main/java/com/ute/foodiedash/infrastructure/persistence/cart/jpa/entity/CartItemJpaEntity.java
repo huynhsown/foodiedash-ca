@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,9 +19,6 @@ public class CartItemJpaEntity extends BaseJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "cart_id", nullable = false)
-    private Long cartId;
 
     @Column(name = "menu_item_id", nullable = false)
     private Long menuItemId;
@@ -39,4 +40,15 @@ public class CartItemJpaEntity extends BaseJpaEntity {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id")
+    private CartJpaEntity cart;
+
+    @OneToMany(
+        mappedBy = "cartItem",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private Set<CartItemOptionJpaEntity> options = new HashSet<>();
 }

@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/cart-items")
+@RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor
 public class CartItemController {
     private final SoftDeleteCartItemUseCase softDeleteCartItemUseCase;
@@ -27,28 +27,42 @@ public class CartItemController {
     private final UpdateCartItemUseCase updateCartItemUseCase;
     private final CartDtoMapper cartDtoMapper;
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
-        softDeleteCartItemUseCase.execute(id);
+    @DeleteMapping("/{cartId}/items/{cartItemId}")
+    public ResponseEntity<Void> deleteCartItem(
+            @PathVariable Long cartId,
+            @PathVariable Long cartItemId) {
+
+        softDeleteCartItemUseCase.execute(cartId, cartItemId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{cartId}/items/{cartItemId}/restore")
+    public ResponseEntity<Void> restoreCartItem(@PathVariable Long cartId,
+                                                @PathVariable Long cartItemId) {
+        restoreCartItemUseCase.execute(cartId, cartItemId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{id}/restore")
-    public ResponseEntity<Void> restoreCartItem(@PathVariable Long id) {
-        restoreCartItemUseCase.execute(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    @PutMapping("/{cartId}/items/{cartItemId}/increase")
+    public ResponseEntity<CartItemDTO> increaseCartItemQuantity(
+            @PathVariable Long cartId,
+            @PathVariable Long cartItemId) {
 
-    @PutMapping("/{id}/increase")
-    public ResponseEntity<CartItemDTO> increaseCartItemQuantity(@PathVariable Long id) {
-        CartItemQueryResult result = increaseCartItemQuantityUseCase.execute(id);
+        CartItemQueryResult result =
+                increaseCartItemQuantityUseCase.execute(cartId, cartItemId);
+
         CartItemDTO dto = cartDtoMapper.mapCartItem(result);
+
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/{id}/decrease")
-    public ResponseEntity<CartItemDTO> decreaseCartItemQuantity(@PathVariable Long id) {
-        CartItemQueryResult result = decreaseCartItemQuantityUseCase.execute(id);
+    @PutMapping("/{cartId}/items/{cartItemId}/decrease")
+    public ResponseEntity<CartItemDTO> decreaseCartItemQuantity(
+            @PathVariable Long cartId,
+            @PathVariable Long cartItemId
+    ) {
+        CartItemQueryResult result = decreaseCartItemQuantityUseCase.execute(cartId, cartItemId);
         if (result == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
@@ -56,14 +70,14 @@ public class CartItemController {
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CartItemDTO> updateCartItem(
-        @PathVariable Long id,
-        @RequestBody @Valid UpdateCartItemRequestDTO request
-    ) {
-        UpdateCartItemCommand command = cartDtoMapper.toUpdateCommand(request);
-        CartItemQueryResult result = updateCartItemUseCase.execute(id, command);
-        CartItemDTO dto = cartDtoMapper.mapCartItem(result);
-        return ResponseEntity.ok(dto);
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<CartItemDTO> updateCartItem(
+//        @PathVariable Long id,
+//        @RequestBody @Valid UpdateCartItemRequestDTO request
+//    ) {
+//        UpdateCartItemCommand command = cartDtoMapper.toUpdateCommand(request);
+//        CartItemQueryResult result = updateCartItemUseCase.execute(id, command);
+//        CartItemDTO dto = cartDtoMapper.mapCartItem(result);
+//        return ResponseEntity.ok(dto);
+//    }
 }
