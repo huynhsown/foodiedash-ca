@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface MenuJpaMapper {
     Menu toDomain(MenuJpaEntity jpaEntity);
+
     MenuJpaEntity toJpaEntity(Menu domain);
 }

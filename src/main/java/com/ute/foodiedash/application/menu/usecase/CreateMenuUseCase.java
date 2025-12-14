@@ -5,6 +5,7 @@ import com.ute.foodiedash.application.menu.query.MenuQueryResult;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.menu.model.Menu;
 import com.ute.foodiedash.domain.menu.repository.MenuRepository;
+import com.ute.foodiedash.domain.restaurant.model.Restaurant;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,9 +19,10 @@ public class CreateMenuUseCase {
 
     @Transactional
     public MenuQueryResult execute(CreateMenuCommand command) {
-        if (!restaurantRepository.existsById(command.restaurantId())) {
-            throw new NotFoundException("Restaurant not found with id " + command.restaurantId());
-        }
+        Restaurant restaurant = restaurantRepository.findById(command.restaurantId())
+                .orElseThrow(() -> new NotFoundException("Restaurant not found with id " + command.restaurantId()));
+        restaurant.ensureActive();
+
 
         Menu menu = Menu.create(
             command.restaurantId(), command.name(),

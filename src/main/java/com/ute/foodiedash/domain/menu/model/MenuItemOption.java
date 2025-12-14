@@ -1,7 +1,9 @@
 package com.ute.foodiedash.domain.menu.model;
 
-import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.model.BaseEntity;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +16,8 @@ public class MenuItemOption extends BaseEntity {
     private Boolean required = false;
     private Integer minValue;
     private Integer maxValue;
+
+    private final List<MenuItemOptionValue> values = new ArrayList<>();
 
     // ========== Validate selection count ==========
     /**

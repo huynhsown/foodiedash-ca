@@ -9,6 +9,10 @@ import com.ute.foodiedash.domain.cart.model.CartItemOptionValue;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.entity.CartJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.mapper.CartJpaMapper;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.repository.CartJpaRepository;
+import com.ute.foodiedash.domain.menu.model.Menu;
+import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.menu.jpa.mapper.MenuJpaMapper;
+import com.ute.foodiedash.infrastructure.persistence.menu.jpa.repository.MenuJpaRepository;
 import com.ute.foodiedash.infrastructure.route.OpenRouteAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,12 @@ class FoodiedashApplicationTests {
 
 	@Autowired
 	private CartJpaRepository cartJpaRepository;
+
+	@Autowired
+	private MenuJpaMapper menuJpaMapper;
+
+	@Autowired
+	private MenuJpaRepository menuJpaRepository;
 
 	@Autowired
 	private OpenRouteAdapter openRouteAdapter;
@@ -81,10 +91,36 @@ class FoodiedashApplicationTests {
 	}
 
 	@Test
+	@Transactional
+	void mapMenuAggregateToJpaEntity() {
+		// given: menu aggregate (no items - separate aggregate)
+		Menu menu = Menu.create(10L, "Sample menu",
+			java.time.LocalTime.of(8, 0),
+			java.time.LocalTime.of(22, 0));
+
+		// when
+		MenuJpaEntity jpaEntity = menuJpaMapper.toJpaEntity(menu);
+		MenuJpaEntity savedJpaEntity = menuJpaRepository.save(jpaEntity);
+
+		// then: basic fields are mapped
+		assertThat(savedJpaEntity).isNotNull();
+		assertThat(savedJpaEntity.getRestaurantId()).isEqualTo(menu.getRestaurantId());
+		assertThat(savedJpaEntity.getName()).isEqualTo(menu.getName());
+	}
+
+	@Test
 	void testCartDetail() {
 		CartJpaEntity cartJpaEntity = cartJpaRepository.findCartWithDetail(6L).get();
 		Cart cart = cartJpaMapper.toDomain(cartJpaEntity);
 		System.out.printf("OK");
+	}
+
+	@Test
+	void testMenuDetail() {
+		MenuJpaEntity menuJpaEntity = menuJpaRepository.findById(1L).orElse(null);
+		if (menuJpaEntity != null) {
+			Menu menu = menuJpaMapper.toDomain(menuJpaEntity);
+		}
 	}
 
 
