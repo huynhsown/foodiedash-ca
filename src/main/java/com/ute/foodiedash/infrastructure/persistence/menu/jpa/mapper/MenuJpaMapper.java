@@ -6,7 +6,27 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface MenuJpaMapper {
-    Menu toDomain(MenuJpaEntity jpaEntity);
+
+    default Menu toDomain(MenuJpaEntity jpaEntity) {
+        if (jpaEntity == null) {
+            return null;
+        }
+
+        return Menu.reconstruct(
+                jpaEntity.getId(),
+                jpaEntity.getRestaurantId(),
+                jpaEntity.getName(),
+                jpaEntity.getStartTime(),
+                jpaEntity.getEndTime(),
+                jpaEntity.getStatus(),
+                jpaEntity.getCreatedAt(),
+                jpaEntity.getUpdatedAt(),
+                jpaEntity.getCreatedBy(),
+                jpaEntity.getUpdatedBy(),
+                jpaEntity.getDeletedAt(),
+                jpaEntity.getVersion()
+        );
+    }
 
     MenuJpaEntity toJpaEntity(Menu domain);
 }

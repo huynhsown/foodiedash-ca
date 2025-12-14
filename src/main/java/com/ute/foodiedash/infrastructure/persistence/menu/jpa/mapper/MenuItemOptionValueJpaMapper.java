@@ -8,9 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface MenuItemOptionValueJpaMapper {
 
-    @Mapping(target = "optionId", source = "option.id")
-    MenuItemOptionValue toDomain(MenuItemOptionValueJpaEntity jpaEntity);
-
     @Mapping(target = "option", ignore = true)
     MenuItemOptionValueJpaEntity toJpaEntity(MenuItemOptionValue domain);
 }

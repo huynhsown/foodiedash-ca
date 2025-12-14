@@ -8,12 +8,29 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MenuItemJpaRepository extends JpaRepository<MenuItemJpaEntity, Long> {
     List<MenuItemJpaEntity> findByMenuIdInAndDeletedAtIsNull(
             List<Long> menuIds
     );
+
+    @Query("""
+                SELECT mi FROM MenuItemJpaEntity mi
+                LEFT JOIN FETCH mi.options o
+                LEFT JOIN FETCH o.values
+                WHERE mi.id = :id
+            """)
+    Optional<MenuItemJpaEntity> findById(@Param("id") Long id);
+
+    @Query("""
+                SELECT mi FROM MenuItemJpaEntity mi
+                LEFT JOIN FETCH mi.options o
+                LEFT JOIN FETCH o.values
+                WHERE o.id = :optionId
+            """)
+    Optional<MenuItemJpaEntity> findByOptionId(@Param("optionId") Long optionId);
 
     @Modifying
     @Query("""
