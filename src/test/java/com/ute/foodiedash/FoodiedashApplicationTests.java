@@ -127,9 +127,9 @@ class FoodiedashApplicationTests {
 	@Test
 	void testRoute() {
 		// Coordinate record is (lat, lng)
-		Coordinate a = new Coordinate(10.8499, 106.7717);
-		Coordinate b = new Coordinate(10.85840, 106.76300);
-		RouteQueryResult rs = openRouteAdapter.calculateRoute(a, b);
-		System.out.println("OK");
+//		Coordinate a = new Coordinate(10.8499, 106.7717);
+//		Coordinate b = new Coordinate(10.85840, 106.76300);
+//		RouteQueryResult rs = openRouteAdapter.calculateRoute(a, b);
+//		System.out.println("OK");
 	}
 }

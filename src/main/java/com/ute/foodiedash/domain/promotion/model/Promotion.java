@@ -128,11 +128,11 @@ public class Promotion extends BaseEntity {
 
     public void ensureUsable() {
         if (this.status != PromotionStatus.ACTIVE) {
-            throw new BadRequestException("PROMOTION_NOT_ACTIVE");
+            throw new BadRequestException("Promotion not active");
         }
         LocalDateTime now = LocalDateTime.now();
         if (now.isBefore(this.startAt) || now.isAfter(this.endAt)) {
-            throw new BadRequestException("PROMOTION_EXPIRED");
+            throw new BadRequestException("Promotion expired");
         }
     }
 

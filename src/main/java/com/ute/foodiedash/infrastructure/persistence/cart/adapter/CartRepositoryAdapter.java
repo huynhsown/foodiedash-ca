@@ -7,6 +7,7 @@ import com.ute.foodiedash.infrastructure.persistence.cart.jpa.entity.CartJpaEnti
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.mapper.CartJpaMapper;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.repository.CartJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,6 +44,13 @@ public class CartRepositoryAdapter implements CartRepository {
     public Optional<Cart> findActiveCart(Long userId, Long restaurantId) {
         return jpaRepository.findActiveCart(userId, restaurantId)
             .map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Cart> findByUserId(Long userId) {
+        return jpaRepository.findByUserId(userId, PageRequest.of(0,1)).stream()
+                .map(mapper::toDomain)
+                .findFirst();
     }
 
     @Override

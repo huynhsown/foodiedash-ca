@@ -1,6 +1,8 @@
 package com.ute.foodiedash.application.order.query;
 
+import java.math.BigDecimal;
+
 public record Coordinate(
-        double lat,
-        double lng
+        BigDecimal lat,
+        BigDecimal lng
 ) {}
