@@ -13,10 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -63,5 +64,6 @@ public class MenuItemJpaEntity extends BaseJpaEntity {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<MenuItemOptionJpaEntity> options = new HashSet<>();
+    @BatchSize(size = 50)
+    private List<MenuItemOptionJpaEntity> options = new ArrayList<>();
 }

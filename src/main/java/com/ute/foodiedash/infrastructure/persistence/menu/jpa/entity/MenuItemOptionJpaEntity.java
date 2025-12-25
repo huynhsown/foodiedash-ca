@@ -12,9 +12,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.BatchSize;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -51,5 +52,6 @@ public class MenuItemOptionJpaEntity extends BaseJpaEntity {
             orphanRemoval = true,
             fetch = FetchType.LAZY
     )
-    private Set<MenuItemOptionValueJpaEntity> values = new HashSet<>();
+    @BatchSize(size = 50)
+    private List<MenuItemOptionValueJpaEntity> values = new ArrayList<>();
 }

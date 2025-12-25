@@ -3,12 +3,21 @@ package com.ute.foodiedash.application.order.usecase;
 import com.ute.foodiedash.application.order.command.CheckoutOrderCommand;
 import com.ute.foodiedash.application.order.port.KitchenAvailabilityPort;
 import com.ute.foodiedash.application.order.port.RouteCalculationPort;
+import com.ute.foodiedash.application.order.query.CheckoutOrderResult;
 import com.ute.foodiedash.application.order.query.Coordinate;
 import com.ute.foodiedash.application.order.query.RouteQueryResult;
 import com.ute.foodiedash.application.promotion.service.PromotionCheckoutService;
+import com.ute.foodiedash.domain.cart.model.CartItem;
+import com.ute.foodiedash.domain.cart.model.CartItemOption;
+import com.ute.foodiedash.domain.cart.model.CartItemOptionValue;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.repository.CartRepository;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.order.model.OrderItemOption;
+import com.ute.foodiedash.domain.order.model.OrderItemOptionValue;
+import com.ute.foodiedash.domain.order.model.Order;
+import com.ute.foodiedash.domain.order.model.OrderItem;
+import com.ute.foodiedash.domain.order.repository.OrderRepository;
 import com.ute.foodiedash.domain.restaurant.model.Restaurant;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +37,10 @@ public class CheckoutOrderUseCase {
     private final KitchenAvailabilityPort kitchenAvailabilityPort;
     private final RouteCalculationPort routeCalculationPort;
     private final RestaurantRepository restaurantRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional
-    public void execute(CheckoutOrderCommand command) {
+    public CheckoutOrderResult execute(CheckoutOrderCommand command) {
         Cart cart = cartRepository.findByUserId(command.customerId())
                 .orElseThrow(() -> new BadRequestException("Cart not found"));
         Restaurant restaurant = restaurantRepository.findById(command.restaurantId())
@@ -63,10 +73,11 @@ public class CheckoutOrderUseCase {
 
         BigDecimal distanceInKm = BigDecimal.valueOf(route.distance());
         Integer etaInMinutes = 20 + route.eta();
+        BigDecimal deliveryFee = calculateDeliveryFee(distanceInKm);
 
         String lockId = null;
         BigDecimal discount = BigDecimal.ZERO;
-        String orderCode = UUID.randomUUID().toString();
+        Long promotionId = null;
 
         if (command.voucherCode() != null && !command.voucherCode().isBlank()) {
             var promotionCheckoutData = promotionCheckoutService.prepareForCheckout(
@@ -76,7 +87,102 @@ public class CheckoutOrderUseCase {
                 subtotal
             );
             discount = promotionCheckoutData.discount();
+            promotionId = promotionCheckoutData.promotionId();
         }
+        BigDecimal total = subtotal.add(deliveryFee).subtract(discount);
+        if (total.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Total amount must be greater than zero");
+        }
+
+
+        String orderCode = UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 30).toUpperCase();
+        Order order = Order.create(orderCode, command.customerId(), command.restaurantId(), deliveryFee);
+        for (CartItem cartItem : cart.getItems()) {
+            order.addItem(toOrderItem(cartItem));
+        }
+        order.setDiscountAmount(discount);
+
+        Order saved = orderRepository.save(order);
+        Long orderId = saved.getId();
+        if (promotionId != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+            promotionCheckoutService.reserve(promotionId, command.customerId(), orderId);
+        }
+
+        return new CheckoutOrderResult(
+                saved.getId(),
+                saved.getCode(),
+                saved.getStatus().name(),
+                subtotal,
+                discount,
+                deliveryFee,
+                total,
+                BigDecimal.valueOf(route.distance()),
+                etaInMinutes
+        );
+    }
+
+    private OrderItem toOrderItem(CartItem cartItem) {
+        if (cartItem == null) {
+            return null;
+        }
+
+        OrderItem orderItem = OrderItem.create(
+            cartItem.getMenuItemId(),
+            cartItem.getName(),
+            cartItem.getImageUrl(),
+            cartItem.getQuantity(),
+            cartItem.getUnitPrice(),
+            cartItem.getNotes()
+        );
+
+        if (cartItem.getOptions() != null) {
+            for (CartItemOption cartOption : cartItem.getOptions()) {
+                OrderItemOption orderOption = toOrderItemOption(cartOption);
+                if (orderOption != null) {
+                    orderItem.addOption(orderOption);
+                }
+            }
+        }
+
+        return orderItem;
+    }
+
+    private OrderItemOption toOrderItemOption(CartItemOption cartOption) {
+        if (cartOption == null) {
+            return null;
+        }
+
+        OrderItemOption option = OrderItemOption.create(
+            cartOption.getOptionId(),
+            cartOption.getOptionName(),
+            cartOption.getRequired(),
+            cartOption.getMinValue(),
+            cartOption.getMaxValue()
+        );
+
+        if (cartOption.getValues() != null) {
+            for (CartItemOptionValue cartValue : cartOption.getValues()) {
+                OrderItemOptionValue value = OrderItemOptionValue.create(
+                    cartValue.getOptionValueId(),
+                    cartValue.getOptionValueName(),
+                    cartValue.getQuantity(),
+                    cartValue.getExtraPrice()
+                );
+                option.addValue(value);
+            }
+        }
+
+        option.validateSelection();
+        return option;
+    }
+
+    private BigDecimal calculateDeliveryFee(BigDecimal distanceInKm) {
+        BigDecimal baseFee = BigDecimal.valueOf(15000);
+        BigDecimal perKm = BigDecimal.valueOf(3000);
+        return baseFee.add(perKm.multiply(distanceInKm));
     }
 
 }
