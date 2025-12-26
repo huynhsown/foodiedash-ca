@@ -1,6 +1,7 @@
 package com.ute.foodiedash.application.promotion.service;
 
 import com.ute.foodiedash.application.promotion.query.PromotionDiscountQueryResult;
+import com.ute.foodiedash.application.promotion.query.PromotionPreviewResult;
 import com.ute.foodiedash.application.promotion.query.PromotionReservationQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -37,7 +38,7 @@ public class PromotionCheckoutService {
                                                     Long restaurantId,
                                                     BigDecimal orderSubtotal) {
         Promotion promotion = promotionRepository.findByCodeAndNotDeleted(promotionCode)
-            .orElseThrow(() -> new BadRequestException("Promotion not active"));
+            .orElseThrow(() -> new BadRequestException("Promotion not found"));
 
         ensureEligibleOrThrow(promotion, userId, restaurantId, orderSubtotal);
 
@@ -55,6 +56,36 @@ public class PromotionCheckoutService {
             discountRule,
             discount
         );
+    }
+
+    @Transactional(readOnly = true)
+    public PromotionPreviewResult previewForCheckout(String promotionCode,
+                                                     Long userId,
+                                                     Long restaurantId,
+                                                     BigDecimal orderSubtotal) {
+        if (promotionCode == null || promotionCode.isBlank()) {
+            return new PromotionPreviewResult(null, true, BigDecimal.ZERO, null, null);
+        }
+
+        try {
+            PromotionCheckoutData data = prepareForCheckout(promotionCode, userId, restaurantId, orderSubtotal);
+            return new PromotionPreviewResult(
+                    promotionCode,
+                    true,
+                    data.discount(),
+                    null,
+                    data.promotionId()
+            );
+        } catch (BadRequestException e) {
+            String message = e.getMessage();
+            return new PromotionPreviewResult(
+                    promotionCode,
+                    false,
+                    BigDecimal.ZERO,
+                    message,
+                    null
+            );
+        }
     }
 
     @Transactional

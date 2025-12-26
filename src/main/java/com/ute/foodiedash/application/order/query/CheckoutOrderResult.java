@@ -10,6 +10,6 @@ public record CheckoutOrderResult(
         BigDecimal discount,
         BigDecimal deliveryFee,
         BigDecimal total,
-        BigDecimal distanceInKm,
+        BigDecimal distanceMeters,
         Integer etaInMinutes
 ) {}
