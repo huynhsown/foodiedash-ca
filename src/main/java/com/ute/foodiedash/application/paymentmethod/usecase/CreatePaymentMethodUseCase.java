@@ -17,19 +17,20 @@ public class CreatePaymentMethodUseCase {
 
     @Transactional
     public PaymentMethodQueryResult execute(CreatePaymentMethodCommand command) {
-        if (command.code() == null || command.code().isBlank()) {
-            throw new BadRequestException("Payment method code required");
-        }
-        String code = command.code().trim().toUpperCase();
-        if (paymentMethodRepository.existsByCode(code)) {
-            throw new BadRequestException("Payment method code already exists");
-        }
-
-        PaymentMethodType type = command.type();
-        boolean active = command.active() == null || command.active();
-
-        PaymentMethod pm = PaymentMethod.create(code, command.name(), type, active);
-        return PaymentMethodQueryResult.from(paymentMethodRepository.save(pm));
+//        if (command.code() == null || command.code().isBlank()) {
+//            throw new BadRequestException("Payment method code required");
+//        }
+//        String code = command.code().trim().toUpperCase();
+//        if (paymentMethodRepository.existsByCode(code)) {
+//            throw new BadRequestException("Payment method code already exists");
+//        }
+//
+//        PaymentMethodType type = command.type();
+//        boolean active = command.active() == null || command.active();
+//
+//        PaymentMethod pm = PaymentMethod.create(code, command.name(), type, active);
+//        return PaymentMethodQueryResult.from(paymentMethodRepository.save(pm));
+        return null;
     }
 }
 

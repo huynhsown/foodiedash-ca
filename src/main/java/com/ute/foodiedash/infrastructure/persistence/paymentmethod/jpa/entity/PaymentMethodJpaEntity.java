@@ -1,5 +1,6 @@
 package com.ute.foodiedash.infrastructure.persistence.paymentmethod.jpa.entity;
 
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodType;
 import com.ute.foodiedash.infrastructure.persistence.common.jpa.entity.BaseJpaEntity;
 import jakarta.persistence.Column;
@@ -23,7 +24,8 @@ public class PaymentMethodJpaEntity extends BaseJpaEntity {
     private Long id;
 
     @Column(length = 50, nullable = false, unique = true)
-    private String code;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethodCode code;
 
     @Column(length = 100, nullable = false)
     private String name;
