@@ -165,6 +165,9 @@ public class CheckoutOrderUseCase {
         orderDelivery.updateRouteInfo(distanceInKm, etaInMinutes, route.geometry());
         orderDeliveryRepository.save(orderDelivery);
 
+        cart.clearItems();
+        cartRepository.save(cart);
+
 
 
         return new CheckoutOrderResult(
