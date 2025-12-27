@@ -13,4 +13,5 @@ public class CheckoutOrderResponseDTO {
     private Long total;
     private Long distanceMeters;
     private Integer etaInMinutes;
+    private String paymentUrl;
 }

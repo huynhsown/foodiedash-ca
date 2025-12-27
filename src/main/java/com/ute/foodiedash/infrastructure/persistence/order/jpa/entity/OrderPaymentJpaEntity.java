@@ -1,7 +1,7 @@
 package com.ute.foodiedash.infrastructure.persistence.order.jpa.entity;
 
-import com.ute.foodiedash.domain.order.enums.PaymentMethod;
 import com.ute.foodiedash.domain.order.enums.PaymentStatus;
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import com.ute.foodiedash.infrastructure.persistence.common.jpa.entity.BaseJpaEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +30,7 @@ public class OrderPaymentJpaEntity extends BaseJpaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false, length = 20)
-    private PaymentMethod paymentMethod;
+    private PaymentMethodCode paymentMethod;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 20)

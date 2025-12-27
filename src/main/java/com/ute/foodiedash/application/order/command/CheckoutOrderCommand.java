@@ -1,5 +1,7 @@
 package com.ute.foodiedash.application.order.command;
 
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
+
 import java.math.BigDecimal;
 
 public record CheckoutOrderCommand(
@@ -8,6 +10,9 @@ public record CheckoutOrderCommand(
         String deliveryAddress,
         BigDecimal deliveryLat,
         BigDecimal deliveryLng,
+        String receiverName,
+        String receiverPhone,
+        String note,
         String voucherCode,
-        String paymentMethod
+        PaymentMethodCode paymentMethod
 ) {}

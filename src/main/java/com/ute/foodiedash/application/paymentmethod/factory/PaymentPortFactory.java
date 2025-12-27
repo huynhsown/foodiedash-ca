@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-public class PaymentGatewayFactory {
+public class PaymentPortFactory {
     private final Map<PaymentMethodCode, PaymentPort> ports;
 
-    public PaymentGatewayFactory(List<PaymentPort> portList) {
+    public PaymentPortFactory(List<PaymentPort> portList) {
         this.ports = portList.stream()
                 .collect(Collectors.toMap(PaymentPort::getCode, g -> g));
     }

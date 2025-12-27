@@ -1,11 +1,12 @@
 package com.ute.foodiedash.domain.order.model;
 
-import com.ute.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Getter
 public class OrderDelivery extends BaseEntity {
@@ -20,7 +21,7 @@ public class OrderDelivery extends BaseEntity {
     private String note;
     private BigDecimal distanceKm;
     private Integer etaMinutes;
-    private String geometry;
+    private List<Coordinate> geometry;
     private Instant pickedUpAt;
     private Instant deliveredAt;
 
@@ -79,7 +80,7 @@ public class OrderDelivery extends BaseEntity {
             String note,
             BigDecimal distanceKm,
             Integer etaMinutes,
-            String geometry,
+            List<Coordinate> geometry,
             Instant pickedUpAt,
             Instant deliveredAt
     ) {
@@ -126,7 +127,7 @@ public class OrderDelivery extends BaseEntity {
         this.driverId = null;
     }
 
-    public void updateRouteInfo(BigDecimal distanceKm, Integer etaMinutes, String geometry) {
+    public void updateRouteInfo(BigDecimal distanceKm, Integer etaMinutes, List<Coordinate> geometry) {
 
         if (distanceKm == null) {
             throw new BadRequestException("Distance required");
@@ -144,7 +145,7 @@ public class OrderDelivery extends BaseEntity {
             throw new BadRequestException("ETA must be positive");
         }
 
-        if (geometry == null || geometry.isBlank()) {
+        if (geometry == null || geometry.isEmpty()) {
             throw new BadRequestException("Geometry is required");
         }
 

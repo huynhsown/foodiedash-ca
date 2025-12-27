@@ -2,9 +2,9 @@ package com.ute.foodiedash.infrastructure.payment.cod.adapter;
 
 import com.ute.foodiedash.application.paymentmethod.port.PaymentPort;
 import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
-import io.lettuce.core.dynamic.annotation.CommandNaming;
+import org.springframework.stereotype.Component;
 
-@CommandNaming
+@Component
 public class CodeAdapter implements PaymentPort {
     @Override
     public PaymentMethodCode getCode() {
@@ -12,7 +12,7 @@ public class CodeAdapter implements PaymentPort {
     }
 
     @Override
-    public String createPaymentUrl(Long orderId, long amount) {
+    public String createPaymentUrl(String orderCode, long amount) {
         return "";
     }
 }
