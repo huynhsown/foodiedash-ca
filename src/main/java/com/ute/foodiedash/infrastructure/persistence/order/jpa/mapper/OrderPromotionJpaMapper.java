@@ -17,7 +17,13 @@ public interface OrderPromotionJpaMapper {
             e.getOrder() != null ? e.getOrder().getId() : null,
             e.getPromotionId(),
             e.getPromotionCode(),
-            e.getDiscountAmount()
+            e.getDiscountAmount(),
+            e.getCreatedAt(),
+            e.getUpdatedAt(),
+            e.getCreatedBy(),
+            e.getUpdatedBy(),
+            e.getDeletedAt(),
+            e.getVersion()
         );
     }
 
