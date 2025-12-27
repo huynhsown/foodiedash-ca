@@ -1,6 +1,7 @@
 package com.ute.foodiedash.domain.restaurant.repository;
 
 import com.ute.foodiedash.domain.restaurant.model.Restaurant;
+import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantRepository {
@@ -8,6 +9,7 @@ public interface RestaurantRepository {
     Optional<Restaurant> findById(Long id);
     Optional<Restaurant> findByIdAndDeletedAtIsNull(Long id);
     Optional<Restaurant> findBySlug(String slug);
+    List<Restaurant> findAllActive();
     boolean existsById(Long id);
     boolean existsBySlug(String slug);
     void softDeleteById(Long id);

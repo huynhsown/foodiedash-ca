@@ -3,6 +3,7 @@ package com.ute.foodiedash.application.menu.usecase;
 import com.ute.foodiedash.application.menu.command.CreateMenuItemCommand;
 import com.ute.foodiedash.application.menu.port.ImageUploadPort;
 import com.ute.foodiedash.application.menu.query.MenuItemQueryResult;
+import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.menu.model.Menu;
 import com.ute.foodiedash.domain.menu.model.MenuItem;
@@ -19,8 +20,8 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class CreateMenuItemUseCase {
-    private final MenuItemRepository menuItemRepository;
     private final MenuRepository menuRepository;
+    private final MenuItemRepository menuItemRepository;
     private final ImageUploadPort imageUploadPort;
 
     @Transactional
@@ -28,9 +29,18 @@ public class CreateMenuItemUseCase {
         Menu menu = menuRepository.findById(command.menuId())
             .orElseThrow(() -> new NotFoundException("Menu not found with id " + command.menuId()));
 
+        boolean alreadyExists = menuItemRepository.findByMenuId(command.menuId(), false).stream()
+            .anyMatch(i -> command.name().equals(i.getName()));
+        if (alreadyExists) {
+            throw new BadRequestException("Menu item already exists in menu");
+        }
+
         MenuItem menuItem = MenuItem.create(
-            command.menuId(), menu.getRestaurantId(),
-            command.name(), command.description(), command.price()
+            menu.getId(),
+            menu.getRestaurantId(),
+            command.name(),
+            command.description(),
+            command.price()
         );
 
         if (image != null && !image.isEmpty()) {

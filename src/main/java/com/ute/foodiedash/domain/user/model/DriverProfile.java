@@ -5,11 +5,10 @@ import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
 import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class DriverProfile extends BaseEntity {
 
     private Long id;
@@ -33,9 +32,11 @@ public class DriverProfile extends BaseEntity {
     private boolean isOnline;
     private DriverVerificationStatus verificationStatus;
 
+    private DriverProfile() {}
+
     public static DriverProfile create(Long userId, VehicleType vehicleType) {
         if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
+            throw new BadRequestException("User ID is required");
         }
 
         DriverProfile profile = new DriverProfile();
@@ -43,6 +44,51 @@ public class DriverProfile extends BaseEntity {
         profile.vehicleType = vehicleType != null ? vehicleType : VehicleType.MOTORBIKE;
         profile.isOnline = false;
         profile.verificationStatus = DriverVerificationStatus.PENDING;
+        return profile;
+    }
+
+    public static DriverProfile reconstruct(
+            Long id,
+            Long userId,
+            String idCardNumber,
+            String idCardFrontUrl,
+            String idCardBackUrl,
+            String licenseNumber,
+            VehicleType vehicleType,
+            String vehiclePlate,
+            String driverLicenseUrl,
+            String bankName,
+            String bankAccount,
+            String bankHolderName,
+            BigDecimal currentLat,
+            BigDecimal currentLng,
+            boolean isOnline,
+            DriverVerificationStatus verificationStatus,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        DriverProfile profile = new DriverProfile();
+        profile.id = id;
+        profile.userId = userId;
+        profile.idCardNumber = idCardNumber;
+        profile.idCardFrontUrl = idCardFrontUrl;
+        profile.idCardBackUrl = idCardBackUrl;
+        profile.licenseNumber = licenseNumber;
+        profile.vehicleType = vehicleType;
+        profile.vehiclePlate = vehiclePlate;
+        profile.driverLicenseUrl = driverLicenseUrl;
+        profile.bankName = bankName;
+        profile.bankAccount = bankAccount;
+        profile.bankHolderName = bankHolderName;
+        profile.currentLat = currentLat;
+        profile.currentLng = currentLng;
+        profile.isOnline = isOnline;
+        profile.verificationStatus = verificationStatus;
+        profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
 
@@ -103,21 +149,21 @@ public class DriverProfile extends BaseEntity {
 
     public void approve() {
         if (this.verificationStatus == DriverVerificationStatus.APPROVED) {
-            throw new BadRequestException("DRIVER_ALREADY_APPROVED");
+            throw new BadRequestException("Driver is already approved");
         }
         this.verificationStatus = DriverVerificationStatus.APPROVED;
     }
 
     public void reject() {
         if (this.verificationStatus == DriverVerificationStatus.REJECTED) {
-            throw new BadRequestException("DRIVER_ALREADY_REJECTED");
+            throw new BadRequestException("Driver is already rejected");
         }
         this.verificationStatus = DriverVerificationStatus.REJECTED;
     }
 
     public void goOnline() {
         if (!isApproved()) {
-            throw new BadRequestException("DRIVER_NOT_APPROVED");
+            throw new BadRequestException("Driver must be approved before going online");
         }
         this.isOnline = true;
     }

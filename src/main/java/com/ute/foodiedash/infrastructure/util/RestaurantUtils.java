@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -28,8 +30,22 @@ public class RestaurantUtils {
                 return false;
             }
 
-            DayOfWeek currentDay = DayOfWeek.from(java.time.LocalDate.now());
-            LocalTime currentTime = LocalTime.now();
+            ZoneId zone = ZoneId.of("Asia/Ho_Chi_Minh");
+
+            ZonedDateTime now = ZonedDateTime.now(zone);
+
+            DayOfWeek currentDay = now.getDayOfWeek();
+            LocalTime currentTime = now.toLocalTime();
+
+            log.info("Now: day={}, time={}", currentDay, currentTime);
+
+            businessHours.forEach(bh ->
+                    log.info("BH: day={}, open={}, close={}",
+                            bh.getDayOfWeek(),
+                            bh.getOpenTime(),
+                            bh.getCloseTime()
+                    )
+            );
 
             return businessHours.stream()
                     .anyMatch(bh -> bh.isOpenAt(currentDay, currentTime));

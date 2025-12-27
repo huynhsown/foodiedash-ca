@@ -10,6 +10,7 @@ public interface CartRepository {
     Optional<Cart> findById(Long id);
     List<Cart> findByUserIdAndStatusAndDeletedAtIsNull(Long userId, CartStatus status);
     Optional<Cart> findActiveCart(Long userId, Long restaurantId);
+    Optional<Cart> findByUserId(Long userId);
     void deleteAll(List<Cart> carts);
     void softDeleteById(Long id);
     void restoreById(Long id);

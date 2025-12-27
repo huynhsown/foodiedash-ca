@@ -1,12 +1,12 @@
 CREATE TABLE promotion_restaurants
 (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id            BIGSERIAL PRIMARY KEY,
 
     promotion_id  BIGINT    NOT NULL,
     restaurant_id BIGINT    NOT NULL,
 
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by    VARCHAR(255),
     updated_by    VARCHAR(255),
     deleted_at    TIMESTAMP NULL,

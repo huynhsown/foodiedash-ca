@@ -1,0 +1,22 @@
+package com.ute.foodiedash.application.order.query;
+
+import java.math.BigDecimal;
+
+public record CheckoutOrderResult(
+        Long orderId,
+        String orderCode,
+        String status,
+        BigDecimal subtotal,
+        BigDecimal discount,
+        BigDecimal deliveryFee,
+        BigDecimal total,
+        BigDecimal distanceMeters,
+        Integer etaInMinutes,
+        String paymentUrl,
+        String deliveryAddress,
+        BigDecimal deliveryLat,
+        BigDecimal deliveryLng,
+        String receiverName,
+        String receiverPhone,
+        String note
+) {}
