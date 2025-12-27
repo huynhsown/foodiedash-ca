@@ -258,6 +258,9 @@ public class Order extends BaseEntity {
         if (FINAL_STATUSES.contains(status)) {
             throw new BadRequestException("Cannot cancel a completed or already cancelled order");
         }
+        if (status != OrderStatus.PENDING && status != OrderStatus.ACCEPTED) {
+            throw new BadRequestException("Only pending or accepted orders can be cancelled");
+        }
         this.status = OrderStatus.CANCELLED;
         this.cancelReason = reason;
         this.cancelledAt = LocalDateTime.now();
