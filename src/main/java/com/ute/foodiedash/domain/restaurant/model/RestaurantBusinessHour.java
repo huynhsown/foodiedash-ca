@@ -16,10 +16,23 @@ public class RestaurantBusinessHour extends BaseEntity {
     private LocalTime openTime;
     private LocalTime closeTime;
 
-    public boolean isOpenAt(DayOfWeek day, LocalTime time) {
-        return this.dayOfWeek == day.getValue()
-            && !time.isBefore(openTime)
-            && !time.isAfter(closeTime);
+    public boolean isOpenAt(DayOfWeek currentDay, LocalTime time) {
+        int today = currentDay.getValue() % 7;
+        int yesterday = (today + 6) % 7;
+
+        if (this.dayOfWeek == today) {
+            if (openTime.isBefore(closeTime)) {
+                return !time.isBefore(openTime) && !time.isAfter(closeTime);
+            } else {
+                return !time.isBefore(openTime);
+            }
+        }
+
+        if (this.dayOfWeek == yesterday && openTime.isAfter(closeTime)) {
+            return !time.isAfter(closeTime);
+        }
+
+        return false;
     }
 
     public void validate() {

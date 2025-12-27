@@ -3,11 +3,10 @@ package com.ute.foodiedash.domain.user.model;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class CustomerAddress extends BaseEntity {
 
     private Long id;
@@ -22,7 +21,9 @@ public class CustomerAddress extends BaseEntity {
     private String receiverPhone;
     private String note;
 
-    private boolean isDefault;
+    private boolean defaultAddress;
+
+    private CustomerAddress() {}
 
     public static CustomerAddress create(
             String label,
@@ -53,42 +54,79 @@ public class CustomerAddress extends BaseEntity {
         ca.receiverName = receiverName;
         ca.receiverPhone = receiverPhone;
         ca.note = note;
-        ca.isDefault = false;
+        ca.defaultAddress = false;
 
         return ca;
     }
 
+    public static CustomerAddress reconstruct(
+            Long id,
+            Long userId,
+            String label,
+            String address,
+            BigDecimal lat,
+            BigDecimal lng,
+            String receiverName,
+            String receiverPhone,
+            String note,
+            boolean defaultAddress,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        CustomerAddress ca = new CustomerAddress();
+        ca.id = id;
+        ca.userId = userId;
+        ca.label = label;
+        ca.address = address;
+        ca.lat = lat;
+        ca.lng = lng;
+        ca.receiverName = receiverName;
+        ca.receiverPhone = receiverPhone;
+        ca.note = note;
+        ca.defaultAddress = defaultAddress;
+        ca.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
+        return ca;
+    }
+
+    public void attachToUser(Long userId) {
+        this.userId = userId;
+    }
+
     public void update(CustomerAddress updated) {
-        if (updated.getLabel() != null) {
-            this.label = updated.getLabel();
+        if (updated.label != null) {
+            this.label = updated.label;
         }
-        if (updated.getAddress() != null) {
-            this.address = updated.getAddress();
+        if (updated.address != null) {
+            this.address = updated.address;
         }
-        if (updated.getLat() != null) {
-            this.lat = updated.getLat();
+        if (updated.lat != null) {
+            this.lat = updated.lat;
         }
-        if (updated.getLng() != null) {
-            this.lng = updated.getLng();
+        if (updated.lng != null) {
+            this.lng = updated.lng;
         }
-        if (updated.getReceiverName() != null) {
-            this.receiverName = updated.getReceiverName();
+        if (updated.receiverName != null) {
+            this.receiverName = updated.receiverName;
         }
-        if (updated.getReceiverPhone() != null) {
-            this.receiverPhone = updated.getReceiverPhone();
+        if (updated.receiverPhone != null) {
+            this.receiverPhone = updated.receiverPhone;
         }
-        if (updated.getNote() != null) {
-            this.note = updated.getNote();
+        if (updated.note != null) {
+            this.note = updated.note;
         }
-        this.isDefault = updated.isDefault();
+        this.defaultAddress = updated.isDefaultAddress();
     }
 
     public void setAsDefault() {
-        this.isDefault = true;
+        this.defaultAddress = true;
     }
 
     public void unsetDefault() {
-        this.isDefault = false;
+        this.defaultAddress = false;
     }
 
     public boolean belongsToUser(Long userId) {

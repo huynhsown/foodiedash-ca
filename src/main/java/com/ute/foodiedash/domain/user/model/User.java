@@ -7,7 +7,6 @@ import com.ute.foodiedash.domain.user.enums.RoleName;
 import com.ute.foodiedash.domain.user.enums.UserStatus;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Setter
 @Getter
 public class User extends BaseEntity {
     private Long id;
@@ -32,6 +30,45 @@ public class User extends BaseEntity {
     private DriverProfile driverProfile;
     private List<CustomerAddress> addresses = new ArrayList<>();
     private List<UserRole> roles = new ArrayList<>();
+
+    private User() {}
+
+    public static User reconstruct(
+            Long id,
+            String email,
+            String phone,
+            String password,
+            String fullName,
+            String avatarUrl,
+            UserStatus status,
+            CustomerProfile customerProfile,
+            MerchantProfile merchantProfile,
+            DriverProfile driverProfile,
+            List<CustomerAddress> addresses,
+            List<UserRole> roles,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        User user = new User();
+        user.id = id;
+        user.email = email;
+        user.phone = phone;
+        user.password = password;
+        user.fullName = fullName;
+        user.avatarUrl = avatarUrl;
+        user.status = status;
+        user.customerProfile = customerProfile;
+        user.merchantProfile = merchantProfile;
+        user.driverProfile = driverProfile;
+        user.addresses = addresses != null ? addresses : new ArrayList<>();
+        user.roles = roles != null ? roles : new ArrayList<>();
+        user.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
+        return user;
+    }
 
     public static User createCustomer(
             String email,
@@ -189,11 +226,11 @@ public class User extends BaseEntity {
             throw new BadRequestException("User is not a customer");
         }
 
-        address.setUserId(this.id);
+        address.attachToUser(this.id);
 
-        if (address.isDefault() || this.addresses.isEmpty()) {
-            this.addresses.forEach(addr -> addr.setDefault(false));
-            address.setDefault(true);
+        if (address.isDefaultAddress() || this.addresses.isEmpty()) {
+            this.addresses.forEach(CustomerAddress::unsetDefault);
+            address.setAsDefault();
         }
 
         this.addresses.add(address);
@@ -206,10 +243,10 @@ public class User extends BaseEntity {
 
         existing.update(updatedAddress);
 
-        if (updatedAddress.isDefault()) {
+        if (updatedAddress.isDefaultAddress()) {
             this.addresses.stream()
                     .filter(addr -> !addr.getId().equals(addressId))
-                    .forEach(addr -> addr.setDefault(false));
+                    .forEach(CustomerAddress::unsetDefault);
         }
     }
 
@@ -219,7 +256,7 @@ public class User extends BaseEntity {
         CustomerAddress address = findAddressById(addressId)
                 .orElseThrow(() -> new BadRequestException("Address not found"));
 
-        if (address.isDefault() && this.addresses.size() > 1) {
+        if (address.isDefaultAddress() && this.addresses.size() > 1) {
             throw new BadRequestException("Cannot remove default address when there are other addresses");
         }
 
@@ -232,8 +269,8 @@ public class User extends BaseEntity {
         CustomerAddress address = findAddressById(addressId)
                 .orElseThrow(() -> new BadRequestException("Address not found"));
 
-        this.addresses.forEach(addr -> addr.setDefault(false));
-        address.setDefault(true);
+        this.addresses.forEach(CustomerAddress::unsetDefault);
+        address.setAsDefault();
     }
 
     public boolean isActive() {

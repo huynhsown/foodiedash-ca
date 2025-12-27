@@ -2,14 +2,14 @@ package com.ute.foodiedash.domain.user.model;
 
 import com.ute.foodiedash.domain.user.enums.RoleName;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class UserRole {
 
     private Long userId;
     private RoleName roleName;
+
+    private UserRole() {}
 
     public static UserRole of(Long userId, RoleName roleName) {
         UserRole ur = new UserRole();
@@ -22,5 +22,9 @@ public class UserRole {
         UserRole ur = new UserRole();
         ur.roleName = roleName;
         return ur;
+    }
+
+    public static UserRole reconstruct(Long userId, RoleName roleName) {
+        return of(userId, roleName);
     }
 }

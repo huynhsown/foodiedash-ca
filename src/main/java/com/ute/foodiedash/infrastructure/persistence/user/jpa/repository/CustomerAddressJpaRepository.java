@@ -15,7 +15,7 @@ public interface CustomerAddressJpaRepository extends JpaRepository<CustomerAddr
 
     @Query("""
         SELECT a FROM CustomerAddressJpaEntity a
-        WHERE a.user.id = :userId AND a.isDefault = true AND a.deletedAt IS NULL
+        WHERE a.user.id = :userId AND a.defaultAddress = true AND a.deletedAt IS NULL
     """)
     Optional<CustomerAddressJpaEntity> findDefaultByUserId(@Param("userId") Long userId);
 }

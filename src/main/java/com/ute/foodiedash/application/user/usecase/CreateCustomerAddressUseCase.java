@@ -43,7 +43,6 @@ public class CreateCustomerAddressUseCase {
         user.addCustomerAddress(address);
         User saved = userRepository.save(user);
 
-        // After save, return the last address in the list as the newly added one.
         var savedAddresses = saved.getAddresses();
         if (savedAddresses == null || savedAddresses.isEmpty()) {
             throw new NotFoundException("Address not created");

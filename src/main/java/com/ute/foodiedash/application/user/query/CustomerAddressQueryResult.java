@@ -25,7 +25,7 @@ public record CustomerAddressQueryResult(
                 address.getReceiverName(),
                 address.getReceiverPhone(),
                 address.getNote(),
-                address.isDefault()
+                address.isDefaultAddress()
         );
     }
 }

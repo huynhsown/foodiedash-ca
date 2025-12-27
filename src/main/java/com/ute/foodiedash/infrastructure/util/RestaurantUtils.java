@@ -37,6 +37,16 @@ public class RestaurantUtils {
             DayOfWeek currentDay = now.getDayOfWeek();
             LocalTime currentTime = now.toLocalTime();
 
+            log.info("Now: day={}, time={}", currentDay, currentTime);
+
+            businessHours.forEach(bh ->
+                    log.info("BH: day={}, open={}, close={}",
+                            bh.getDayOfWeek(),
+                            bh.getOpenTime(),
+                            bh.getCloseTime()
+                    )
+            );
+
             return businessHours.stream()
                     .anyMatch(bh -> bh.isOpenAt(currentDay, currentTime));
         } catch (Exception e) {

@@ -42,5 +42,5 @@ public class CustomerAddressJpaEntity extends BaseJpaEntity {
     private String note;
 
     @Column(name = "is_default", nullable = false)
-    private Boolean isDefault = false;
+    private Boolean defaultAddress = false;
 }

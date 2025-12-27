@@ -4,10 +4,9 @@ import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.user.enums.MerchantVerificationStatus;
 import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
 
 @Getter
-@Setter
 public class MerchantProfile extends BaseEntity {
 
     private Long id;
@@ -25,6 +24,8 @@ public class MerchantProfile extends BaseEntity {
     private String contactPhone;
 
     private MerchantVerificationStatus verificationStatus;
+
+    private MerchantProfile() {}
 
     public static MerchantProfile create(
             Long userId,
@@ -48,6 +49,41 @@ public class MerchantProfile extends BaseEntity {
         profile.contactPhone = contactPhone;
         profile.verificationStatus = MerchantVerificationStatus.PENDING;
 
+        return profile;
+    }
+
+    public static MerchantProfile reconstruct(
+            Long id,
+            Long userId,
+            String businessName,
+            String businessLicense,
+            String taxCode,
+            String bankName,
+            String bankAccount,
+            String bankHolderName,
+            String contactEmail,
+            String contactPhone,
+            MerchantVerificationStatus verificationStatus,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        MerchantProfile profile = new MerchantProfile();
+        profile.id = id;
+        profile.userId = userId;
+        profile.businessName = businessName;
+        profile.businessLicense = businessLicense;
+        profile.taxCode = taxCode;
+        profile.bankName = bankName;
+        profile.bankAccount = bankAccount;
+        profile.bankHolderName = bankHolderName;
+        profile.contactEmail = contactEmail;
+        profile.contactPhone = contactPhone;
+        profile.verificationStatus = verificationStatus;
+        profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
 

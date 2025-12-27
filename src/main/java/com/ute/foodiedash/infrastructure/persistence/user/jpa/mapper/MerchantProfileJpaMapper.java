@@ -4,14 +4,35 @@ import com.ute.foodiedash.domain.user.model.MerchantProfile;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.MerchantProfileJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface MerchantProfileJpaMapper {
-    @Mapping(target = "userId", source = "user.id")
-    MerchantProfile toDomain(MerchantProfileJpaEntity jpaEntity);
+    default MerchantProfile toDomain(MerchantProfileJpaEntity jpaEntity) {
+        if (jpaEntity == null) {
+            return null;
+        }
+        Long userId = jpaEntity.getUser() != null ? jpaEntity.getUser().getId() : null;
+        return MerchantProfile.reconstruct(
+                jpaEntity.getId(),
+                userId,
+                jpaEntity.getBusinessName(),
+                jpaEntity.getBusinessLicense(),
+                jpaEntity.getTaxCode(),
+                jpaEntity.getBankName(),
+                jpaEntity.getBankAccount(),
+                jpaEntity.getBankHolderName(),
+                jpaEntity.getContactEmail(),
+                jpaEntity.getContactPhone(),
+                jpaEntity.getVerificationStatus(),
+                jpaEntity.getCreatedAt(),
+                jpaEntity.getUpdatedAt(),
+                jpaEntity.getCreatedBy(),
+                jpaEntity.getUpdatedBy(),
+                jpaEntity.getDeletedAt(),
+                jpaEntity.getVersion()
+        );
+    }
 
-    @Mapping(target = "user", ignore = true)
     MerchantProfileJpaEntity toJpaEntity(MerchantProfile merchant);
 
     default MerchantProfileJpaEntity toJpaEntity(MerchantProfile merchant, UserJpaEntity user) {

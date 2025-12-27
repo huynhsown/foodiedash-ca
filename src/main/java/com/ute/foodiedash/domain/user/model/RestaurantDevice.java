@@ -2,12 +2,10 @@ package com.ute.foodiedash.domain.user.model;
 
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.Instant;
 
 @Getter
-@Setter
 public class RestaurantDevice extends BaseEntity {
 
     private Long id;

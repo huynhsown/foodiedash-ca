@@ -4,12 +4,10 @@ import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.user.enums.Gender;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.Instant;
 
 @Getter
-@Setter
 public class CustomerProfile extends BaseEntity {
 
     private Long id;
@@ -17,12 +15,35 @@ public class CustomerProfile extends BaseEntity {
     private Instant dateOfBirth;
     private Gender gender;
 
+    private CustomerProfile() {}
+
     public static CustomerProfile create(Long userId, Instant dateOfBirth, Gender gender) {
         CustomerProfile profile = new CustomerProfile();
         profile.userId = userId;
         profile.dateOfBirth = dateOfBirth;
         profile.gender = gender;
 
+        return profile;
+    }
+
+    public static CustomerProfile reconstruct(
+            Long id,
+            Long userId,
+            Instant dateOfBirth,
+            Gender gender,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        CustomerProfile profile = new CustomerProfile();
+        profile.id = id;
+        profile.userId = userId;
+        profile.dateOfBirth = dateOfBirth;
+        profile.gender = gender;
+        profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
 
