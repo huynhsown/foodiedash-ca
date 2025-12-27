@@ -69,7 +69,7 @@ public interface OrderDeliveryJpaMapper {
             return List.of();
         }
         try {
-            return OBJECT_MAPPER.readValue(geometryJson, new TypeReference<>() {});
+            return OBJECT_MAPPER.readValue(geometryJson, new TypeReference<List<Coordinate>>() {});
         } catch (JsonProcessingException ex) {
             throw new IllegalStateException("Cannot parse order delivery geometry", ex);
         }

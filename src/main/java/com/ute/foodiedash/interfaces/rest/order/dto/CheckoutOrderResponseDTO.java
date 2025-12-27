@@ -14,4 +14,10 @@ public class CheckoutOrderResponseDTO {
     private Long distanceMeters;
     private Integer etaInMinutes;
     private String paymentUrl;
+    private String deliveryAddress;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String receiverName;
+    private String receiverPhone;
+    private String note;
 }

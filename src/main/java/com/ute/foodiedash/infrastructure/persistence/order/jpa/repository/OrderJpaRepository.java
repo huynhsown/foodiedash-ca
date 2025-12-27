@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -27,6 +28,14 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
         AND o.deletedAt IS NULL
     """)
     Optional<OrderJpaEntity> findDetailByCode(@Param("code") String code);
+
+    @Query("""
+        SELECT o FROM OrderJpaEntity o
+        WHERE o.customerId = :customerId
+        AND o.deletedAt IS NULL
+        ORDER BY o.placedAt DESC
+    """)
+    List<OrderJpaEntity> findSummariesByCustomerId(@Param("customerId") Long customerId);
 
     @Modifying
     @Query("""

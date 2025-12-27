@@ -180,7 +180,13 @@ public class CheckoutOrderUseCase {
                 total,
                 distanceInMeters,
                 etaInMinutes,
-                paymentUrl
+                paymentUrl,
+                command.deliveryAddress(),
+                command.deliveryLat(),
+                command.deliveryLng(),
+                command.receiverName(),
+                command.receiverPhone(),
+                command.note()
         );
     }
 
