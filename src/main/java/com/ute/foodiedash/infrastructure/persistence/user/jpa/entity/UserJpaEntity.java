@@ -49,6 +49,12 @@ public class UserJpaEntity extends BaseJpaEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerAddressJpaEntity> addresses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MerchantRestaurantJpaEntity> merchantRestaurants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RestaurantDeviceJpaEntity> restaurantDevices = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserRoleJpaEntity> roles = new ArrayList<>();
 
@@ -66,6 +72,16 @@ public class UserJpaEntity extends BaseJpaEntity {
     public void addRole(UserRoleJpaEntity role) {
         roles.add(role);
         role.setUser(this);
+    }
+
+    public void addMerchantRestaurant(MerchantRestaurantJpaEntity merchantRestaurant) {
+        merchantRestaurants.add(merchantRestaurant);
+        merchantRestaurant.setUser(this);
+    }
+
+    public void addRestaurantDevice(RestaurantDeviceJpaEntity restaurantDevice) {
+        restaurantDevices.add(restaurantDevice);
+        restaurantDevice.setUser(this);
     }
 
     public void removeRole(UserRoleJpaEntity role) {

@@ -1,49 +1,43 @@
 package com.ute.foodiedash.application.order.usecase;
 
-import com.ute.foodiedash.application.order.command.CancelOrderCommand;
+import com.ute.foodiedash.application.common.port.DomainEventPublisher;
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
-import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.order.model.Order;
+import com.ute.foodiedash.application.order.event.OrderMarkedReadyEvent;
 import com.ute.foodiedash.domain.order.repository.OrderRepository;
 import com.ute.foodiedash.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Component
 @RequiredArgsConstructor
-public class CancelOrderUseCase {
+public class MarkReadyOrderUseCase {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final DomainEventPublisher eventPublisher;
+
+    private final EntityManager entityManager;
+
 
     @Transactional
-    public OrderSummaryQueryResult execute(Long customerId, CancelOrderCommand command) {
-        if (customerId == null) {
-            throw new BadRequestException("Customer id required");
-        }
-        if (command == null || command.orderId() == null) {
-            throw new BadRequestException("Order id required");
-        }
-        if (command.reason() == null || command.reason().isBlank()) {
-            throw new BadRequestException("Reason required");
-        }
-
-        Order order = orderRepository.findById(command.orderId())
+    public OrderSummaryQueryResult execute(Long merchantId, Long orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
-        if (!Objects.equals(order.getCustomerId(), customerId)) {
-            throw new ForbiddenException("You are not allowed to cancel this order");
+        boolean canManageRestaurant = userRepository.existsMerchantRestaurant(merchantId, order.getRestaurantId());
+        if (!canManageRestaurant) {
+            throw new ForbiddenException("You are not allowed to mark this order as ready");
         }
 
-        order.cancel(command.reason());
+        order.markReady("Order is ready for delivery");
 
         Order saved = orderRepository.save(order);
-
+        eventPublisher.publish(new OrderMarkedReadyEvent(this, saved.getId()));
         return new OrderSummaryQueryResult(
                 saved.getId(),
                 saved.getCode(),
@@ -59,4 +53,3 @@ public class CancelOrderUseCase {
         );
     }
 }
-

@@ -15,6 +15,7 @@ public interface UserRepository {
     Optional<User> findByIdWithProfile(Long id);
     Optional<User> findByIdWithAll(Long id);
     Optional<User> findByEmailWithRoles(String email);
+    boolean existsMerchantRestaurant(Long userId, Long restaurantId);
 
     void softDeleteById(Long id);
     void restoreById(Long id);
