@@ -269,8 +269,20 @@ public class Order extends BaseEntity {
         ));
     }
 
-    public void startDelivery(String note) {
+    public void markAsAwaitingPickup(String note) {
         if (status != OrderStatus.READY) {
+            throw new BadRequestException("Only awaiting orders can be moved to ready");
+        }
+        this.status = OrderStatus.AWAITING_PICKUP;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.AWAITING_PICKUP,
+                note
+        ));
+    }
+
+    public void startDelivery(String note) {
+        if (status != OrderStatus.AWAITING_PICKUP) {
             throw new BadRequestException("Only ready orders can start delivery");
         }
         this.status = OrderStatus.DELIVERING;
