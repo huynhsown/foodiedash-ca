@@ -54,6 +54,7 @@ public abstract class OrderJpaMapper {
             e.getAcceptedAt(),
             e.getPreparedAt(),
             e.getCancelledAt(),
+            e.getCompleteAt(),
             e.getCancelReason(),
             items,
             promotions,

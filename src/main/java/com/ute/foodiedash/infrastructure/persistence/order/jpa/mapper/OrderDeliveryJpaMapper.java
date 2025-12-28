@@ -32,7 +32,13 @@ public interface OrderDeliveryJpaMapper {
             e.getEtaMinutes(),
             toGeometry(e.getGeometry()),
             e.getPickedUpAt(),
-            e.getDeliveredAt()
+            e.getDeliveredAt(),
+            e.getCreatedAt(),
+            e.getUpdatedAt(),
+            e.getCreatedBy(),
+            e.getUpdatedBy(),
+            e.getDeletedAt(),
+            e.getVersion()
         );
     }
 

@@ -19,6 +19,7 @@ public class OrderDetailResponseDTO {
     private LocalDateTime acceptedAt;
     private LocalDateTime preparedAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime completeAt;
     private List<ItemDTO> items;
     private List<PromotionDTO> promotions;
     private List<StatusHistoryDTO> statusHistories;

@@ -41,7 +41,8 @@ public class PrepareOrderUseCase {
                 saved.getPlacedAt(),
                 saved.getAcceptedAt(),
                 saved.getPreparedAt(),
-                saved.getCancelledAt()
+                saved.getCancelledAt(),
+                saved.getCompleteAt()
         );
     }
 }
