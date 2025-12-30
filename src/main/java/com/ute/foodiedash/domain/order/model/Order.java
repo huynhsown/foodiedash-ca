@@ -30,6 +30,7 @@ public class Order extends BaseEntity {
     private LocalDateTime acceptedAt;
     private LocalDateTime preparedAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime completeAt;
     private String cancelReason;
 
     private final List<OrderItem> items = new ArrayList<>();
@@ -91,6 +92,7 @@ public class Order extends BaseEntity {
             LocalDateTime acceptedAt,
             LocalDateTime preparedAt,
             LocalDateTime cancelledAt,
+            LocalDateTime completeAt,
             String cancelReason,
             List<OrderItem> items,
             List<OrderPromotion> promotions,
@@ -119,6 +121,7 @@ public class Order extends BaseEntity {
         order.acceptedAt = acceptedAt;
         order.preparedAt = preparedAt;
         order.cancelledAt = cancelledAt;
+        order.completeAt = completeAt;
         order.cancelReason = cancelReason;
 
         if (items != null && !items.isEmpty()) {
@@ -231,36 +234,110 @@ public class Order extends BaseEntity {
         this.totalAmount = total;
     }
 
-    public void accept() {
+    public void accept(String note) {
         if (status != OrderStatus.PENDING) {
             throw new BadRequestException("Only pending orders can be accepted");
         }
         this.status = OrderStatus.ACCEPTED;
         this.acceptedAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.ACCEPTED,
+                note
+        ));
     }
 
-    public void startPreparing() {
+    public void startPreparing(String note) {
         if (status != OrderStatus.ACCEPTED) {
             throw new BadRequestException("Only accepted orders can be moved to preparing");
         }
         this.status = OrderStatus.PREPARING;
         this.preparedAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.PREPARING,
+                note
+        ));
     }
 
-    public void markCompleted() {
-        if (status != OrderStatus.READY && status != OrderStatus.DELIVERING) {
+    public void markReady(String note) {
+        if (status != OrderStatus.PREPARING) {
+            throw new BadRequestException("Only preparing orders can be moved to ready");
+        }
+        this.status = OrderStatus.READY;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.READY,
+                note
+        ));
+    }
+
+    public void markAsAwaitingPickup(String note) {
+        if (status != OrderStatus.READY) {
+            throw new BadRequestException("Only awaiting orders can be moved to ready");
+        }
+        this.status = OrderStatus.AWAITING_PICKUP;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.AWAITING_PICKUP,
+                note
+        ));
+    }
+
+    public void startDelivery(String note) {
+        if (status != OrderStatus.AWAITING_PICKUP) {
+            throw new BadRequestException("Only ready orders can start delivery");
+        }
+        this.status = OrderStatus.DELIVERING;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.DELIVERING,
+                note
+        ));
+    }
+
+    public void recordPendingPlacementHistory(String note) {
+        if (this.id == null) {
+            throw new BadRequestException("Order id required");
+        }
+        if (this.status != OrderStatus.PENDING) {
+            throw new BadRequestException("Only pending orders can record placement history");
+        }
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.PENDING,
+                note
+        ));
+    }
+
+    public void markCompleted(String note) {
+        if (status != OrderStatus.DELIVERING) {
             throw new BadRequestException("Only ready or delivering orders can be completed");
         }
         this.status = OrderStatus.COMPLETED;
+        this.completeAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.COMPLETED,
+                note
+        ));
     }
 
     public void cancel(String reason) {
         if (FINAL_STATUSES.contains(status)) {
             throw new BadRequestException("Cannot cancel a completed or already cancelled order");
         }
+        if (status != OrderStatus.PENDING && status != OrderStatus.ACCEPTED) {
+            throw new BadRequestException("Only pending or accepted orders can be cancelled");
+        }
         this.status = OrderStatus.CANCELLED;
         this.cancelReason = reason;
         this.cancelledAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.CANCELLED,
+                reason
+        ));
     }
 
     private void ensureMutable() {

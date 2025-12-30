@@ -67,6 +67,9 @@ public class OrderJpaEntity extends BaseJpaEntity {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
+    @Column(name = "complete_at")
+    private LocalDateTime completeAt;
+
     @Column(name = "cancel_reason", columnDefinition = "text")
     private String cancelReason;
 

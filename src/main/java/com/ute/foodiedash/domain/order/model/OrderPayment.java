@@ -42,7 +42,13 @@ public class OrderPayment extends BaseEntity {
             PaymentStatus paymentStatus,
             String transactionId,
             Instant paidAt,
-            Instant refundedAt
+            Instant refundedAt,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
     ) {
         OrderPayment payment = new OrderPayment();
 
@@ -53,6 +59,15 @@ public class OrderPayment extends BaseEntity {
         payment.transactionId = transactionId;
         payment.paidAt = paidAt;
         payment.refundedAt = refundedAt;
+
+        payment.restoreAudit(
+                createdAt,
+                updatedAt,
+                createdBy,
+                updatedBy,
+                deletedAt,
+                version
+        );
 
         return payment;
     }
@@ -73,6 +88,22 @@ public class OrderPayment extends BaseEntity {
         this.paymentStatus = PaymentStatus.PAID;
         this.transactionId = transactionId;
         this.paidAt = Instant.now();
+    }
+
+    public void ensurePaidWhenOrderCompleted(String orderCode) {
+        if (orderCode == null || orderCode.isBlank()) {
+            throw new BadRequestException("Order code required");
+        }
+        if (paymentStatus == PaymentStatus.PAID) {
+            return;
+        }
+        if (paymentStatus != PaymentStatus.PENDING) {
+            throw new BadRequestException("Cannot complete order with this payment status");
+        }
+        if (paymentMethod != PaymentMethodCode.COD) {
+            throw new BadRequestException("Payment must be completed before delivery can be finished");
+        }
+        markPaid("COD-" + orderCode);
     }
 
     public void markFailed() {

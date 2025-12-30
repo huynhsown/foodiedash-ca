@@ -60,6 +60,7 @@ class GetOrderDetailUseCaseTest {
                 null,
                 null,
                 null,
+                null,
                 List.of(),
                 List.of(),
                 List.of(),
@@ -78,7 +79,13 @@ class GetOrderDetailUseCaseTest {
                 PaymentStatus.PAID,
                 "TXN-1",
                 null,
-                null
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0L
         );
         OrderDelivery delivery = OrderDelivery.reconstruct(
                 2L,
@@ -94,7 +101,13 @@ class GetOrderDetailUseCaseTest {
                 15,
                 List.of(),
                 null,
-                null
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0L
         );
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -131,6 +144,7 @@ class GetOrderDetailUseCaseTest {
                 BigDecimal.ZERO,
                 BigDecimal.ONE,
                 LocalDateTime.now(),
+                null,
                 null,
                 null,
                 null,

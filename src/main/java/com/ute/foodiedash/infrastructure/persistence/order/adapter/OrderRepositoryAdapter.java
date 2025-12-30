@@ -66,6 +66,7 @@ public class OrderRepositoryAdapter implements OrderRepository {
                 e.getAcceptedAt(),
                 e.getPreparedAt(),
                 e.getCancelledAt(),
+                e.getCompleteAt(),
                 e.getCancelReason(),
                 List.of(),
                 List.of(),

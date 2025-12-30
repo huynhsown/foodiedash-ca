@@ -5,10 +5,14 @@ import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.domain.user.model.CustomerAddress;
 import com.ute.foodiedash.domain.user.model.CustomerProfile;
 import com.ute.foodiedash.domain.user.model.DriverProfile;
+import com.ute.foodiedash.domain.user.model.MerchantRestaurant;
 import com.ute.foodiedash.domain.user.model.MerchantProfile;
+import com.ute.foodiedash.domain.user.model.RestaurantDevice;
 import com.ute.foodiedash.domain.user.model.UserRole;
 import com.ute.foodiedash.domain.user.model.User;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.CustomerAddressJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.MerchantRestaurantJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.RestaurantDeviceJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserRoleJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
 import org.mapstruct.*;
@@ -50,8 +54,47 @@ public interface UserJpaMapper {
             );
         }
 
+        List<MerchantRestaurant> merchantRestaurants = new ArrayList<>();
+        List<RestaurantDevice> restaurantDevices = new ArrayList<>();
+
         MerchantProfile merchantProfile = null;
         if (jpaEntity.getMerchantProfile() != null) {
+            if (jpaEntity.getMerchantRestaurants() != null) {
+                for (MerchantRestaurantJpaEntity mr : jpaEntity.getMerchantRestaurants()) {
+                    if (mr == null) continue;
+                    merchantRestaurants.add(MerchantRestaurant.reconstruct(
+                            mr.getId(),
+                            jpaEntity.getId(),
+                            mr.getRestaurantId(),
+                            mr.getCreatedAt(),
+                            mr.getUpdatedAt(),
+                            mr.getCreatedBy(),
+                            mr.getUpdatedBy(),
+                            mr.getDeletedAt(),
+                            mr.getVersion()
+                    ));
+                }
+            }
+
+            if (jpaEntity.getRestaurantDevices() != null) {
+                for (RestaurantDeviceJpaEntity rd : jpaEntity.getRestaurantDevices()) {
+                    if (rd == null) continue;
+                    restaurantDevices.add(RestaurantDevice.reconstruct(
+                            rd.getId(),
+                            jpaEntity.getId(),
+                            rd.getRestaurantId(),
+                            rd.getDeviceName(),
+                            rd.getLastLoginAt(),
+                            rd.getCreatedAt(),
+                            rd.getUpdatedAt(),
+                            rd.getCreatedBy(),
+                            rd.getUpdatedBy(),
+                            rd.getDeletedAt(),
+                            rd.getVersion()
+                    ));
+                }
+            }
+
             merchantProfile = MerchantProfile.reconstruct(
                     jpaEntity.getMerchantProfile().getId(),
                     jpaEntity.getId(),
@@ -166,6 +209,8 @@ public interface UserJpaMapper {
                 merchantProfile,
                 driverProfile,
                 addresses,
+                merchantRestaurants,
+                restaurantDevices,
                 roles,
                 jpaEntity.getCreatedAt(),
                 jpaEntity.getUpdatedAt(),
@@ -200,6 +245,12 @@ public interface UserJpaMapper {
             jpaEntity.getRoles().forEach(role -> {
                 role.setUser(jpaEntity);
             });
+        }
+        if (jpaEntity.getMerchantRestaurants() != null) {
+            jpaEntity.getMerchantRestaurants().forEach(merchantRestaurant -> merchantRestaurant.setUser(jpaEntity));
+        }
+        if (jpaEntity.getRestaurantDevices() != null) {
+            jpaEntity.getRestaurantDevices().forEach(restaurantDevice -> restaurantDevice.setUser(jpaEntity));
         }
     }
 }
