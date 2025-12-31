@@ -1,7 +1,7 @@
 package com.ute.foodiedash.interfaces.ws.driver;
 
 import com.ute.foodiedash.application.driver.usecase.RecordDriverGpsHeartbeatUseCase;
-import com.ute.foodiedash.infrastructure.websocket.DriverWebSocketPrincipal;
+import com.ute.foodiedash.infrastructure.websocket.UserWebSocketPrincipal;
 import com.ute.foodiedash.interfaces.ws.driver.dto.DriverGpsHeartbeatMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -18,7 +18,7 @@ public class DriverGpsStompController {
 
     @MessageMapping("/driver/gps/heartbeat")
     public void heartbeat(@Payload DriverGpsHeartbeatMessage body, Principal principal) {
-        if (!(principal instanceof DriverWebSocketPrincipal(Long userId))) {
+        if (!(principal instanceof UserWebSocketPrincipal(Long userId))) {
             return;
         }
         if (body.lat() == null || body.lng() == null) {
