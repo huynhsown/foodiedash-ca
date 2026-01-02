@@ -13,7 +13,6 @@ import com.ute.foodiedash.application.order.usecase.CheckoutOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrderDetailUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrdersByCustomerUseCase;
 import com.ute.foodiedash.application.order.usecase.PreviewOrderUseCase;
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderRequestDTO;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderResponseDTO;
 import com.ute.foodiedash.interfaces.rest.order.dto.CancelOrderRequestDTO;
@@ -27,6 +26,7 @@ import com.ute.foodiedash.interfaces.rest.order.mapper.OrderMapper;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderSummaryDtoMapper;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +41,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('CUSTOMER')")
 public class OrderController {
     private final CheckoutOrderUseCase checkoutOrderUseCase;
     private final PreviewOrderUseCase previewOrderUseCase;
@@ -55,11 +56,7 @@ public class OrderController {
     private final CancelOrderDtoMapper cancelOrderDtoMapper;
 
     private Long getCurrentCustomerId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            return 1L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @PostMapping("/checkout")

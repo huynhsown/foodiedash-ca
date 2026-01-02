@@ -13,16 +13,17 @@ import com.ute.foodiedash.interfaces.rest.user.dto.*;
 import com.ute.foodiedash.interfaces.rest.user.mapper.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('CUSTOMER')")
 public class CustomerProfileController {
 
     private final GetCustomerProfileUseCase getCustomerProfileUseCase;
@@ -40,13 +41,7 @@ public class CustomerProfileController {
     private final CustomerPasswordDtoMapper passwordDtoMapper;
 
     private Long getCurrentCustomerId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            // JWT authentication is currently disabled in SecurityConfig.
-            // Keep customer endpoints usable for local/dev usage.
-            return 2L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @GetMapping("/me")

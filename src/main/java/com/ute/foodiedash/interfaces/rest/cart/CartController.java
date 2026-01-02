@@ -11,6 +11,7 @@ import com.ute.foodiedash.interfaces.rest.cart.dto.CartDTO;
 import com.ute.foodiedash.interfaces.rest.cart.mapper.CartDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('CUSTOMER')")
 public class CartController {
     private final AddToCartUseCase addToCartUseCase;
     private final AddToCartUseCaseV2 addToCartUseCaseV2;
@@ -30,8 +32,7 @@ public class CartController {
 
     @PostMapping
     public ResponseEntity<CartDTO> addToCart(@RequestBody @Valid AddToCartRequestDTO dto) {
-//        Long userId = SecurityContextHelper.getCurrentUserId();
-        Long userId = 1L;
+        Long userId = SecurityContextHelper.getCurrentUserId();
         AddToCartCommand command = cartDtoMapper.toCommand(dto);
         CartQueryResult result = addToCartUseCaseV2.execute(userId, command);
         CartDTO response = cartDtoMapper.toDto(result);
@@ -40,7 +41,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartDTO> getCartByUserId() {
-        Long userId = 1L;
+        Long userId = SecurityContextHelper.getCurrentUserId();
         CartQueryResult result = getCartByUserIdUseCase.execute(userId);
         CartDTO response = cartDtoMapper.toDto(result);
         return ResponseEntity.ok(response);
@@ -48,7 +49,7 @@ public class CartController {
 
     @GetMapping("/count")
     public ResponseEntity<CartCountResponseDTO> countCartItem() {
-        Long userId = 1L;
+        Long userId = SecurityContextHelper.getCurrentUserId();
         CartCountQueryResult result = getCartCountUseCase.execute(userId);
         CartCountResponseDTO response = cartDtoMapper.toCountDto(result);
         return ResponseEntity.ok(response);

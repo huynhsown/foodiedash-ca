@@ -4,11 +4,11 @@ import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
 import com.ute.foodiedash.application.order.usecase.AcceptOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.MarkReadyOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.PrepareOrderUseCase;
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.order.dto.OrderSummaryResponseDTO;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderSummaryDtoMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/restaurant/orders")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('MERCHANT')")
 public class RestaurantOrderController {
 
     private final AcceptOrderUseCase acceptOrderUseCase;
@@ -26,12 +27,7 @@ public class RestaurantOrderController {
     private final OrderSummaryDtoMapper orderSummaryDtoMapper;
 
     private Long getCurrentMerchantId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            // Keep flow usable when auth is disabled in local/dev.
-            return 1L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @PostMapping("/{orderId}/accept")

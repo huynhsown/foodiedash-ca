@@ -2,6 +2,8 @@ package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.common.port.DomainEventPublisher;
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.order.model.Order;
@@ -22,6 +24,7 @@ public class MarkReadyOrderUseCase {
     private final DomainEventPublisher eventPublisher;
 
     private final EntityManager entityManager;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
 
     @Transactional
@@ -37,6 +40,7 @@ public class MarkReadyOrderUseCase {
         order.markReady("Order is ready for delivery");
 
         Order saved = orderRepository.save(order);
+        orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_READY);
         eventPublisher.publish(new OrderMarkedReadyEvent(this, saved.getId()));
         return new OrderSummaryQueryResult(
                 saved.getId(),
@@ -50,7 +54,10 @@ public class MarkReadyOrderUseCase {
                 saved.getAcceptedAt(),
                 saved.getPreparedAt(),
                 saved.getCancelledAt(),
-                saved.getCompleteAt()
+                saved.getCompleteAt(),
+                null,
+                null,
+                null
         );
     }
 }
