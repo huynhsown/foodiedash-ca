@@ -18,4 +18,5 @@ public class LoginResponseDTO {
     private String fullName;
     private String avatarUrl;
     private List<String> roles;
+    private List<String> permissions;
 }

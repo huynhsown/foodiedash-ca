@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/customers/me/notifications")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAnyAuthority('ORDER_VIEW_OWN','CART_MANAGE','RESTAURANT_VIEW','RATING_CREATE')")
 public class CustomerNotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;

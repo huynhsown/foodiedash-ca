@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/payment-methods")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAuthority('USER_MANAGE')")
 public class AdminPaymentMethodController {
     private final CreatePaymentMethodUseCase createPaymentMethodUseCase;
     private final UpdatePaymentMethodUseCase updatePaymentMethodUseCase;

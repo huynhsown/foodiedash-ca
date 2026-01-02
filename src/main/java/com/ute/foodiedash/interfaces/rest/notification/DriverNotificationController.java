@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/driver/notifications")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('DRIVER')")
+@PreAuthorize("hasAnyAuthority('ORDER_PICKUP','ORDER_DELIVER')")
 public class DriverNotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;

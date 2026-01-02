@@ -33,11 +33,6 @@ public class MerchantProfile extends BaseEntity {
             String contactEmail,
             String contactPhone
     ) {
-
-        if (userId == null) {
-            throw new BadRequestException("User ID is required");
-        }
-
         if (businessName == null || businessName.isBlank()) {
             throw new BadRequestException("Business name is required");
         }

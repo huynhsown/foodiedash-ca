@@ -41,7 +41,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
 public class OrderController {
     private final CheckoutOrderUseCase checkoutOrderUseCase;
     private final PreviewOrderUseCase previewOrderUseCase;
@@ -60,6 +59,7 @@ public class OrderController {
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<CheckoutOrderResponseDTO> checkout(@RequestBody CheckoutOrderRequestDTO dto) {
         CheckoutOrderCommand command = orderMapper.toCommand(dto);
         CheckoutOrderResult result = checkoutOrderUseCase.execute(command);
@@ -67,6 +67,7 @@ public class OrderController {
     }
 
     @PostMapping("/preview")
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<PreviewOrderResponseDTO> preview(@RequestBody PreviewOrderRequestDTO dto) {
         PreviewOrderCommand command = orderMapper.toPreviewCommand(dto);
         PreviewOrderResult result = previewOrderUseCase.execute(command);
@@ -74,12 +75,14 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<OrderDetailResponseDTO> getOrderDetail(@PathVariable Long orderId) {
         OrderDetailQueryResult result = getOrderDetailUseCase.execute(getCurrentCustomerId(), orderId);
         return ResponseEntity.ok(orderDetailDtoMapper.toResponseDto(result));
     }
 
     @PostMapping("/{orderId}/cancel")
+    @PreAuthorize("hasAuthority('ORDER_CANCEL')")
     public ResponseEntity<?> cancelOrder(
             @PathVariable Long orderId,
             @Valid @RequestBody CancelOrderRequestDTO dto) {
@@ -89,12 +92,14 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/complete")
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<?> completeOrder(@PathVariable Long orderId) {
         var result = completeOrderUseCase.execute(getCurrentCustomerId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<OrderSummariesResponseDTO> getOrdersOfCurrentCustomer() {
         Long customerId = getCurrentCustomerId();
         OrderSummariesQueryResult result = getOrdersByCustomerUseCase.execute(customerId);

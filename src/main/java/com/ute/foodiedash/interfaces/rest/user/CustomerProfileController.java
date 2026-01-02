@@ -23,7 +23,7 @@ import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 @RestController
 @RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAnyAuthority('ORDER_VIEW_OWN','CART_MANAGE','RESTAURANT_VIEW','RATING_CREATE')")
 public class CustomerProfileController {
 
     private final GetCustomerProfileUseCase getCustomerProfileUseCase;

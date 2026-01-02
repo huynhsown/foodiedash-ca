@@ -48,7 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String email = claims.get("email") != null ? claims.get("email").toString() : null;
-            List<SimpleGrantedAuthority> authorities = mapRolesToAuthorities(claims.get("roles"));
+            List<SimpleGrantedAuthority> authorities =
+                    new ArrayList<>(mapPermissionsToAuthorities(claims.get("permissions")));
+//            authorities.addAll(mapRolesToAuthorities(claims.get("roles")));
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId,
@@ -77,6 +79,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return list.stream()
                     .filter(o -> o != null && !o.toString().isBlank())
                     .map(o -> new SimpleGrantedAuthority("ROLE_" + o.toString().trim()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        return List.of();
+    }
+
+    private static List<SimpleGrantedAuthority> mapPermissionsToAuthorities(Object permissionsClaim) {
+        if (permissionsClaim == null) {
+            return List.of();
+        }
+        if (permissionsClaim instanceof List<?> list) {
+            return list.stream()
+                    .filter(o -> o != null && !o.toString().isBlank())
+                    .map(o -> new SimpleGrantedAuthority(o.toString().trim()))
                     .collect(Collectors.toCollection(ArrayList::new));
         }
         return List.of();
