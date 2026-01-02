@@ -64,7 +64,7 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
     }
 
     @Override
-    public long countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole) {
+    public int countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole) {
         return jpaRepository.countByRecipientUserIdAndRecipientRole(recipientUserId, recipientRole);
     }
 

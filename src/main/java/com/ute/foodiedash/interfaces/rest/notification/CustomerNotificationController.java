@@ -1,6 +1,7 @@
 package com.ute.foodiedash.interfaces.rest.notification;
 
 import com.ute.foodiedash.application.notification.command.MarkNotificationsReadCommand;
+import com.ute.foodiedash.application.notification.usecase.GetNotificationCountUseCase;
 import com.ute.foodiedash.application.notification.usecase.ListNotificationsUseCase;
 import com.ute.foodiedash.application.notification.usecase.MarkNotificationsReadUseCase;
 import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
@@ -10,6 +11,7 @@ import com.ute.foodiedash.interfaces.rest.common.dto.PageRequestDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.ListNotificationsResponseDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.MarkNotificationsReadRequestDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.MarkNotificationsReadResponseDTO;
+import com.ute.foodiedash.interfaces.rest.notification.dto.NotificationCountResponseDTO;
 import com.ute.foodiedash.interfaces.rest.notification.mapper.NotificationDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class CustomerNotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;
     private final MarkNotificationsReadUseCase markNotificationsReadUseCase;
+    private final GetNotificationCountUseCase notificationCountUseCase;
+
     private final NotificationDtoMapper notificationDtoMapper;
 
     private Long getCurrentCustomerId() {
@@ -47,6 +51,15 @@ public class CustomerNotificationController {
                 NotificationRole.CUSTOMER,
                 pageRequest.getPage(),
                 pageRequest.getSize()
+        );
+        return ResponseEntity.ok(notificationDtoMapper.toResponseDto(result));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<NotificationCountResponseDTO> count() {
+        var result = notificationCountUseCase.execute(
+                getCurrentCustomerId(),
+                NotificationRole.CUSTOMER
         );
         return ResponseEntity.ok(notificationDtoMapper.toResponseDto(result));
     }

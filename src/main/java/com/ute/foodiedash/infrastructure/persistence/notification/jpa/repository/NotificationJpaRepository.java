@@ -24,7 +24,7 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationJpa
             Pageable pageable
     );
 
-    long countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole);
+    int countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole);
 
     List<NotificationJpaEntity> findByIdInAndRecipientUserIdAndRecipientRole(
             List<Long> ids,
