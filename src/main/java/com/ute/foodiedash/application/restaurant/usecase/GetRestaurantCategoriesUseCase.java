@@ -1,5 +1,8 @@
 package com.ute.foodiedash.application.restaurant.usecase;
 
+import com.ute.foodiedash.application.common.cache.CacheKey;
+import com.ute.foodiedash.application.common.cache.CacheTtlSeconds;
+import com.ute.foodiedash.application.common.port.CachePort;
 import com.ute.foodiedash.application.restaurant.query.GetRestaurantCategoriesQuery;
 import com.ute.foodiedash.application.restaurant.query.RestaurantCategoriesPageResult;
 import com.ute.foodiedash.application.restaurant.query.RestaurantCategoryQueryResult;
@@ -21,8 +24,20 @@ import java.util.stream.Collectors;
 public class GetRestaurantCategoriesUseCase {
     private final RestaurantCategoryJpaRepository jpaRepository;
     private final RestaurantCategoryRepository domainRepository;
+    private final CachePort cachePort;
 
     public RestaurantCategoriesPageResult execute(GetRestaurantCategoriesQuery query) {
+        String cacheKey = CacheKey.restaurantCategoriesPage(
+                query.page(),
+                query.size(),
+                query.sortBy(),
+                query.ascending()
+        );
+        RestaurantCategoriesPageResult cached = cachePort.get(cacheKey, RestaurantCategoriesPageResult.class);
+        if (cached != null) {
+            return cached;
+        }
+
         Sort sort = query.ascending() 
             ? Sort.by(query.sortBy()).ascending() 
             : Sort.by(query.sortBy()).descending();
@@ -40,7 +55,7 @@ public class GetRestaurantCategoriesUseCase {
             ))
             .collect(Collectors.toList());
         
-        return new RestaurantCategoriesPageResult(
+        RestaurantCategoriesPageResult result = new RestaurantCategoriesPageResult(
             content,
             page.getNumber(),
             page.getSize(),
@@ -51,5 +66,7 @@ public class GetRestaurantCategoriesUseCase {
             page.hasNext(),
             page.hasPrevious()
         );
+        cachePort.set(cacheKey, result, CacheTtlSeconds.RESTAURANT_CATEGORIES);
+        return result;
     }
 }
