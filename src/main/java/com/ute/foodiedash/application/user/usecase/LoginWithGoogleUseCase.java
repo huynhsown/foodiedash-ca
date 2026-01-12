@@ -6,6 +6,7 @@ import com.ute.foodiedash.application.user.port.GoogleIdentityVerifierPort;
 import com.ute.foodiedash.application.user.port.PasswordHasher;
 import com.ute.foodiedash.application.user.query.GoogleIdentityQueryResult;
 import com.ute.foodiedash.application.user.query.GoogleLoginQueryResult;
+import com.ute.foodiedash.application.user.port.UserPermissionResolutionPort;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.user.enums.Gender;
 import com.ute.foodiedash.domain.user.enums.RoleName;
@@ -29,6 +30,7 @@ public class LoginWithGoogleUseCase {
     private final GoogleIdentityVerifierPort googleIdentityVerifierPort;
     private final TokenGenerator tokenGenerator;
     private final PasswordHasher passwordHasher;
+    private final UserPermissionResolutionPort userPermissionResolutionPort;
 
     @Transactional
     public GoogleLoginQueryResult execute(GoogleLoginCommand command) {
@@ -45,7 +47,9 @@ public class LoginWithGoogleUseCase {
                 .map(RoleName::name)
                 .collect(Collectors.toList());
 
-        String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames);
+        List<String> permissionNames = userPermissionResolutionPort.resolvePermissionNames(user.getRoleNames());
+
+        String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames, permissionNames);
         String avatarUrl = user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                 ? user.getAvatarUrl()
                 : identity.picture();
@@ -55,7 +59,8 @@ public class LoginWithGoogleUseCase {
                 user.getEmail(),
                 user.getFullName(),
                 avatarUrl,
-                roleNames
+                roleNames,
+                permissionNames
         );
     }
 

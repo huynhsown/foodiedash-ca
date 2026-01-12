@@ -2,7 +2,9 @@ package com.ute.foodiedash.interfaces.rest.user;
 
 import com.ute.foodiedash.application.user.query.UserQueryResult;
 import com.ute.foodiedash.application.user.usecase.RegisterCustomerUseCase;
+import com.ute.foodiedash.application.user.usecase.RegisterMerchantUseCase;
 import com.ute.foodiedash.interfaces.rest.user.dto.RegisterCustomerDTO;
+import com.ute.foodiedash.interfaces.rest.user.dto.RegisterMerchantDTO;
 import com.ute.foodiedash.interfaces.rest.user.dto.UserResponseDTO;
 import com.ute.foodiedash.interfaces.rest.user.mapper.UserDtoMapper;
 import jakarta.validation.Valid;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
+    private final RegisterMerchantUseCase registerMerchantUseCase;
     private final RegisterCustomerUseCase registerCustomerUseCase;
     private final UserDtoMapper dtoMapper;
 
@@ -26,6 +29,15 @@ public class UserController {
             @Valid @RequestBody RegisterCustomerDTO dto) {
         var command = dtoMapper.toCommand(dto);
         UserQueryResult result = registerCustomerUseCase.execute(command);
+        UserResponseDTO response = dtoMapper.toResponseDto(result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/register/merchant")
+    public ResponseEntity<UserResponseDTO> registerMerchant(
+            @Valid @RequestBody RegisterMerchantDTO dto) {
+        var command = dtoMapper.toCommand(dto);
+        UserQueryResult result = registerMerchantUseCase.execute(command);
         UserResponseDTO response = dtoMapper.toResponseDto(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -2,6 +2,8 @@ package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.order.command.CancelOrderCommand;
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
@@ -20,6 +22,7 @@ public class CancelOrderUseCase {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @Transactional
     public OrderSummaryQueryResult execute(Long customerId, CancelOrderCommand command) {
@@ -43,6 +46,7 @@ public class CancelOrderUseCase {
         order.cancel(command.reason());
 
         Order saved = orderRepository.save(order);
+        orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_CANCELLED);
 
         return new OrderSummaryQueryResult(
                 saved.getId(),
@@ -56,7 +60,10 @@ public class CancelOrderUseCase {
                 saved.getAcceptedAt(),
                 saved.getPreparedAt(),
                 saved.getCancelledAt(),
-                saved.getCompleteAt()
+                saved.getCompleteAt(),
+                null,
+                null,
+                null
         );
     }
 }

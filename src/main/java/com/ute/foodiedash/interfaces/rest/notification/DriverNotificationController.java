@@ -3,7 +3,6 @@ package com.ute.foodiedash.interfaces.rest.notification;
 import com.ute.foodiedash.application.notification.command.MarkNotificationsReadCommand;
 import com.ute.foodiedash.application.notification.usecase.ListNotificationsUseCase;
 import com.ute.foodiedash.application.notification.usecase.MarkNotificationsReadUseCase;
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.domain.notification.enums.NotificationRole;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.common.dto.PageRequestDTO;
@@ -13,6 +12,7 @@ import com.ute.foodiedash.interfaces.rest.notification.dto.MarkNotificationsRead
 import com.ute.foodiedash.interfaces.rest.notification.mapper.NotificationDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/driver/notifications")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ORDER_PICKUP','ORDER_DELIVER')")
 public class DriverNotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;
@@ -31,11 +32,7 @@ public class DriverNotificationController {
     private final NotificationDtoMapper notificationDtoMapper;
 
     private Long getCurrentDriverId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            return 1L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @GetMapping

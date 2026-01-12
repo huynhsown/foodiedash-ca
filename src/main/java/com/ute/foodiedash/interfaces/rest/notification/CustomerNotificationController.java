@@ -1,18 +1,20 @@
 package com.ute.foodiedash.interfaces.rest.notification;
 
 import com.ute.foodiedash.application.notification.command.MarkNotificationsReadCommand;
+import com.ute.foodiedash.application.notification.usecase.GetNotificationCountUseCase;
 import com.ute.foodiedash.application.notification.usecase.ListNotificationsUseCase;
 import com.ute.foodiedash.application.notification.usecase.MarkNotificationsReadUseCase;
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.domain.notification.enums.NotificationRole;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.common.dto.PageRequestDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.ListNotificationsResponseDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.MarkNotificationsReadRequestDTO;
 import com.ute.foodiedash.interfaces.rest.notification.dto.MarkNotificationsReadResponseDTO;
+import com.ute.foodiedash.interfaces.rest.notification.dto.NotificationCountResponseDTO;
 import com.ute.foodiedash.interfaces.rest.notification.mapper.NotificationDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,18 +26,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/customers/me/notifications")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ORDER_VIEW_OWN','CART_MANAGE','RESTAURANT_VIEW','RATING_CREATE')")
 public class CustomerNotificationController {
 
     private final ListNotificationsUseCase listNotificationsUseCase;
     private final MarkNotificationsReadUseCase markNotificationsReadUseCase;
+    private final GetNotificationCountUseCase notificationCountUseCase;
+
     private final NotificationDtoMapper notificationDtoMapper;
 
     private Long getCurrentCustomerId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            return 1L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @GetMapping
@@ -47,6 +48,15 @@ public class CustomerNotificationController {
                 NotificationRole.CUSTOMER,
                 pageRequest.getPage(),
                 pageRequest.getSize()
+        );
+        return ResponseEntity.ok(notificationDtoMapper.toResponseDto(result));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<NotificationCountResponseDTO> count() {
+        var result = notificationCountUseCase.execute(
+                getCurrentCustomerId(),
+                NotificationRole.CUSTOMER
         );
         return ResponseEntity.ok(notificationDtoMapper.toResponseDto(result));
     }

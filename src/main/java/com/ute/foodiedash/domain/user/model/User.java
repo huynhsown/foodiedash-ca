@@ -121,7 +121,7 @@ public class User extends BaseEntity {
         user.fullName = fullName;
         user.status = UserStatus.PENDING_VERIFICATION;
         user.merchantProfile = MerchantProfile.create(
-                user.id, businessName, contactEmail, contactPhone
+                null, businessName, contactEmail, contactPhone
         );
         user.merchantRestaurants = new ArrayList<>();
         user.restaurantDevices = new ArrayList<>();

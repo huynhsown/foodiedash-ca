@@ -12,6 +12,7 @@ import com.ute.foodiedash.interfaces.rest.cart.dto.UpdateCartItemRequestDTO;
 import com.ute.foodiedash.interfaces.rest.cart.mapper.CartDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('CART_MANAGE')")
 public class CartItemController {
     private final SoftDeleteCartItemUseCase softDeleteCartItemUseCase;
     private final RestoreCartItemUseCase restoreCartItemUseCase;

@@ -8,5 +8,6 @@ public record LoginQueryResult(
         String email,
         String fullName,
         String avatarUrl,
-        List<String> roles
+        List<String> roles,
+        List<String> permissions
 ) {}

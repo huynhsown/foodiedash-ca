@@ -1,9 +1,11 @@
 package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.driver.port.DriverBusyStatePort;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
 import com.ute.foodiedash.application.order.port.DriverAssignmentLockPort;
 import com.ute.foodiedash.application.order.port.DriverAssignmentPendingPort;
 import com.ute.foodiedash.application.order.port.NearestAvailableDriverPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.order.enums.OrderStatus;
 import com.ute.foodiedash.domain.order.model.Order;
 import com.ute.foodiedash.domain.order.model.OrderDelivery;
@@ -30,6 +32,7 @@ public class AutoAssignDriverOnReadyUseCase {
     private final DriverAssignmentPendingPort driverAssignmentPendingPort;
     private final DriverAssignmentLockPort driverAssignmentLockPort;
     private final DriverBusyStatePort driverBusyStatePort;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @Value("${driver.dispatch.search-radius-km:10}")
     private double searchRadiusKm;
@@ -81,7 +84,8 @@ public class AutoAssignDriverOnReadyUseCase {
                 driverBusyStatePort.markOnDelivery(delivery.getDriverId(), orderId, busyTtl);
                 registerClearBusyOnRollback(delivery.getDriverId());
                 order.markAsAwaitingPickup("Driver already assigned — awaiting pickup");
-                orderRepository.save(order);
+                Order saved = orderRepository.save(order);
+                orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_ASSIGNED);
                 driverAssignmentPendingPort.remove(orderId);
                 return;
             }
@@ -108,7 +112,8 @@ public class AutoAssignDriverOnReadyUseCase {
             orderDeliveryRepository.save(delivery);
 
             order.markAsAwaitingPickup("Driver assigned automatically");
-            orderRepository.save(order);
+            Order saved = orderRepository.save(order);
+            orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_ASSIGNED);
             driverAssignmentPendingPort.remove(orderId);
         } catch (Exception e) {
             throw new RuntimeException(e);

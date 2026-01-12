@@ -10,6 +10,7 @@ import com.ute.foodiedash.interfaces.rest.paymentmethod.dto.PaymentMethodRespons
 import com.ute.foodiedash.interfaces.rest.paymentmethod.dto.UpdatePaymentMethodRequestDTO;
 import com.ute.foodiedash.interfaces.rest.paymentmethod.mapper.PaymentMethodDtoMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/admin/payment-methods")
 @RequiredArgsConstructor
+@PreAuthorize("hasAuthority('USER_MANAGE')")
 public class AdminPaymentMethodController {
     private final CreatePaymentMethodUseCase createPaymentMethodUseCase;
     private final UpdatePaymentMethodUseCase updatePaymentMethodUseCase;

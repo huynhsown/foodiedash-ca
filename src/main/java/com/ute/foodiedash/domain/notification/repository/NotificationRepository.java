@@ -24,7 +24,7 @@ public interface NotificationRepository {
             int offset
     );
 
-    long countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole);
+    int countByRecipientUserIdAndRecipientRole(Long recipientUserId, NotificationRole recipientRole);
 
     List<Notification> findByIdInAndRecipientUserIdAndRecipientRole(
             List<Long> ids,
