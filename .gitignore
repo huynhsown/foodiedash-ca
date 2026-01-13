@@ -37,3 +37,4 @@ build/
 /docs/
 /docs/
 /scripts/
+/.env
