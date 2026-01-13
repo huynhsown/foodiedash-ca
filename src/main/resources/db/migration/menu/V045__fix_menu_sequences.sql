@@ -1,6 +1,3 @@
--- Fix PostgreSQL sequences getting out of sync with BIGSERIAL PKs.
--- This happens when data is inserted/loaded in a way that doesn't advance sequences.
-
 SELECT setval(
     pg_get_serial_sequence('menus', 'id'),
     COALESCE((SELECT MAX(id) FROM menus), 0) + 1,

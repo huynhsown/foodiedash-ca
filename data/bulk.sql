@@ -27,12 +27,12 @@ INSERT INTO restaurant_categories (id, name, icon_url, description, created_at, 
 (20, 'Đồ ăn vặt', 'https://cdn-icons-png.flaticon.com/512/1046/1046803.png', 'Bánh tráng trộn, nem nướng và các món ăn vặt', NOW(), NOW(), 'system', 'system', NULL, 0);
 
 -- Restaurants (5 restaurants in Ho Chi Minh City)
-INSERT INTO restaurants (id, code, name, description, address, phone, lat, lng, status, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
-(1, 'REST001', 'Phở Hùng - Nguyễn Trãi', 'Phở bò truyền thống với nước dùng đậm đà, thịt bò tươi ngon. Quán phở nổi tiếng hơn 20 năm tại Sài Gòn.', '123 Nguyễn Trãi, Phường Nguyễn Cư Trinh, Quận 1, TP.HCM', '02838234567', 10.762622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(2, 'REST002', 'Cơm Tấm Cali - Lê Văn Việt', 'Cơm tấm Sài Gòn đặc trưng với sườn nướng thơm lừng, bì chả trứng. Không gian rộng rãi, phục vụ nhanh chóng.', '456 Lê Văn Việt, Phường Hiệp Phú, Quận 9, TP.HCM', '02837345678', 10.842622, 106.780172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(3, 'REST003', 'Pizza Hut - Điện Biên Phủ', 'Pizza Ý chính thống với nhiều topping đa dạng. Phục vụ cả dine-in và delivery.', '789 Điện Biên Phủ, Phường 25, Bình Thạnh, TP.HCM', '02838456789', 10.802622, 106.710172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(4, 'REST004', 'KFC - Nguyễn Huệ', 'Gà rán giòn KFC với công thức đặc biệt. Menu đa dạng từ gà rán đến burger và đồ uống.', '321 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM', '02838567890', 10.772622, 106.700172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(5, 'REST005', 'Bún Bò Huế O Loan - Võ Văn Tần', 'Bún bò Huế đậm đà với nước dùng cay nồng đặc trưng xứ Huế. Thịt bò, chả cua tươi ngon.', '654 Võ Văn Tần, Phường 6, Quận 3, TP.HCM', '02838678901', 10.782622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0);
+INSERT INTO restaurants (id, code, name, slug, description, address, phone, lat, lng, status, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
+(1, 'REST001', 'Phở Hùng - Nguyễn Trãi', 'pho-hung-nguyen-trai', 'Phở bò truyền thống với nước dùng đậm đà, thịt bò tươi ngon. Quán phở nổi tiếng hơn 20 năm tại Sài Gòn.', '123 Nguyễn Trãi, Phường Nguyễn Cư Trinh, Quận 1, TP.HCM', '02838234567', 10.762622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(2, 'REST002', 'Cơm Tấm Cali - Lê Văn Việt', 'com-tam-cali-le-van-viet', 'Cơm tấm Sài Gòn đặc trưng với sườn nướng thơm lừng, bì chả trứng. Không gian rộng rãi, phục vụ nhanh chóng.', '456 Lê Văn Việt, Phường Hiệp Phú, Quận 9, TP.HCM', '02837345678', 10.842622, 106.780172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(3, 'REST003', 'Pizza Hut - Điện Biên Phủ', 'pizza-hut-dien-bien-phu', 'Pizza Ý chính thống với nhiều topping đa dạng. Phục vụ cả dine-in và delivery.', '789 Điện Biên Phủ, Phường 25, Bình Thạnh, TP.HCM', '02838456789', 10.802622, 106.710172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(4, 'REST004', 'KFC - Nguyễn Huệ', 'kfc-nguyen-hue', 'Gà rán giòn KFC với công thức đặc biệt. Menu đa dạng từ gà rán đến burger và đồ uống.', '321 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM', '02838567890', 10.772622, 106.700172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(5, 'REST005', 'Bún Bò Huế O Loan - Võ Văn Tần', 'bun-bo-hue-o-loan-vo-van-tan', 'Bún bò Huế đậm đà với nước dùng cay nồng đặc trưng xứ Huế. Thịt bò, chả cua tươi ngon.', '654 Võ Văn Tần, Phường 6, Quận 3, TP.HCM', '02838678901', 10.782622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Restaurant Category Maps
 INSERT INTO restaurant_category_maps (id, restaurant_id, category_id, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
