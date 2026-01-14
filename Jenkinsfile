@@ -15,7 +15,7 @@ pipeline {
             steps {
                 echo "Pulling latest code from main branch..."
                 git branch: 'main',
-                    url: 'https://github.com/huynhsown/foodiedash-ca.git
+                    url: 'https://github.com/huynhsown/foodiedash-ca.git'
             }
         }
 
