@@ -19,40 +19,38 @@ pipeline {
             }
         }
 
-        stage('Build backend image') {
+        stage('Inject env') {
             steps {
-                echo "Building Docker images..."
-                sh """
-                docker compose build backend
-                """
+                withCredentials([file(credentialsId: 'foodiedash-env', variable: 'ENV_FILE')]) {
+                    sh '''
+                    echo "Injecting .env file..."
+                    cp $ENV_FILE .env
+                    '''
+                }
             }
         }
 
-        stage('Stop old containers') {
+        stage('Build images') {
             steps {
-                echo "Stopping old containers..."
-                sh """
-                docker compose down
-                """
+                echo "Building Docker images..."
+                sh "docker compose build backend"
             }
         }
 
         stage('Deploy stack') {
             steps {
-                echo "Starting new containers..."
-                sh """
-                docker compose up -d --build
-                """
+                echo "Starting containers..."
+                sh "docker compose up -d --build"
             }
         }
 
         stage('Health check') {
             steps {
                 echo "Checking backend health..."
-                sh """
+                sh '''
                 sleep 10
                 curl -f http://localhost:8080 || exit 1
-                """
+                '''
             }
         }
     }
