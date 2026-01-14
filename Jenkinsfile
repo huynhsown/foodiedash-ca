@@ -1,8 +1,14 @@
 pipeline {
-    agent any
+    agent { label 'docker' }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
 
     environment {
         APP_NAME = "foodiedash"
+        COMPOSE_FILE = "docker-compose.yaml"
     }
 
     triggers {
@@ -11,15 +17,24 @@ pipeline {
 
     stages {
 
-        stage('Checkout latest code') {
+        stage('Checkout') {
             steps {
-                echo "Pulling latest code from main branch..."
-                git branch: 'main',
-                    url: 'https://github.com/huynhsown/foodiedash-ca.git'
+                checkout scm
             }
         }
 
-        stage('Inject env') {
+        stage('Preflight') {
+            steps {
+                sh '''
+                set -e
+                command -v docker >/dev/null 2>&1 || { echo "Docker CLI is missing on this Jenkins agent."; exit 1; }
+                docker --version
+                docker compose version
+                '''
+            }
+        }
+
+        stage('Inject .env') {
             steps {
                 withCredentials([file(credentialsId: 'foodiedash-env', variable: 'ENV_FILE')]) {
                     sh '''
@@ -33,14 +48,17 @@ pipeline {
         stage('Build images') {
             steps {
                 echo "Building Docker images..."
-                sh "docker compose build backend"
+                sh 'docker compose -f "${COMPOSE_FILE}" build backend'
             }
         }
 
         stage('Deploy stack') {
             steps {
                 echo "Starting containers..."
-                sh "docker compose up -d --build"
+                sh '''
+                docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" down --remove-orphans || true
+                docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" up -d --build
+                '''
             }
         }
 
@@ -49,7 +67,7 @@ pipeline {
                 echo "Checking backend health..."
                 sh '''
                 sleep 10
-                curl -f http://localhost:8080 || exit 1
+                curl -f http://localhost:8080/actuator/health || exit 1
                 '''
             }
         }
@@ -62,6 +80,7 @@ pipeline {
 
         failure {
             echo "❌ Deployment FAILED!"
+            sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" logs --tail=200 || true'
         }
     }
 }
