@@ -89,7 +89,7 @@ services:
 
 networks:
   app-network:
-    driver: bridge
+    external: true
 
 volumes:
   foodiedash_postgres_data:
