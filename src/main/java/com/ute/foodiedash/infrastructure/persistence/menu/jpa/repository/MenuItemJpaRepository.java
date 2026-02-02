@@ -12,6 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface MenuItemJpaRepository extends JpaRepository<MenuItemJpaEntity, Long> {
+    List<MenuItemJpaEntity> findByIdInAndDeletedAtIsNull(
+            List<Long> menuItemIds
+    );
+
     List<MenuItemJpaEntity> findByMenuIdInAndDeletedAtIsNull(
             List<Long> menuIds
     );

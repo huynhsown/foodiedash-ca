@@ -14,6 +14,7 @@ import co.elastic.clients.json.JsonData;
 import com.ute.foodiedash.domain.restaurant.model.Restaurant;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;
 import com.ute.foodiedash.infrastructure.search.meilisearch.MeilisearchService;
+import com.ute.foodiedash.infrastructure.search.meilisearch.docs.MenuItemSearchDocument;
 import com.ute.foodiedash.infrastructure.search.meilisearch.RestaurantSearchDocumentService;
 import com.ute.foodiedash.infrastructure.search.meilisearch.docs.RestaurantSearchDocument;
 import com.ute.foodiedash.infrastructure.search.meilisearch.dto.RestaurantSearchHitDTO;
@@ -46,23 +47,17 @@ public class ElasticsearchServiceImpl implements MeilisearchService {
     @Value("${elasticsearch.index.restaurants}")
     private String restaurantsIndex;
 
+    @Value("${elasticsearch.index.menu-items:menu-items}")
+    private String menuItemsIndex;
+
+    @Value("${elasticsearch.menu-items.embedding-dims:3072}")
+    private int menuItemEmbeddingDims;
+
     @Override
     public void initializeIndex() {
         try {
-            boolean exists = elasticsearchClient.indices()
-                    .exists(ExistsRequest.of(b -> b.index(restaurantsIndex)))
-                    .value();
-
-            if (exists) {
-                return;
-            }
-
-            CreateIndexRequest request = CreateIndexRequest.of(b -> b
-                    .index(restaurantsIndex)
-                    .mappings(mb -> mb.properties(restaurantsMapping()))
-            );
-
-            elasticsearchClient.indices().create(request);
+            ensureIndexExists(restaurantsIndex, restaurantsMapping());
+            ensureIndexExists(menuItemsIndex, menuItemsMapping());
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize Elasticsearch index", e);
         }
@@ -186,6 +181,43 @@ public class ElasticsearchServiceImpl implements MeilisearchService {
         }
     }
 
+    public void indexMenuItem(MenuItemSearchDocument document) {
+        upsertMenuItem(document);
+    }
+
+    public void indexMenuItems(List<MenuItemSearchDocument> documents) {
+        for (MenuItemSearchDocument document : documents) {
+            upsertMenuItem(document);
+        }
+    }
+
+    public void deleteMenuItem(Long menuItemId) {
+        try {
+            elasticsearchClient.delete(DeleteRequest.of(b -> b
+                    .index(menuItemsIndex)
+                    .id(String.valueOf(menuItemId))
+            ));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete menu item from Elasticsearch", e);
+        }
+    }
+
+    private void upsertMenuItem(MenuItemSearchDocument document) {
+        try {
+            Map<String, Object> source = menuItemDocumentToMap(document);
+
+            IndexRequest<Map<String, Object>> req = IndexRequest.of(b -> b
+                    .index(menuItemsIndex)
+                    .id(String.valueOf(document.getMenuItemId()))
+                    .document(source)
+            );
+
+            elasticsearchClient.index(req);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to index menu item in Elasticsearch", e);
+        }
+    }
+
     private Query buildRestaurantsQuery(RestaurantSearchRequestDTO request) {
         BoolQuery.Builder bool = new BoolQuery.Builder();
 
@@ -236,6 +268,34 @@ public class ElasticsearchServiceImpl implements MeilisearchService {
         return props;
     }
 
+    private Map<String, Property> menuItemsMapping() {
+        Map<String, Property> props = new HashMap<>();
+        props.put("menuItemId", Property.of(p -> p.long_(l -> l)));
+        props.put("embeddingText", Property.of(p -> p.text(t -> t)));
+        props.put("embedding", Property.of(p -> p.denseVector(dv -> dv
+                .dims(menuItemEmbeddingDims)
+                .index(true)
+        )));
+        return props;
+    }
+
+    private void ensureIndexExists(String indexName, Map<String, Property> mappings) throws Exception {
+        boolean exists = elasticsearchClient.indices()
+                .exists(ExistsRequest.of(b -> b.index(indexName)))
+                .value();
+
+        if (exists) {
+            return;
+        }
+
+        CreateIndexRequest request = CreateIndexRequest.of(b -> b
+                .index(indexName)
+                .mappings(mb -> mb.properties(mappings))
+        );
+
+        elasticsearchClient.indices().create(request);
+    }
+
     private static Map<String, Object> documentToMap(RestaurantSearchDocument document) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", document.getId());
@@ -254,6 +314,14 @@ public class ElasticsearchServiceImpl implements MeilisearchService {
             map.put("geo", geo);
         }
 
+        return map;
+    }
+
+    private static Map<String, Object> menuItemDocumentToMap(MenuItemSearchDocument document) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("menuItemId", document.getMenuItemId());
+        map.put("embeddingText", document.getEmbeddingText());
+        map.put("embedding", document.getEmbedding());
         return map;
     }
 

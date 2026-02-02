@@ -7,6 +7,7 @@ import java.util.Optional;
 public interface MenuRepository {
     Menu save(Menu menu);
     Optional<Menu> findById(Long id);
+    List<Menu> findByIdInAndDeletedAtIsNull(List<Long> menuIds);
     List<Menu> findByRestaurantId(Long restaurantId);
     void softDeleteById(Long id);
     void restoreById(Long id);
