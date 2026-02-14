@@ -6,7 +6,6 @@ import com.ute.foodiedash.interfaces.rest.ai.dto.AIChatTestRequestDTO;
 import com.ute.foodiedash.interfaces.rest.ai.dto.AIChatTestResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,10 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/internal/ai")
+@RequestMapping("/api/v1/ai")
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "app.internal-test-apis-enabled", havingValue = "true")
-public class AIChatTestController {
+public class AIChatController {
 
     private final AIChatUseCase aiChatUseCase;
 
