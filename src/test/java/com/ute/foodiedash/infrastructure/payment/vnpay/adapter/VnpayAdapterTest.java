@@ -73,11 +73,6 @@ class VnpayAdapterTest {
 
     private static VnpayProperties testVnpayProperties() {
         VnpayProperties props = new VnpayProperties();
-        props.setTmnCode("F8HQIZN4");
-        props.setHashSecret("H9E966FA0MM8ODKY8PNQC8EMQCFSON5G");
-        props.setUrl("https://sandbox.vnpayment.vn/paymentv2/vpcpay.html");
-        props.setReturnUrl("http://localhost:8080/api/payment/vnpay/return");
-        props.setIpnUrl("http://localhost:8080/api/payment/vnpay/ipn");
         return props;
     }
 
