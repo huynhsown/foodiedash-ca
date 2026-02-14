@@ -67,7 +67,7 @@ public class GetRestaurantMenuUseCase {
         for (Menu menu : menus) {
             if (!menu.getStatus().equals(MenuStatus.ACTIVE)) continue;
             
-            boolean isMenuAvailableNow = isMenuAvailableNow(menu);
+            boolean isMenuAvailableNow = RestaurantUtils.isMenuAvailableNow(menu);
             boolean isAvailable = restaurantIsOpen && isMenuAvailableNow;
 
             List<MenuItem> items = menuMap.getOrDefault(menu.getId(), Collections.emptyList());
@@ -103,15 +103,4 @@ public class GetRestaurantMenuUseCase {
         return result;
     }
 
-    private boolean isMenuAvailableNow(Menu menu) {
-        LocalTime now = LocalTime.now();
-        LocalTime start = menu.getStartTime();
-        LocalTime end = menu.getEndTime();
-
-        if (start.isBefore(end)) {
-            return !now.isBefore(start) && !now.isAfter(end);
-        }
-
-        return !now.isBefore(start) || !now.isAfter(end);
-    }
 }

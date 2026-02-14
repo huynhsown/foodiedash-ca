@@ -37,6 +37,14 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
     }
 
     @Override
+    public List<Restaurant> findByIdInAndDeletedAtIsNull(List<Long> restaurantIds) {
+        return jpaRepository.findByIdInAndDeletedAtIsNull(restaurantIds)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<Restaurant> findBySlug(String slug) {
         RestaurantJpaEntity jpaEntity = jpaRepository.findBySlug(slug);
         if (jpaEntity == null) {

@@ -43,6 +43,13 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
     }
 
     @Override
+    public List<MenuItem> findByIdInAndDeletedAtIsNull(List<Long> menuItemIds) {
+        return jpaRepository.findByIdInAndDeletedAtIsNull(menuItemIds).stream()
+            .map(mapper::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
     public List<MenuItem> findByMenuIdInAndDeletedAtIsNull(List<Long> menuIds) {
         return jpaRepository.findByMenuIdInAndDeletedAtIsNull(menuIds).stream()
             .map(mapper::toDomain)
