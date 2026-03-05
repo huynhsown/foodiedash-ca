@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: demo_db
+      MYSQL_USER: debezium
+      MYSQL_PASSWORD: dbz
+    ports:
+      - "3306:3306"
+    command:
+      [
+        "--server-id=223344",
+        "--log-bin=mysql-bin",
+        "--binlog-format=ROW",
+        "--binlog-row-image=FULL"
+      ]
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.16
+    container_name: meilisearch
+    restart: always
+    environment:
+      MEILI_MASTER_KEY: masterKey
+      MEILI_HTTP_ADDR: "0.0.0.0:7700"
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+
+volumes:
+  mysql_data:
+  meili_data:
