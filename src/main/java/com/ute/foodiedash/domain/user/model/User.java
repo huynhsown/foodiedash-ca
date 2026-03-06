@@ -2,9 +2,19 @@ package com.ute.foodiedash.domain.user.model;
 
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
+import com.ute.foodiedash.domain.user.enums.Gender;
+import com.ute.foodiedash.domain.user.enums.RoleName;
 import com.ute.foodiedash.domain.user.enums.UserStatus;
+import com.ute.foodiedash.domain.user.enums.VehicleType;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -17,44 +27,93 @@ public class User extends BaseEntity {
     private String avatarUrl;
     private UserStatus status;
 
-    public static User create(
+    private CustomerProfile customerProfile;
+    private MerchantProfile merchantProfile;
+    private DriverProfile driverProfile;
+    private List<CustomerAddress> addresses = new ArrayList<>();
+    private List<UserRole> roles = new ArrayList<>();
+
+    public static User createCustomer(
             String email,
             String phone,
             String password,
             String fullName,
-            String avatarUrl
+            Instant dateOfBirth,
+            Gender gender
     ) {
-        if (email == null || email.isBlank()) {
-            throw new BadRequestException("EMAIL_REQUIRED");
-        }
-
-        if (password == null || password.isBlank()) {
-            throw new BadRequestException("PASSWORD_REQUIRED");
-        }
-
-        if (fullName == null || fullName.isBlank()) {
-            throw new BadRequestException("FULL_NAME_REQUIRED");
-        }
+        validateEmail(email);
+        validatePassword(password);
+        validateFullName(fullName);
 
         User user = new User();
         user.email = email;
         user.phone = phone;
         user.password = password;
         user.fullName = fullName;
-        user.avatarUrl = avatarUrl;
         user.status = UserStatus.PENDING_VERIFICATION;
+        user.customerProfile = CustomerProfile.create(user.id, dateOfBirth, gender);
+        user.roles.add(UserRole.create(RoleName.CUSTOMER));
+        user.addresses = new ArrayList<>();
+
         return user;
     }
 
-    public void changePassword(String newPassword) {
-        if (newPassword == null || newPassword.length() < 6) {
-            throw new BadRequestException("INVALID_PASSWORD");
-        }
+    public static User createMerchant(
+            String email,
+            String phone,
+            String password,
+            String fullName,
+            String businessName,
+            String contactEmail,
+            String contactPhone
+    ) {
+        validateEmail(email);
+        validatePassword(password);
+        validateFullName(fullName);
 
-        this.password = newPassword;
+        User user = new User();
+        user.email = email;
+        user.phone = phone;
+        user.password = password;
+        user.fullName = fullName;
+        user.status = UserStatus.PENDING_VERIFICATION;
+        user.merchantProfile = MerchantProfile.create(
+                user.id, businessName, contactEmail, contactPhone
+        );
+        user.roles.add(UserRole.create(RoleName.MERCHANT));
+        user.addresses = new ArrayList<>();
+
+        return user;
+    }
+
+    public static User createDriver(
+            String email,
+            String phone,
+            String password,
+            String fullName,
+            VehicleType vehicleType
+    ) {
+        validateEmail(email);
+        validatePassword(password);
+        validateFullName(fullName);
+
+        User user = new User();
+        user.email = email;
+        user.phone = phone;
+        user.password = password;
+        user.fullName = fullName;
+        user.status = UserStatus.PENDING_VERIFICATION;
+
+        user.driverProfile = DriverProfile.create(user.id, vehicleType);
+        user.roles.add(UserRole.create(RoleName.DRIVER));
+        user.addresses = new ArrayList<>();
+
+        return user;
     }
 
     public void updateProfile(String fullName, String phone, String avatarUrl) {
+        ensureActive();
+
         if (fullName != null && !fullName.isBlank()) {
             this.fullName = fullName;
         }
@@ -66,6 +125,14 @@ public class User extends BaseEntity {
         if (avatarUrl != null) {
             this.avatarUrl = avatarUrl;
         }
+    }
+
+    public void changePassword(String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BadRequestException("INVALID_PASSWORD");
+        }
+
+        this.password = newPassword;
     }
 
     public void verify() {
@@ -90,6 +157,85 @@ public class User extends BaseEntity {
         this.status = UserStatus.INACTIVE;
     }
 
+    public void assignRole(RoleName roleName) {
+        ensureActive();
+        if (hasRole(roleName)) {
+            throw new BadRequestException("ROLE_ALREADY_ASSIGNED");
+        }
+        if (roleName == RoleName.CUSTOMER && hasRole(RoleName.MERCHANT)) {
+            throw new BadRequestException("CANNOT_HAVE_BOTH_CUSTOMER_AND_MERCHANT");
+        }
+        if (roleName == RoleName.MERCHANT && hasRole(RoleName.CUSTOMER)) {
+            throw new BadRequestException("CANNOT_HAVE_BOTH_CUSTOMER_AND_MERCHANT");
+        }
+        this.roles.add(UserRole.create(roleName));
+    }
+
+    public void removeRole(RoleName roleName) {
+        ensureActive();
+        if (!hasRole(roleName)) {
+            throw new BadRequestException("Role not assigned");
+        }
+        if (this.roles.size() == 1) {
+            throw new BadRequestException("Cannot remove last role");
+        }
+        this.roles.removeIf(r -> r.getRoleName().equals(roleName));
+    }
+
+    public void addCustomerAddress(CustomerAddress address) {
+        ensureActive();
+
+        if (this.customerProfile == null) {
+            throw new BadRequestException("USER_NOT_CUSTOMER");
+        }
+
+        address.setUserId(this.id);
+
+        if (address.isDefault() || this.addresses.isEmpty()) {
+            this.addresses.forEach(addr -> addr.setDefault(false));
+            address.setDefault(true);
+        }
+
+        this.addresses.add(address);
+    }
+
+    public void updateCustomerAddress(Long addressId, CustomerAddress updatedAddress) {
+        ensureActive();
+        CustomerAddress existing = findAddressById(addressId)
+                .orElseThrow(() -> new BadRequestException("Address not found"));
+
+        existing.update(updatedAddress);
+
+        if (updatedAddress.isDefault()) {
+            this.addresses.stream()
+                    .filter(addr -> !addr.getId().equals(addressId))
+                    .forEach(addr -> addr.setDefault(false));
+        }
+    }
+
+    public void removeCustomerAddress(Long addressId) {
+        ensureActive();
+
+        CustomerAddress address = findAddressById(addressId)
+                .orElseThrow(() -> new BadRequestException("ADDRESS_NOT_FOUND"));
+
+        if (address.isDefault() && this.addresses.size() > 1) {
+            throw new BadRequestException("CANNOT_REMOVE_DEFAULT_ADDRESS");
+        }
+
+        this.addresses.remove(address);
+    }
+
+    public void setDefaultAddress(Long addressId) {
+        ensureActive();
+
+        CustomerAddress address = findAddressById(addressId)
+                .orElseThrow(() -> new BadRequestException("ADDRESS_NOT_FOUND"));
+
+        this.addresses.forEach(addr -> addr.setDefault(false));
+        address.setDefault(true);
+    }
+
     public boolean isActive() {
         return this.status == UserStatus.ACTIVE;
     }
@@ -97,6 +243,54 @@ public class User extends BaseEntity {
     public void ensureActive() {
         if (!isActive()) {
             throw new BadRequestException("USER_NOT_ACTIVE");
+        }
+    }
+
+    public boolean hasRole(RoleName roleName) {
+        return this.roles.stream().anyMatch(
+                r -> r.getRoleName().equals(roleName)
+        );
+    }
+
+    public List<RoleName> getRoleNames() {
+        return this.roles.stream()
+                .map(UserRole::getRoleName)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<CustomerAddress> findAddressById(Long addressId) {
+        return this.addresses.stream()
+                .filter(ca -> Objects.equals(ca.getId(), addressId))
+                .findFirst();
+    }
+
+    public boolean isCustomer() {
+        return this.customerProfile != null;
+    }
+
+    public boolean isMerchant() {
+        return this.merchantProfile != null;
+    }
+
+    public boolean isDriver() {
+        return this.driverProfile != null;
+    }
+
+    private static void validateEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new BadRequestException("EMAIL_REQUIRED");
+        }
+    }
+
+    private static void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new BadRequestException("PASSWORD_REQUIRED");
+        }
+    }
+
+    private static void validateFullName(String fullName) {
+        if (fullName == null || fullName.isBlank()) {
+            throw new BadRequestException("FULL_NAME_REQUIRED");
         }
     }
 }
