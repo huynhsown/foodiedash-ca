@@ -35,7 +35,7 @@ public class DriverProfile extends BaseEntity {
 
     public static DriverProfile create(Long userId, VehicleType vehicleType) {
         if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
+            throw new BadRequestException("User ID is required");
         }
 
         DriverProfile profile = new DriverProfile();
@@ -103,21 +103,21 @@ public class DriverProfile extends BaseEntity {
 
     public void approve() {
         if (this.verificationStatus == DriverVerificationStatus.APPROVED) {
-            throw new BadRequestException("DRIVER_ALREADY_APPROVED");
+            throw new BadRequestException("Driver is already approved");
         }
         this.verificationStatus = DriverVerificationStatus.APPROVED;
     }
 
     public void reject() {
         if (this.verificationStatus == DriverVerificationStatus.REJECTED) {
-            throw new BadRequestException("DRIVER_ALREADY_REJECTED");
+            throw new BadRequestException("Driver is already rejected");
         }
         this.verificationStatus = DriverVerificationStatus.REJECTED;
     }
 
     public void goOnline() {
         if (!isApproved()) {
-            throw new BadRequestException("DRIVER_NOT_APPROVED");
+            throw new BadRequestException("Driver must be approved before going online");
         }
         this.isOnline = true;
     }

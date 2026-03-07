@@ -51,7 +51,7 @@ public class User extends BaseEntity {
         user.password = password;
         user.fullName = fullName;
         user.status = UserStatus.PENDING_VERIFICATION;
-        user.customerProfile = CustomerProfile.create(user.id, dateOfBirth, gender);
+        user.customerProfile = CustomerProfile.create(null, dateOfBirth, gender);
         user.roles.add(UserRole.create(RoleName.CUSTOMER));
         user.addresses = new ArrayList<>();
 
@@ -129,7 +129,7 @@ public class User extends BaseEntity {
 
     public void changePassword(String newPassword) {
         if (newPassword == null || newPassword.length() < 6) {
-            throw new BadRequestException("INVALID_PASSWORD");
+            throw new BadRequestException("Password must be at least 6 characters");
         }
 
         this.password = newPassword;
@@ -137,7 +137,7 @@ public class User extends BaseEntity {
 
     public void verify() {
         if (this.status != UserStatus.PENDING_VERIFICATION) {
-            throw new BadRequestException("USER_ALREADY_VERIFIED");
+            throw new BadRequestException("User is already verified");
         }
 
         this.status = UserStatus.ACTIVE;
@@ -145,14 +145,14 @@ public class User extends BaseEntity {
 
     public void activate() {
         if (this.status == UserStatus.ACTIVE) {
-            throw new BadRequestException("USER_ALREADY_ACTIVE");
+            throw new BadRequestException("User is already active");
         }
         this.status = UserStatus.ACTIVE;
     }
 
     public void deactivate() {
         if (this.status == UserStatus.INACTIVE) {
-            throw new BadRequestException("USER_ALREADY_INACTIVE");
+            throw new BadRequestException("User is already inactive");
         }
         this.status = UserStatus.INACTIVE;
     }
@@ -160,13 +160,13 @@ public class User extends BaseEntity {
     public void assignRole(RoleName roleName) {
         ensureActive();
         if (hasRole(roleName)) {
-            throw new BadRequestException("ROLE_ALREADY_ASSIGNED");
+            throw new BadRequestException("Role is already assigned to this user");
         }
         if (roleName == RoleName.CUSTOMER && hasRole(RoleName.MERCHANT)) {
-            throw new BadRequestException("CANNOT_HAVE_BOTH_CUSTOMER_AND_MERCHANT");
+            throw new BadRequestException("User cannot have both customer and merchant roles");
         }
         if (roleName == RoleName.MERCHANT && hasRole(RoleName.CUSTOMER)) {
-            throw new BadRequestException("CANNOT_HAVE_BOTH_CUSTOMER_AND_MERCHANT");
+            throw new BadRequestException("User cannot have both customer and merchant roles");
         }
         this.roles.add(UserRole.create(roleName));
     }
@@ -174,10 +174,10 @@ public class User extends BaseEntity {
     public void removeRole(RoleName roleName) {
         ensureActive();
         if (!hasRole(roleName)) {
-            throw new BadRequestException("Role not assigned");
+            throw new BadRequestException("Role is not assigned to this user");
         }
         if (this.roles.size() == 1) {
-            throw new BadRequestException("Cannot remove last role");
+            throw new BadRequestException("Cannot remove the last role");
         }
         this.roles.removeIf(r -> r.getRoleName().equals(roleName));
     }
@@ -186,7 +186,7 @@ public class User extends BaseEntity {
         ensureActive();
 
         if (this.customerProfile == null) {
-            throw new BadRequestException("USER_NOT_CUSTOMER");
+            throw new BadRequestException("User is not a customer");
         }
 
         address.setUserId(this.id);
@@ -217,10 +217,10 @@ public class User extends BaseEntity {
         ensureActive();
 
         CustomerAddress address = findAddressById(addressId)
-                .orElseThrow(() -> new BadRequestException("ADDRESS_NOT_FOUND"));
+                .orElseThrow(() -> new BadRequestException("Address not found"));
 
         if (address.isDefault() && this.addresses.size() > 1) {
-            throw new BadRequestException("CANNOT_REMOVE_DEFAULT_ADDRESS");
+            throw new BadRequestException("Cannot remove default address when there are other addresses");
         }
 
         this.addresses.remove(address);
@@ -230,7 +230,7 @@ public class User extends BaseEntity {
         ensureActive();
 
         CustomerAddress address = findAddressById(addressId)
-                .orElseThrow(() -> new BadRequestException("ADDRESS_NOT_FOUND"));
+                .orElseThrow(() -> new BadRequestException("Address not found"));
 
         this.addresses.forEach(addr -> addr.setDefault(false));
         address.setDefault(true);
@@ -242,7 +242,7 @@ public class User extends BaseEntity {
 
     public void ensureActive() {
         if (!isActive()) {
-            throw new BadRequestException("USER_NOT_ACTIVE");
+            throw new BadRequestException("User is not active");
         }
     }
 
@@ -278,19 +278,19 @@ public class User extends BaseEntity {
 
     private static void validateEmail(String email) {
         if (email == null || email.isBlank()) {
-            throw new BadRequestException("EMAIL_REQUIRED");
+            throw new BadRequestException("Email is required");
         }
     }
 
     private static void validatePassword(String password) {
         if (password == null || password.isBlank()) {
-            throw new BadRequestException("PASSWORD_REQUIRED");
+            throw new BadRequestException("Password is required");
         }
     }
 
     private static void validateFullName(String fullName) {
         if (fullName == null || fullName.isBlank()) {
-            throw new BadRequestException("FULL_NAME_REQUIRED");
+            throw new BadRequestException("Full name is required");
         }
     }
 }

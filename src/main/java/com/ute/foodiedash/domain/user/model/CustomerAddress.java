@@ -34,11 +34,15 @@ public class CustomerAddress extends BaseEntity {
             String note
     ) {
         if (label == null || label.isBlank()) {
-            throw new BadRequestException("ADDRESS_LABEL_REQUIRED");
+            throw new BadRequestException("Address label is required");
         }
 
         if (address == null || address.isBlank()) {
-            throw new BadRequestException("ADDRESS_REQUIRED");
+            throw new BadRequestException("Address is required");
+        }
+
+        if (lat == null || lng == null) {
+            throw new BadRequestException("Address location (latitude and longitude) is required");
         }
 
         CustomerAddress ca = new CustomerAddress();

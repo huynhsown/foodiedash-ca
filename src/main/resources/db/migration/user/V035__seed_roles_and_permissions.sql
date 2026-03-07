@@ -76,5 +76,5 @@ VALUES (1, 'admin@foodiedash.com', NULL,
         '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
         'System Admin', 'ACTIVE');
 
-INSERT INTO user_roles (user_id, role_id)
-VALUES (1, 1);
+INSERT INTO user_roles (user_id, role_name)
+VALUES (1, 'ADMIN');

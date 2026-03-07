@@ -3,9 +3,9 @@ package com.ute.foodiedash.application.restaurant.usecase;
 import com.ute.foodiedash.application.restaurant.query.GetRestaurantCategoriesQuery;
 import com.ute.foodiedash.application.restaurant.query.RestaurantCategoriesPageResult;
 import com.ute.foodiedash.application.restaurant.query.RestaurantCategoryQueryResult;
-import com.ute.foodiedash.domain.restaurant.model.RestaurantCategory;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantCategoryRepository;
-import com.ute.foodiedash.infrastructure.persistence.jpa.repository.RestaurantCategoryJpaRepository;
+import com.ute.foodiedash.infrastructure.persistence.restaurant.jpa.repository.RestaurantCategoryJpaRepository;
+import com.ute.foodiedash.infrastructure.persistence.restaurant.jpa.entity.RestaurantCategoryJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +28,7 @@ public class GetRestaurantCategoriesUseCase {
             : Sort.by(query.sortBy()).descending();
         Pageable pageable = PageRequest.of(query.page(), query.size(), sort);
         
-        Page<com.ute.foodiedash.infrastructure.persistence.jpa.entity.RestaurantCategoryJpaEntity> page = 
+        Page<RestaurantCategoryJpaEntity> page =
             jpaRepository.findAll(pageable);
         
         List<RestaurantCategoryQueryResult> content = page.getContent().stream()

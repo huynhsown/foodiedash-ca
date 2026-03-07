@@ -14,4 +14,8 @@ public interface UserRepository {
     Optional<User> findByIdWithAddresses(Long id);
     Optional<User> findByIdWithProfile(Long id);
     Optional<User> findByIdWithAll(Long id);
+    Optional<User> findByEmailWithRoles(String email);
+
+    void softDeleteById(Long id);
+    void restoreById(Long id);
 }
