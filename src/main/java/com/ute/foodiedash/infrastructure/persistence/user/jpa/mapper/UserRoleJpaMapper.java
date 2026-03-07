@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 public interface UserRoleJpaMapper {
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "roleName", source = "id.roleName")
     UserRole toDomain(UserRoleJpaEntity jpaEntity);
 
     default UserRoleJpaEntity toJpaEntity(UserRole domain) {

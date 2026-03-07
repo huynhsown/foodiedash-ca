@@ -9,6 +9,7 @@ import com.ute.foodiedash.application.cart.usecase.GetCartCountUseCase;
 import com.ute.foodiedash.application.cart.usecase.GetCartUseCase;
 import com.ute.foodiedash.application.cart.usecase.RestoreCartUseCase;
 import com.ute.foodiedash.application.cart.usecase.SoftDeleteCartUseCase;
+import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.cart.dto.AddToCartRequestDTO;
 import com.ute.foodiedash.interfaces.rest.cart.dto.CartCountResponseDTO;
 import com.ute.foodiedash.interfaces.rest.cart.dto.CartDTO;
@@ -33,7 +34,7 @@ public class CartController {
 
     @PostMapping
     public ResponseEntity<CartDTO> addToCart(@RequestBody @Valid AddToCartRequestDTO dto) {
-        Long userId = 0L; // TODO: Get from authentication
+        Long userId = SecurityContextHelper.getCurrentUserId();
         AddToCartCommand command = cartDtoMapper.toCommand(dto);
         CartQueryResult result = addToCartUseCase.execute(userId, command);
         CartDTO response = cartDtoMapper.toDto(result);
@@ -42,7 +43,7 @@ public class CartController {
 
     @GetMapping
     public ResponseEntity<CartDTO> getCartByUserId() {
-        Long userId = 0L; // TODO: Get from authentication
+        Long userId = SecurityContextHelper.getCurrentUserId();
         CartQueryResult result = getCartByUserIdUseCase.execute(userId);
         CartDTO response = cartDtoMapper.toDto(result);
         return ResponseEntity.ok(response);
@@ -50,7 +51,7 @@ public class CartController {
 
     @GetMapping("/count")
     public ResponseEntity<CartCountResponseDTO> countCartItem() {
-        Long userId = 0L; // TODO: Get from authentication
+        Long userId = SecurityContextHelper.getCurrentUserId();
         CartCountQueryResult result = getCartCountUseCase.execute(userId);
         CartCountResponseDTO response = cartDtoMapper.toCountDto(result);
         return ResponseEntity.ok(response);
