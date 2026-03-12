@@ -22,4 +22,20 @@ public abstract class BaseEntity {
     public void markDeleted() {
         this.deletedAt = Instant.now();
     }
+
+    protected void restoreAudit(
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
+        this.deletedAt = deletedAt;
+        this.version = version;
+    }
 }
