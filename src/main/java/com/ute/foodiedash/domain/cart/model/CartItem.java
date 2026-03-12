@@ -33,17 +33,14 @@ public class CartItem extends BaseEntity {
         }
     }
 
-    // ========== Increase quantity ==========
     public void increaseQuantity() {
         updateQuantity(this.quantity + 1);
     }
 
-    // ========== Can decrease check ==========
     public boolean canDecrease() {
         return this.quantity > 1;
     }
 
-    // ========== Decrease quantity ==========
     public void decreaseQuantity() {
         if (!canDecrease()) {
             throw new IllegalStateException("Cannot decrease quantity below 1");
@@ -51,7 +48,6 @@ public class CartItem extends BaseEntity {
         updateQuantity(this.quantity - 1);
     }
 
-    // ========== Update from menu item info ==========
     public void updateFromMenuItem(String name, String imageUrl,
                                     BigDecimal unitPrice, String notes) {
         this.name = name;
@@ -63,7 +59,6 @@ public class CartItem extends BaseEntity {
         recalculateTotalPrice();
     }
 
-    // ========== Update total with extras ==========
     public void updateTotalPrice(BigDecimal unitTotalWithExtras) {
         this.totalPrice = unitTotalWithExtras.multiply(BigDecimal.valueOf(quantity));
     }
