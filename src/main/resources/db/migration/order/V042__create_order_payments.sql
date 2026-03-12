@@ -1,6 +1,6 @@
 CREATE TABLE order_payments
 (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     order_id       BIGINT                              NOT NULL,
     payment_method VARCHAR(30)                         NOT NULL,
     payment_status VARCHAR(30)                         NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE order_payments
     refunded_at        TIMESTAMP NULL,
 
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by     VARCHAR(255) NULL,
     updated_by     VARCHAR(255) NULL,
     deleted_at     TIMESTAMP NULL,
@@ -20,4 +20,4 @@ CREATE TABLE order_payments
     CONSTRAINT fk_payment_order
         FOREIGN KEY (order_id) REFERENCES orders (id)
             ON DELETE CASCADE
-) ENGINE = INNODB;
+);

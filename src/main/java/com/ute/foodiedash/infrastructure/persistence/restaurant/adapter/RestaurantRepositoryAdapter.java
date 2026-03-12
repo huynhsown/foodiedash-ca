@@ -8,6 +8,7 @@ import com.ute.foodiedash.infrastructure.persistence.restaurant.jpa.repository.R
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -42,6 +43,14 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
             return Optional.empty();
         }
         return Optional.of(mapper.toDomain(jpaEntity));
+    }
+
+    @Override
+    public List<Restaurant> findAllActive() {
+        return jpaRepository.findAllByDeletedAtIsNull()
+            .stream()
+            .map(mapper::toDomain)
+            .toList();
     }
 
     @Override

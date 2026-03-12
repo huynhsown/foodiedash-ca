@@ -1,6 +1,6 @@
 CREATE TABLE orders
 (
-    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id              BIGSERIAL PRIMARY KEY,
     code            VARCHAR(30)                              NOT NULL,
     customer_id     BIGINT                                   NOT NULL,
     restaurant_id   BIGINT                                   NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE orders
     cancel_reason   VARCHAR(255) NULL,
 
     created_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP      DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by      VARCHAR(255) NULL,
     updated_by      VARCHAR(255) NULL,
     deleted_at      TIMESTAMP NULL,
@@ -29,4 +29,4 @@ CREATE TABLE orders
 
     CONSTRAINT fk_orders_restaurant
         FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
-) ENGINE = INNODB;
+);

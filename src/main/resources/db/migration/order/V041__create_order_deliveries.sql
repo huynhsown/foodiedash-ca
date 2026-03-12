@@ -1,6 +1,6 @@
 CREATE TABLE order_deliveries
 (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     order_id       BIGINT                              NOT NULL,
     driver_id      BIGINT NULL,
     address        VARCHAR(500)                        NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE order_deliveries
     delivered_at   TIMESTAMP NULL,
 
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by     VARCHAR(255) NULL,
     updated_by     VARCHAR(255) NULL,
     deleted_at     TIMESTAMP NULL,
@@ -30,4 +30,4 @@ CREATE TABLE order_deliveries
 
     CONSTRAINT fk_delivery_driver
         FOREIGN KEY (driver_id) REFERENCES driver_profiles (id)
-) ENGINE = INNODB;
+);

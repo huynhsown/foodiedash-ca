@@ -1,2 +1,2 @@
 ALTER TABLE customer_profiles
-    MODIFY date_of_birth TIMESTAMP;
+    ALTER COLUMN date_of_birth TYPE TIMESTAMP;
