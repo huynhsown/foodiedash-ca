@@ -1,5 +1,7 @@
 package com.ute.foodiedash;
 
+import com.ute.foodiedash.application.order.query.Coordinate;
+import com.ute.foodiedash.application.order.query.RouteQueryResult;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.model.CartItem;
 import com.ute.foodiedash.domain.cart.model.CartItemOption;
@@ -7,6 +9,7 @@ import com.ute.foodiedash.domain.cart.model.CartItemOptionValue;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.entity.CartJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.mapper.CartJpaMapper;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.repository.CartJpaRepository;
+import com.ute.foodiedash.infrastructure.route.OpenRouteAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +28,9 @@ class FoodiedashApplicationTests {
 
 	@Autowired
 	private CartJpaRepository cartJpaRepository;
+
+	@Autowired
+	private OpenRouteAdapter openRouteAdapter;
 
 	@Test
 	@Transactional
@@ -81,4 +87,13 @@ class FoodiedashApplicationTests {
 		System.out.printf("OK");
 	}
 
+
+	@Test
+	void testRoute() {
+		// Coordinate record is (lat, lng)
+		Coordinate a = new Coordinate(10.8499, 106.7717);
+		Coordinate b = new Coordinate(10.85840, 106.76300);
+		RouteQueryResult rs = openRouteAdapter.calculateRoute(a, b);
+		System.out.println("OK");
+	}
 }
