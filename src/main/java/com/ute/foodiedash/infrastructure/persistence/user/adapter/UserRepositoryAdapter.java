@@ -28,17 +28,12 @@ public class UserRepositoryAdapter implements UserRepository {
         try {
             UserJpaEntity jpaEntity;
             if (user.getId() == null) {
-                // New entity
                 jpaEntity = userJpaMapper.toJpaEntity(user);
             } else {
-                // Update existing entity
                 UserJpaEntity existing = userJpaRepository.findById(user.getId())
                         .orElseThrow(() -> new NotFoundException("User not found"));
 
-                // Update root entity
                 userJpaMapper.updateJpaEntity(user, existing);
-
-                // Handle child entities (cascade sẽ tự động xử lý nếu setup đúng)
                 jpaEntity = existing;
             }
 

@@ -53,6 +53,12 @@ public class Menu extends BaseEntity {
         if (!isActive()) {
             throw new BadRequestException("Menu is not active");
         }
+
+        LocalTime now = LocalTime.now();
+
+        if (now.isBefore(this.startTime) || now.isAfter(this.endTime)) {
+            throw new BadRequestException("Menu is not active");
+        }
     }
 
     // ========== Time range validation ==========

@@ -14,7 +14,7 @@ public interface CartItemJpaRepository extends JpaRepository<CartItemJpaEntity, 
     @Query("""
         SELECT coalesce(SUM(ci.quantity), 0)
         FROM CartItemJpaEntity ci
-        WHERE ci.cartId IN :cartIds
+        WHERE ci.cart.id IN :cartIds
         AND ci.deletedAt IS NULL
     """)
     Integer sumQuantityByCartIds(@Param("cartIds") List<Long> cartIds);
@@ -23,14 +23,14 @@ public interface CartItemJpaRepository extends JpaRepository<CartItemJpaEntity, 
 
     @Query("""
         SELECT c FROM CartItemJpaEntity c
-        WHERE c.cartId = :cartId
+        WHERE c.cart.id = :cartId
             AND c.deletedAt IS NULL
     """)
     List<CartItemJpaEntity> findByCartId(@Param("cartId") Long cartId);
 
     @Query("""
         SELECT c FROM CartItemJpaEntity c
-        WHERE c.cartId IN :cartItemIds
+        WHERE c.cart.id IN :cartItemIds
             AND c.deletedAt IS NULL
     """)
     List<CartItemJpaEntity> findByCartItemIdIn(@Param("cartItemIds") List<Long> cartItemIds);
