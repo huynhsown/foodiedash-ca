@@ -32,6 +32,12 @@ public class MenuItemRepositoryAdapter implements MenuItemRepository {
     }
 
     @Override
+    public Optional<MenuItem> findByOptionId(Long optionId) {
+        return jpaRepository.findByOptionId(optionId)
+            .map(mapper::toDomain);
+    }
+
+    @Override
     public boolean existsById(Long id) {
         return jpaRepository.existsById(id);
     }

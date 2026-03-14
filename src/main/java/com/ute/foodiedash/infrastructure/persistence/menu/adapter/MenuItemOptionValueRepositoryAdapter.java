@@ -23,26 +23,70 @@ public class MenuItemOptionValueRepositoryAdapter implements MenuItemOptionValue
     public MenuItemOptionValue save(MenuItemOptionValue optionValue) {
         MenuItemOptionValueJpaEntity jpaEntity = mapper.toJpaEntity(optionValue);
         MenuItemOptionValueJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        return com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
+                saved.getId(),
+                saved.getOption() != null ? saved.getOption().getId() : null,
+                saved.getName(),
+                saved.getExtraPrice(),
+                saved.getCreatedAt(),
+                saved.getUpdatedAt(),
+                saved.getCreatedBy(),
+                saved.getUpdatedBy(),
+                saved.getDeletedAt(),
+                saved.getVersion()
+        );
     }
 
     @Override
     public Optional<MenuItemOptionValue> findById(Long id) {
         return jpaRepository.findById(id)
-            .map(mapper::toDomain);
+            .map(saved -> com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
+                    saved.getId(),
+                    saved.getOption() != null ? saved.getOption().getId() : null,
+                    saved.getName(),
+                    saved.getExtraPrice(),
+                    saved.getCreatedAt(),
+                    saved.getUpdatedAt(),
+                    saved.getCreatedBy(),
+                    saved.getUpdatedBy(),
+                    saved.getDeletedAt(),
+                    saved.getVersion()
+            ));
     }
 
     @Override
     public List<MenuItemOptionValue> findByOptionIdAndDeletedAt(Long optionId, Instant deletedAt) {
         return jpaRepository.findByOptionIdAndDeletedAt(optionId, deletedAt).stream()
-            .map(mapper::toDomain)
+            .map(saved -> com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
+                    saved.getId(),
+                    saved.getOption() != null ? saved.getOption().getId() : null,
+                    saved.getName(),
+                    saved.getExtraPrice(),
+                    saved.getCreatedAt(),
+                    saved.getUpdatedAt(),
+                    saved.getCreatedBy(),
+                    saved.getUpdatedBy(),
+                    saved.getDeletedAt(),
+                    saved.getVersion()
+            ))
             .collect(Collectors.toList());
     }
 
     @Override
     public List<MenuItemOptionValue> findByOptionIdInAndDeletedAtIsNull(List<Long> optionIds) {
         return jpaRepository.findByOptionIdInAndDeletedAtIsNull(optionIds).stream()
-            .map(mapper::toDomain)
+            .map(saved -> com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
+                    saved.getId(),
+                    saved.getOption() != null ? saved.getOption().getId() : null,
+                    saved.getName(),
+                    saved.getExtraPrice(),
+                    saved.getCreatedAt(),
+                    saved.getUpdatedAt(),
+                    saved.getCreatedBy(),
+                    saved.getUpdatedBy(),
+                    saved.getDeletedAt(),
+                    saved.getVersion()
+            ))
             .collect(Collectors.toList());
     }
 
