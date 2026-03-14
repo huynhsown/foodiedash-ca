@@ -1,12 +1,11 @@
 package com.ute.foodiedash.domain.menu.model;
 
-import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.menu.enums.MenuStatus;
+import java.time.LocalTime;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -61,7 +60,6 @@ public class Menu extends BaseEntity {
         }
     }
 
-    // ========== Time range validation ==========
     public void validate() {
         if (startTime != null && endTime != null && startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time must be before end time");

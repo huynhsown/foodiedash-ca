@@ -1,12 +1,13 @@
 package com.ute.foodiedash.domain.menu.model;
 
-import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.menu.enums.MenuItemStatus;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -19,6 +20,8 @@ public class MenuItem extends BaseEntity {
     private BigDecimal price;
     private String imageUrl;
     private MenuItemStatus status;
+
+    private final List<MenuItemOption> options = new ArrayList<>();
 
     // ========== Factory method ==========
     public static MenuItem create(Long menuId, Long restaurantId, String name,

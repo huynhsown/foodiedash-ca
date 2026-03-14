@@ -2,11 +2,24 @@ package com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity;
 
 import com.ute.foodiedash.domain.menu.enums.MenuItemStatus;
 import com.ute.foodiedash.infrastructure.persistence.common.jpa.entity.BaseJpaEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -43,4 +56,12 @@ public class MenuItemJpaEntity extends BaseJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MenuItemStatus status;
+
+    @OneToMany(
+            mappedBy = "menuItem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<MenuItemOptionJpaEntity> options = new HashSet<>();
 }
