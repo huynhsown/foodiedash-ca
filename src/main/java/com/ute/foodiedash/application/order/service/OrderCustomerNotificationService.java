@@ -1,6 +1,9 @@
 package com.ute.foodiedash.application.order.service;
 
+import com.ute.foodiedash.application.common.port.EventPublisherPort;
 import com.ute.foodiedash.application.notification.command.CreateNotificationCommand;
+import com.ute.foodiedash.application.notification.event.NotificationCreatedEvent;
+import com.ute.foodiedash.application.notification.event.OrderNotificationEvent;
 import com.ute.foodiedash.application.notification.usecase.CreateNotificationUseCase;
 import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
 import com.ute.foodiedash.domain.notification.enums.NotificationRole;
@@ -16,7 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderCustomerNotificationService implements OrderCustomerNotificationPort {
 
-    private final CreateNotificationUseCase createNotificationUseCase;
+    private final EventPublisherPort publisher;
+
 
     @Override
     public void notifyForOrderStatus(Order order, NotificationType type) {
@@ -27,17 +31,20 @@ public class OrderCustomerNotificationService implements OrderCustomerNotificati
         Keys keys = keysFor(type);
         Map<String, Object> payload = buildPayload(order);
 
-        createNotificationUseCase.execute(
-                new CreateNotificationCommand(
-                        order.getCustomerId(),
-                        NotificationRole.CUSTOMER,
-                        type,
-                        keys.titleKey(),
-                        keys.bodyKey(),
-                        payload,
-                        "order-" + order.getId() + "-" + type.name()
+        publisher.publish(OrderNotificationEvent.builder()
+                .recipientUserId(order.getCustomerId())
+                .recipientRole(NotificationRole.CUSTOMER)
+                .type(type)
+                .titleKey(keys.titleKey())
+                .bodyKey(keys.bodyKey())
+                .payload(buildPayload(order))
+                .dedupeKey(
+                        "order-" +
+                                order.getId() +
+                                "-" +
+                                type.name()
                 )
-        );
+                .build());
     }
 
     private static Map<String, Object> buildPayload(Order order) {
