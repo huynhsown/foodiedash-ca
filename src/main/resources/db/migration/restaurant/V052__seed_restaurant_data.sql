@@ -24,7 +24,7 @@ INSERT INTO restaurant_categories (id, name, icon_url, description, created_at, 
 (17, 'Chay', 'https://cdn-icons-png.flaticon.com/512/1046/1046800.png', 'Các món chay và đồ chay', NOW(), NOW(), 'system', 'system', NULL, 0),
 (18, 'Đồ uống', 'https://cdn-icons-png.flaticon.com/512/1046/1046801.png', 'Nước ép, sinh tố và các loại đồ uống', NOW(), NOW(), 'system', 'system', NULL, 0),
 (19, 'Kem', 'https://cdn-icons-png.flaticon.com/512/1046/1046802.png', 'Kem tươi, kem Ý và các loại kem', NOW(), NOW(), 'system', 'system', NULL, 0),
-(20, 'Đồ ăn vặt', 'https://cdn-icons-png.flaticon.com/512/1046/1046803.png', 'Bánh tráng trộn, nem nướng và các món ăn vặt', NOW(), NOW(), 'system', 'system', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(20, 'Đồ ăn vặt', 'https://cdn-icons-png.flaticon.com/512/1046/1046803.png', 'Bánh tráng trộn, nem nướng và các món ăn vặt', NOW(), NOW(), 'system', 'system', NULL, 0);
 
 -- Restaurants (5 restaurants in Ho Chi Minh City)
 INSERT INTO restaurants (id, code, name, slug, description, address, phone, lat, lng, status, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -32,7 +32,7 @@ INSERT INTO restaurants (id, code, name, slug, description, address, phone, lat,
 (2, 'REST002', 'Cơm Tấm Cali - Lê Văn Việt', 'com-tam-cali-le-van-viet', 'Cơm tấm Sài Gòn đặc trưng với sườn nướng thơm lừng, bì chả trứng. Không gian rộng rãi, phục vụ nhanh chóng.', '456 Lê Văn Việt, Phường Hiệp Phú, Quận 9, TP.HCM', '02837345678', 10.842622, 106.780172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (3, 'REST003', 'Pizza Hut - Điện Biên Phủ', 'pizza-hut-dien-bien-phu', 'Pizza Ý chính thống với nhiều topping đa dạng. Phục vụ cả dine-in và delivery.', '789 Điện Biên Phủ, Phường 25, Bình Thạnh, TP.HCM', '02838456789', 10.802622, 106.710172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (4, 'REST004', 'KFC - Nguyễn Huệ', 'kfc-nguyen-hue', 'Gà rán giòn KFC với công thức đặc biệt. Menu đa dạng từ gà rán đến burger và đồ uống.', '321 Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM', '02838567890', 10.772622, 106.700172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(5, 'REST005', 'Bún Bò Huế O Loan - Võ Văn Tần', 'bun-bo-hue-o-loan-vo-van-tan', 'Bún bò Huế đậm đà với nước dùng cay nồng đặc trưng xứ Huế. Thịt bò, chả cua tươi ngon.', '654 Võ Văn Tần, Phường 6, Quận 3, TP.HCM', '02838678901', 10.782622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(5, 'REST005', 'Bún Bò Huế O Loan - Võ Văn Tần', 'bun-bo-hue-o-loan-vo-van-tan', 'Bún bò Huế đậm đà với nước dùng cay nồng đặc trưng xứ Huế. Thịt bò, chả cua tươi ngon.', '654 Võ Văn Tần, Phường 6, Quận 3, TP.HCM', '02838678901', 10.782622, 106.690172, 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Restaurant Category Maps
 INSERT INTO restaurant_category_maps (id, restaurant_id, category_id, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -44,7 +44,7 @@ INSERT INTO restaurant_category_maps (id, restaurant_id, category_id, created_at
 (6, 3, 8, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (7, 4, 5, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (8, 4, 7, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(9, 5, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(9, 5, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Restaurant Business Hours (7 days for each restaurant)
 INSERT INTO restaurant_business_hours (id, restaurant_id, day_of_week, open_time, close_time, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -87,7 +87,7 @@ INSERT INTO restaurant_business_hours (id, restaurant_id, day_of_week, open_time
 (32, 5, 3, '06:30:00', '21:30:00', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (33, 5, 4, '06:30:00', '21:30:00', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (34, 5, 5, '06:30:00', '21:30:00', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(35, 5, 6, '06:30:00', '21:30:00', NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(35, 5, 6, '06:30:00', '21:30:00', NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Restaurant Preparation Settings
 INSERT INTO restaurant_preparation_settings (id, restaurant_id, prep_time_min, prep_time_max, slot_duration, max_orders_per_slot, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -95,7 +95,7 @@ INSERT INTO restaurant_preparation_settings (id, restaurant_id, prep_time_min, p
 (2, 2, 10, 20, 15, 15, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (3, 3, 20, 35, 15, 8, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (4, 4, 12, 22, 15, 12, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(5, 5, 15, 25, 15, 10, NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(5, 5, 15, 25, 15, 10, NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Restaurant Ratings
 INSERT INTO restaurant_ratings (id, restaurant_id, rating_avg, rating_count, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -103,7 +103,7 @@ INSERT INTO restaurant_ratings (id, restaurant_id, rating_avg, rating_count, cre
 (2, 2, 4.52, 892, NOW(), NOW(), 'system', 'system', NULL, 0),
 (3, 3, 4.38, 567, NOW(), NOW(), 'system', 'system', NULL, 0),
 (4, 4, 4.42, 1834, NOW(), NOW(), 'system', 'system', NULL, 0),
-(5, 5, 4.71, 1034, NOW(), NOW(), 'system', 'system', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(5, 5, 4.71, 1034, NOW(), NOW(), 'system', 'system', NULL, 0);
 
 -- Restaurant Images
 INSERT INTO restaurant_images (id, restaurant_id, image_url, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -134,7 +134,7 @@ INSERT INTO restaurant_images (id, restaurant_id, image_url, created_at, updated
 (20, 5, 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (21, 5, 'https://images.unsplash.com/photo-1558030006-450675393462', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (22, 5, 'https://images.unsplash.com/photo-1559339352-11d035aa65de', NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(23, 5, 'https://images.unsplash.com/photo-1529042410759-befb1204b468', NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(23, 5, 'https://images.unsplash.com/photo-1529042410759-befb1204b468', NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Menus
 INSERT INTO menus (id, restaurant_id, name, start_time, end_time, status, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -149,7 +149,7 @@ INSERT INTO menus (id, restaurant_id, name, start_time, end_time, status, create
 (5, 4, 'Menu Sáng', '07:00:00', '11:00:00', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (6, 4, 'Menu Chính', '11:00:00', '23:00:00', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0),
 -- Restaurant 5: 1 menu
-(7, 5, 'Menu Chính', '06:30:00', '21:30:00', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(7, 5, 'Menu Chính', '06:30:00', '21:30:00', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Menu Items
 INSERT INTO menu_items (id, menu_id, name, description, price, image_url, status, created_at, updated_at, created_by, updated_by, deleted_at, version, restaurant_id) VALUES
@@ -210,7 +210,7 @@ INSERT INTO menu_items (id, menu_id, name, description, price, image_url, status
 (48, 7, 'Bún Bò Huế Giò Heo', 'Bún bò Huế với giò heo mềm ngon', 75000.00, 'https://images.unsplash.com/photo-1559339352-11d035aa65de', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0, 5),
 (49, 7, 'Bún Bò Huế Không Cay', 'Bún bò Huế không cay cho người không ăn được cay', 65000.00, 'https://images.unsplash.com/photo-1529042410759-befb1204b468', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0, 5),
 (50, 7, 'Bún Bò Huế Thêm Thịt', 'Bún bò Huế với phần thịt bò gấp đôi', 95000.00, 'https://images.unsplash.com/photo-1551218808-94e220e084d2', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0, 5),
-(51, 7, 'Bún Bò Huế Chay', 'Bún bò Huế chay với nấm và rau củ', 55000.00, 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0, 5) ON CONFLICT (id) DO NOTHING;
+(51, 7, 'Bún Bò Huế Chay', 'Bún bò Huế chay với nấm và rau củ', 55000.00, 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5', 'ACTIVE', NOW(), NOW(), 'admin', 'admin', NULL, 0, 5);
 
 -- Menu Item Options
 INSERT INTO menu_item_options (id, menu_item_id, name, required, min_value, max_value, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -237,7 +237,7 @@ INSERT INTO menu_item_options (id, menu_item_id, name, required, min_value, max_
 (17, 46, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (18, 47, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (19, 48, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(20, 50, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(20, 50, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Menu Item Option Values
 INSERT INTO menu_item_option_values (id, option_id, name, extra_price, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
@@ -312,4 +312,4 @@ INSERT INTO menu_item_option_values (id, option_id, name, extra_price, created_a
 (65, 20, 'Cay nhẹ', 0.00, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (66, 20, 'Cay vừa', 0.00, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 (67, 20, 'Cay nhiều', 0.00, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(68, 20, 'Cay cực', 0.00, NOW(), NOW(), 'admin', 'admin', NULL, 0) ON CONFLICT (id) DO NOTHING;
+(68, 20, 'Cay cực', 0.00, NOW(), NOW(), 'admin', 'admin', NULL, 0);
