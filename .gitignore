@@ -38,3 +38,7 @@ build/
 /docs/
 /scripts/
 /.env
+/AGENTS.md
+/.specify/
+/specs/
+/.agents/
