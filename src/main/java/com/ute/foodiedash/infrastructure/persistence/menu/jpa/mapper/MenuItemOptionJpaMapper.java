@@ -1,75 +1,99 @@
 package com.ute.foodiedash.infrastructure.persistence.menu.jpa.mapper;
 
 import com.ute.foodiedash.domain.menu.model.MenuItemOption;
+import com.ute.foodiedash.domain.menu.model.MenuItemOptionValue;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuItemOptionJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuItemOptionValueJpaEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
-public interface MenuItemOptionJpaMapper {
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-    default MenuItemOption toDomain(MenuItemOptionJpaEntity jpaEntity) {
-        if (jpaEntity == null) {
+@Mapper(componentModel = "spring", uses = {MenuItemOptionValueJpaMapper.class})
+public abstract class MenuItemOptionJpaMapper {
+
+    @Autowired
+    protected MenuItemOptionValueJpaMapper menuItemOptionValueJpaMapper;
+
+    public MenuItemOption toDomain(MenuItemOptionJpaEntity e) {
+        if (e == null) {
             return null;
         }
 
-        var values = jpaEntity.getValues() == null ? null : jpaEntity.getValues().stream()
-                .map(MenuItemOptionJpaMapper::mapValueToDomain)
-                .toList();
+        var values = e.getValues() == null
+                ? java.util.Collections.<MenuItemOptionValue>emptyList()
+                : e.getValues().stream()
+                    .map(menuItemOptionValueJpaMapper::toDomain)
+                    .toList();
 
         return MenuItemOption.reconstruct(
-                jpaEntity.getId(),
-                jpaEntity.getMenuItem() != null ? jpaEntity.getMenuItem().getId() : null,
-                jpaEntity.getName(),
-                jpaEntity.getRequired(),
-                jpaEntity.getMinValue(),
-                jpaEntity.getMaxValue(),
+                e.getId(),
+                e.getMenuItem() != null ? e.getMenuItem().getId() : null,
+                e.getName(),
+                e.getRequired(),
+                e.getMinValue(),
+                e.getMaxValue(),
                 values,
-                jpaEntity.getCreatedAt(),
-                jpaEntity.getUpdatedAt(),
-                jpaEntity.getCreatedBy(),
-                jpaEntity.getUpdatedBy(),
-                jpaEntity.getDeletedAt(),
-                jpaEntity.getVersion()
+                e.getCreatedAt(),
+                e.getUpdatedAt(),
+                e.getCreatedBy(),
+                e.getUpdatedBy(),
+                e.getDeletedAt(),
+                e.getVersion()
         );
     }
 
     @Mapping(target = "menuItem", ignore = true)
-    MenuItemOptionJpaEntity toJpaEntity(MenuItemOption domain);
+    public abstract MenuItemOptionJpaEntity toJpaEntity(MenuItemOption domain);
 
-    @Mapping(target = "menuItem", ignore = true)
-    void updateEntity(@MappingTarget MenuItemOptionJpaEntity entity, MenuItemOption domain);
+    public void updateEntity(@MappingTarget MenuItemOptionJpaEntity e, MenuItemOption domain) {
+        e.setName(domain.getName());
+        e.setRequired(domain.getRequired());
+        e.setMinValue(domain.getMinValue());
+        e.setMaxValue(domain.getMaxValue());
+        mergeValues(e, domain);
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
 
-    @AfterMapping
-    default void setMenuItemOptionReferences(@MappingTarget MenuItemOptionJpaEntity jpaEntity) {
-        if (jpaEntity.getValues() != null && !jpaEntity.getValues().isEmpty()) {
-            for (var value : jpaEntity.getValues()) {
-                value.setOption(jpaEntity);
+    private void mergeValues(MenuItemOptionJpaEntity e, MenuItemOption domain) {
+        if (domain.getValues() == null) {
+            e.getValues().clear();
+            return;
+        }
+
+        Set<Long> domainValueIds = domain.getValues().stream()
+                .map(MenuItemOptionValue::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getValues().removeIf(v -> !domainValueIds.contains(v.getId()));
+
+        Map<Long, MenuItemOptionValueJpaEntity> existingById = e.getValues().stream()
+                .collect(Collectors.toMap(MenuItemOptionValueJpaEntity::getId, Function.identity()));
+
+        for (MenuItemOptionValue domainVal : domain.getValues()) {
+            if (domainVal.getId() != null && existingById.containsKey(domainVal.getId())) {
+                menuItemOptionValueJpaMapper.updateEntity(existingById.get(domainVal.getId()), domainVal);
+            } else {
+                MenuItemOptionValueJpaEntity jpaVal = menuItemOptionValueJpaMapper.toJpaEntity(domainVal);
+                jpaVal.setOption(e);
+                e.getValues().add(jpaVal);
             }
         }
     }
 
-    private static com.ute.foodiedash.domain.menu.model.MenuItemOptionValue mapValueToDomain(
-            MenuItemOptionValueJpaEntity jpaEntity
-    ) {
-        if (jpaEntity == null) {
-            return null;
+    @AfterMapping
+    protected void setMenuItemOptionReferences(@MappingTarget MenuItemOptionJpaEntity jpaEntity) {
+        if (jpaEntity.getValues() != null && !jpaEntity.getValues().isEmpty()) {
+            jpaEntity.getValues().forEach(v -> v.setOption(jpaEntity));
         }
-
-        return com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
-                jpaEntity.getId(),
-                jpaEntity.getOption() != null ? jpaEntity.getOption().getId() : null,
-                jpaEntity.getName(),
-                jpaEntity.getExtraPrice(),
-                jpaEntity.getCreatedAt(),
-                jpaEntity.getUpdatedAt(),
-                jpaEntity.getCreatedBy(),
-                jpaEntity.getUpdatedBy(),
-                jpaEntity.getDeletedAt(),
-                jpaEntity.getVersion()
-        );
     }
 }

@@ -19,10 +19,16 @@ public class PaymentMethodRepositoryAdapter implements PaymentMethodRepository {
 
     @Override
     public PaymentMethod save(PaymentMethod paymentMethod) {
-        PaymentMethodJpaEntity e = jpaRepository.findById(paymentMethod.getId())
-                .orElseThrow();
-        mapper.updateEntity(e, paymentMethod);
-        return mapper.toDomain(e);
+        PaymentMethodJpaEntity jpaEntity;
+        if (paymentMethod.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(paymentMethod);
+        } else {
+            jpaEntity = jpaRepository.findById(paymentMethod.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, paymentMethod);
+        }
+        PaymentMethodJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override

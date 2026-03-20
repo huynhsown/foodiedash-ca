@@ -22,16 +22,22 @@ public class CartRepositoryAdapter implements CartRepository {
 
     @Override
     public Cart save(Cart cart) {
-        CartJpaEntity jpaEntity = jpaRepository.findById(cart.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, cart);
-        return mapper.toDomain(jpaEntity);
+        CartJpaEntity jpaEntity;
+        if (cart.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(cart);
+        } else {
+            jpaEntity = jpaRepository.findById(cart.getId())
+                    .orElseThrow(() -> new RuntimeException("Cart not found"));
+            mapper.updateEntity(jpaEntity, cart);
+        }
+        CartJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<Cart> findById(Long id) {
-        CartJpaEntity jpaEntity = jpaRepository.findById(id).orElseThrow();
-        return Optional.ofNullable(mapper.toDomain(jpaEntity));
+        return jpaRepository.findById(id)
+                .map(mapper::toDomain);
     }
 
     @Override

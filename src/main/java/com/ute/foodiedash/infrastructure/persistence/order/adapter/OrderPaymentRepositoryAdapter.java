@@ -18,10 +18,16 @@ public class OrderPaymentRepositoryAdapter implements OrderPaymentRepository {
 
     @Override
     public OrderPayment save(OrderPayment orderPayment) {
-        OrderPaymentJpaEntity jpaEntity = jpaRepository.findById(orderPayment.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, orderPayment);
-        return mapper.toDomain(jpaEntity);
+        OrderPaymentJpaEntity jpaEntity;
+        if (orderPayment.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(orderPayment);
+        } else {
+            jpaEntity = jpaRepository.findById(orderPayment.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, orderPayment);
+        }
+        OrderPaymentJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override

@@ -20,10 +20,16 @@ public class CartItemRepositoryAdapter implements CartItemRepository {
 
     @Override
     public CartItem save(CartItem cartItem) {
-        CartItemJpaEntity jpaEntity = jpaRepository.findById(cartItem.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, cartItem);
-        return mapper.toDomain(jpaEntity);
+        CartItemJpaEntity jpaEntity;
+        if (cartItem.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(cartItem);
+        } else {
+            jpaEntity = jpaRepository.findById(cartItem.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, cartItem);
+        }
+        CartItemJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override

@@ -19,16 +19,21 @@ public class PromotionRepositoryAdapter implements PromotionRepository {
 
     @Override
     public Promotion save(Promotion promotion) {
-        PromotionJpaEntity jpaEntity = jpaRepository.findById(promotion.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, promotion);
-        return mapper.toDomain(jpaEntity);
+        PromotionJpaEntity jpaEntity;
+        if (promotion.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(promotion);
+        } else {
+            jpaEntity = jpaRepository.findById(promotion.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, promotion);
+        }
+        PromotionJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<Promotion> findById(Long id) {
-        PromotionJpaEntity jpaEntity = jpaRepository.findById(id).orElseThrow();
-        return Optional.ofNullable(mapper.toDomain(jpaEntity));
+        return jpaRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override

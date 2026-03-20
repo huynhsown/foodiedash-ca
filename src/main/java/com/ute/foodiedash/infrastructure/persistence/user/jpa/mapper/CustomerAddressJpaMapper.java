@@ -4,6 +4,7 @@ import com.ute.foodiedash.domain.user.model.CustomerAddress;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.CustomerAddressJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CustomerAddressJpaMapper {
@@ -39,5 +40,18 @@ public interface CustomerAddressJpaMapper {
         CustomerAddressJpaEntity jpaEntity = toJpaEntity(domain);
         jpaEntity.setUser(user);
         return jpaEntity;
+    }
+
+    default void updateEntity(@MappingTarget CustomerAddressJpaEntity e, CustomerAddress domain) {
+        e.setLabel(domain.getLabel());
+        e.setAddress(domain.getAddress());
+        e.setLat(domain.getLat());
+        e.setLng(domain.getLng());
+        e.setReceiverName(domain.getReceiverName());
+        e.setReceiverPhone(domain.getReceiverPhone());
+        e.setNote(domain.getNote());
+        e.setDefaultAddress(domain.isDefaultAddress());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
     }
 }

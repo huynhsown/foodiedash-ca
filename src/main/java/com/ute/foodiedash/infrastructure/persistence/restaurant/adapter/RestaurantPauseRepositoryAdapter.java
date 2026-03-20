@@ -18,10 +18,16 @@ public class RestaurantPauseRepositoryAdapter implements RestaurantPauseReposito
 
     @Override
     public RestaurantPause save(RestaurantPause pause) {
-        RestaurantPauseJpaEntity jpaEntity = jpaRepository.findById(pause.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, pause);
-        return mapper.toDomain(jpaEntity);
+        RestaurantPauseJpaEntity jpaEntity;
+        if (pause.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(pause);
+        } else {
+            jpaEntity = jpaRepository.findById(pause.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, pause);
+        }
+        RestaurantPauseJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override

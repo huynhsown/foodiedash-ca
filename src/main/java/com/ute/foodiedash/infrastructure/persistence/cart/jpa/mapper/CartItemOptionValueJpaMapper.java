@@ -7,12 +7,18 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface CartItemOptionValueJpaMapper {
+public abstract class CartItemOptionValueJpaMapper {
+
     @Mapping(target = "cartItemOptionId", source = "cartItemOption.id")
-    CartItemOptionValue toDomain(CartItemOptionValueJpaEntity jpaEntity);
-    @Mapping(target = "cartItemOption", ignore = true)
-    CartItemOptionValueJpaEntity toJpaEntity(CartItemOptionValue domain);
+    public abstract CartItemOptionValue toDomain(CartItemOptionValueJpaEntity jpaEntity);
 
     @Mapping(target = "cartItemOption", ignore = true)
-    void updateEntity(@MappingTarget CartItemOptionValueJpaEntity entity, CartItemOptionValue domain);
+    public abstract CartItemOptionValueJpaEntity toJpaEntity(CartItemOptionValue domain);
+
+    public void updateEntity(@MappingTarget CartItemOptionValueJpaEntity entity, CartItemOptionValue domain) {
+        entity.setOptionValueId(domain.getOptionValueId());
+        entity.setOptionValueName(domain.getOptionValueName());
+        entity.setQuantity(domain.getQuantity());
+        entity.setExtraPrice(domain.getExtraPrice());
+    }
 }

@@ -19,16 +19,21 @@ public class OrderRepositoryAdapter implements OrderRepository {
 
     @Override
     public Order save(Order order) {
-        OrderJpaEntity jpaEntity = jpaRepository.findById(order.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, order);
-        return mapper.toDomain(jpaEntity);
+        OrderJpaEntity jpaEntity;
+        if (order.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(order);
+        } else {
+            jpaEntity = jpaRepository.findById(order.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, order);
+        }
+        OrderJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override
     public Optional<Order> findById(Long id) {
-        OrderJpaEntity jpaEntity = jpaRepository.findDetailById(id).orElseThrow();
-        return Optional.ofNullable(mapper.toDomain(jpaEntity));
+        return jpaRepository.findDetailById(id).map(mapper::toDomain);
     }
 
     @Override

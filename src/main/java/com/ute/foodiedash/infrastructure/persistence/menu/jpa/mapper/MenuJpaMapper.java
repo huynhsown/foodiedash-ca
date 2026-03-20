@@ -31,5 +31,14 @@ public interface MenuJpaMapper {
 
     MenuJpaEntity toJpaEntity(Menu domain);
 
-    void updateEntity(@MappingTarget MenuJpaEntity entity, Menu domain);
+    default void updateEntity(@MappingTarget MenuJpaEntity e, Menu domain) {
+        e.setId(domain.getId());
+        e.setRestaurantId(domain.getRestaurantId());
+        e.setName(domain.getName());
+        e.setStartTime(domain.getStartTime());
+        e.setEndTime(domain.getEndTime());
+        e.setStatus(domain.getStatus());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
 }

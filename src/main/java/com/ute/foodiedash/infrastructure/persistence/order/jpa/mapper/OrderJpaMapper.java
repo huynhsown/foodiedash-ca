@@ -94,81 +94,92 @@ public abstract class OrderJpaMapper {
         e.setCancelledAt(domain.getCancelledAt());
         e.setCompleteAt(domain.getCompleteAt());
         e.setCancelReason(domain.getCancelReason());
-
-        if (domain.getItems() != null) {
-            Set<Long> domainItemIds = domain.getItems().stream()
-                    .map(OrderItem::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-            e.getItems().removeIf(item -> !domainItemIds.contains(item.getId()));
-
-            Map<Long, OrderItemJpaEntity> existingById = e.getItems().stream()
-                    .collect(Collectors.toMap(OrderItemJpaEntity::getId, Function.identity()));
-
-            for (OrderItem domainItem : domain.getItems()) {
-                if (domainItem.getId() != null && existingById.containsKey(domainItem.getId())) {
-                    orderItemJpaMapper.updateEntity(existingById.get(domainItem.getId()), domainItem);
-                } else {
-                    OrderItemJpaEntity jpaItem = orderItemJpaMapper.toJpaEntity(domainItem);
-                    jpaItem.setOrder(e);
-                    e.getItems().add(jpaItem);
-                }
-            }
-        } else {
-            e.getItems().clear();
-        }
-
-        if (domain.getPromotions() != null) {
-            Set<Long> domainPromotionIds = domain.getPromotions().stream()
-                    .map(OrderPromotion::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-            e.getPromotions().removeIf(promo -> !domainPromotionIds.contains(promo.getId()));
-
-            Map<Long, OrderPromotionJpaEntity> existingById = e.getPromotions().stream()
-                    .collect(Collectors.toMap(OrderPromotionJpaEntity::getId, Function.identity()));
-
-            for (OrderPromotion domainPromo : domain.getPromotions()) {
-                if (domainPromo.getId() != null && existingById.containsKey(domainPromo.getId())) {
-                    orderPromotionJpaMapper.updateEntity(existingById.get(domainPromo.getId()), domainPromo);
-                } else {
-                    OrderPromotionJpaEntity jpaPromo = orderPromotionJpaMapper.toJpaEntity(domainPromo);
-                    jpaPromo.setOrder(e);
-                    e.getPromotions().add(jpaPromo);
-                }
-            }
-        } else {
-            e.getPromotions().clear();
-        }
-
-        if (domain.getStatusHistories() != null) {
-            Set<Long> domainHistoryIds = domain.getStatusHistories().stream()
-                    .map(OrderStatusHistory::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-            e.getStatusHistories().removeIf(hist -> !domainHistoryIds.contains(hist.getId()));
-
-            Map<Long, OrderStatusHistoryJpaEntity> existingById = e.getStatusHistories().stream()
-                    .collect(Collectors.toMap(OrderStatusHistoryJpaEntity::getId, Function.identity()));
-
-            for (OrderStatusHistory domainHist : domain.getStatusHistories()) {
-                if (domainHist.getId() != null && existingById.containsKey(domainHist.getId())) {
-                    orderStatusHistoryJpaMapper.updateEntity(existingById.get(domainHist.getId()), domainHist);
-                } else {
-                    OrderStatusHistoryJpaEntity jpaHist = orderStatusHistoryJpaMapper.toJpaEntity(domainHist);
-                    jpaHist.setOrder(e);
-                    e.getStatusHistories().add(jpaHist);
-                }
-            }
-        } else {
-            e.getStatusHistories().clear();
-        }
-
+        mergeItems(e, domain);
+        mergePromotions(e, domain);
+        mergeStatusHistories(e, domain);
         e.setDeletedAt(domain.getDeletedAt());
         e.setVersion(domain.getVersion());
+    }
+
+    private void mergeItems(OrderJpaEntity e, Order domain) {
+        if (domain.getItems() == null) {
+            e.getItems().clear();
+            return;
+        }
+
+        Set<Long> domainItemIds = domain.getItems().stream()
+                .map(OrderItem::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getItems().removeIf(item -> !domainItemIds.contains(item.getId()));
+
+        Map<Long, OrderItemJpaEntity> existingById = e.getItems().stream()
+                .collect(Collectors.toMap(OrderItemJpaEntity::getId, Function.identity()));
+
+        for (OrderItem domainItem : domain.getItems()) {
+            if (domainItem.getId() != null && existingById.containsKey(domainItem.getId())) {
+                orderItemJpaMapper.updateEntity(existingById.get(domainItem.getId()), domainItem);
+            } else {
+                OrderItemJpaEntity jpaItem = orderItemJpaMapper.toJpaEntity(domainItem);
+                jpaItem.setOrder(e);
+                e.getItems().add(jpaItem);
+            }
+        }
+    }
+
+    private void mergePromotions(OrderJpaEntity e, Order domain) {
+        if (domain.getPromotions() == null) {
+            e.getPromotions().clear();
+            return;
+        }
+
+        Set<Long> domainPromotionIds = domain.getPromotions().stream()
+                .map(OrderPromotion::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getPromotions().removeIf(promo -> !domainPromotionIds.contains(promo.getId()));
+
+        Map<Long, OrderPromotionJpaEntity> existingById = e.getPromotions().stream()
+                .collect(Collectors.toMap(OrderPromotionJpaEntity::getId, Function.identity()));
+
+        for (OrderPromotion domainPromo : domain.getPromotions()) {
+            if (domainPromo.getId() != null && existingById.containsKey(domainPromo.getId())) {
+                orderPromotionJpaMapper.updateEntity(existingById.get(domainPromo.getId()), domainPromo);
+            } else {
+                OrderPromotionJpaEntity jpaPromo = orderPromotionJpaMapper.toJpaEntity(domainPromo);
+                jpaPromo.setOrder(e);
+                e.getPromotions().add(jpaPromo);
+            }
+        }
+    }
+
+    private void mergeStatusHistories(OrderJpaEntity e, Order domain) {
+        if (domain.getStatusHistories() == null) {
+            e.getStatusHistories().clear();
+            return;
+        }
+
+        Set<Long> domainHistoryIds = domain.getStatusHistories().stream()
+                .map(OrderStatusHistory::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getStatusHistories().removeIf(hist -> !domainHistoryIds.contains(hist.getId()));
+
+        Map<Long, OrderStatusHistoryJpaEntity> existingById = e.getStatusHistories().stream()
+                .collect(Collectors.toMap(OrderStatusHistoryJpaEntity::getId, Function.identity()));
+
+        for (OrderStatusHistory domainHist : domain.getStatusHistories()) {
+            if (domainHist.getId() != null && existingById.containsKey(domainHist.getId())) {
+                orderStatusHistoryJpaMapper.updateEntity(existingById.get(domainHist.getId()), domainHist);
+            } else {
+                OrderStatusHistoryJpaEntity jpaHist = orderStatusHistoryJpaMapper.toJpaEntity(domainHist);
+                jpaHist.setOrder(e);
+                e.getStatusHistories().add(jpaHist);
+            }
+        }
     }
 
     @AfterMapping

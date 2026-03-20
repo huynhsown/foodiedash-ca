@@ -4,6 +4,7 @@ import com.ute.foodiedash.domain.user.model.CustomerProfile;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.CustomerProfileJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CustomerProfileJpaMapper {
@@ -35,4 +36,10 @@ public interface CustomerProfileJpaMapper {
         return jpaEntity;
     }
 
+    default void updateEntity(@MappingTarget CustomerProfileJpaEntity e, CustomerProfile domain) {
+        e.setDateOfBirth(domain.getDateOfBirth());
+        e.setGender(domain.getGender());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
 }

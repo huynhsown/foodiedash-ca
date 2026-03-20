@@ -5,6 +5,7 @@ import com.ute.foodiedash.application.user.command.LoginCommand;
 import com.ute.foodiedash.application.user.port.PasswordHasher;
 import com.ute.foodiedash.application.user.query.LoginQueryResult;
 import com.ute.foodiedash.application.user.port.UserPermissionResolutionPort;
+import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.domain.user.enums.RoleName;
 import com.ute.foodiedash.domain.user.model.User;
@@ -33,6 +34,8 @@ public class LoginUseCase {
         if (!passwordHasher.verify(command.password(), user.getPassword())) {
             throw new UnauthorizedException("Invalid email or password");
         }
+
+        if (!user.isActive()) throw new ForbiddenException("User doesn't active yet");
 
         List<String> roleNames = user.getRoleNames().stream()
                 .map(RoleName::name)

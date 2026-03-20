@@ -62,33 +62,36 @@ public abstract class OrderItemJpaMapper {
         e.setUnitPrice(domain.getUnitPrice());
         e.setTotalPrice(domain.getTotalPrice());
         e.setNotes(domain.getNotes());
-
-        if (domain.getOptions() != null) {
-            Set<Long> domainOptionIds = domain.getOptions().stream()
-                    .map(OrderItemOption::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-            e.getOptions().removeIf(opt -> !domainOptionIds.contains(opt.getId()));
-
-            Map<Long, OrderItemOptionJpaEntity> existingById = e.getOptions().stream()
-                    .collect(Collectors.toMap(OrderItemOptionJpaEntity::getId, Function.identity()));
-
-            for (OrderItemOption domainOpt : domain.getOptions()) {
-                if (domainOpt.getId() != null && existingById.containsKey(domainOpt.getId())) {
-                    orderItemOptionJpaMapper.updateEntity(existingById.get(domainOpt.getId()), domainOpt);
-                } else {
-                    OrderItemOptionJpaEntity jpaOpt = orderItemOptionJpaMapper.toJpaEntity(domainOpt);
-                    jpaOpt.setOrderItem(e);
-                    e.getOptions().add(jpaOpt);
-                }
-            }
-        } else {
-            e.getOptions().clear();
-        }
-
+        mergeOptions(e, domain);
         e.setDeletedAt(domain.getDeletedAt());
         e.setVersion(domain.getVersion());
+    }
+
+    private void mergeOptions(OrderItemJpaEntity e, OrderItem domain) {
+        if (domain.getOptions() == null) {
+            e.getOptions().clear();
+            return;
+        }
+
+        Set<Long> domainOptionIds = domain.getOptions().stream()
+                .map(OrderItemOption::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getOptions().removeIf(opt -> !domainOptionIds.contains(opt.getId()));
+
+        Map<Long, OrderItemOptionJpaEntity> existingById = e.getOptions().stream()
+                .collect(Collectors.toMap(OrderItemOptionJpaEntity::getId, Function.identity()));
+
+        for (OrderItemOption domainOpt : domain.getOptions()) {
+            if (domainOpt.getId() != null && existingById.containsKey(domainOpt.getId())) {
+                orderItemOptionJpaMapper.updateEntity(existingById.get(domainOpt.getId()), domainOpt);
+            } else {
+                OrderItemOptionJpaEntity jpaOpt = orderItemOptionJpaMapper.toJpaEntity(domainOpt);
+                jpaOpt.setOrderItem(e);
+                e.getOptions().add(jpaOpt);
+            }
+        }
     }
 
     @AfterMapping

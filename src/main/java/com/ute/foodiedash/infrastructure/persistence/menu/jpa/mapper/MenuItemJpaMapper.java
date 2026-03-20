@@ -6,17 +6,26 @@ import com.ute.foodiedash.domain.menu.model.MenuItemOptionValue;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuItemJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuItemOptionJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuItemOptionValueJpaEntity;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {MenuItemOptionJpaMapper.class})
-public interface MenuItemJpaMapper {
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-    default MenuItem toDomain(MenuItemJpaEntity e) {
+@Mapper(componentModel = "spring", uses = {MenuItemOptionJpaMapper.class})
+public abstract class MenuItemJpaMapper {
+
+    @Autowired
+    protected MenuItemOptionJpaMapper menuItemOptionJpaMapper;
+
+    public MenuItem toDomain(MenuItemJpaEntity e) {
         if (e == null) return null;
         List<MenuItemOption> options = e.getOptions() != null
                 ? e.getOptions().stream()
@@ -42,7 +51,7 @@ public interface MenuItemJpaMapper {
         );
     }
 
-    default MenuItemOption optionToDomain(MenuItemOptionJpaEntity o) {
+    private MenuItemOption optionToDomain(MenuItemOptionJpaEntity o) {
         if (o == null) return null;
         Long menuItemId = o.getMenuItem() != null ? o.getMenuItem().getId() : null;
         List<MenuItemOptionValue> values = o.getValues() != null
@@ -67,7 +76,7 @@ public interface MenuItemJpaMapper {
         );
     }
 
-    default MenuItemOptionValue valueToDomain(MenuItemOptionValueJpaEntity v) {
+    private MenuItemOptionValue valueToDomain(MenuItemOptionValueJpaEntity v) {
         if (v == null) return null;
         Long optionId = v.getOption() != null ? v.getOption().getId() : null;
         return MenuItemOptionValue.reconstruct(
@@ -84,16 +93,52 @@ public interface MenuItemJpaMapper {
         );
     }
 
-    MenuItemJpaEntity toJpaEntity(MenuItem domain);
+    public abstract MenuItemJpaEntity toJpaEntity(MenuItem domain);
 
-    void updateEntity(@MappingTarget MenuItemJpaEntity entity, MenuItem domain);
+    public void updateEntity(@MappingTarget MenuItemJpaEntity e, MenuItem domain) {
+        e.setMenuId(domain.getMenuId());
+        e.setRestaurantId(domain.getRestaurantId());
+        e.setName(domain.getName());
+        e.setDescription(domain.getDescription());
+        e.setPrice(domain.getPrice());
+        e.setImageUrl(domain.getImageUrl());
+        e.setStatus(domain.getStatus());
+        mergeOptions(e, domain);
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
+
+    private void mergeOptions(MenuItemJpaEntity e, MenuItem domain) {
+        if (domain.getOptions() == null) {
+            e.getOptions().clear();
+            return;
+        }
+
+        Set<Long> domainOptionIds = domain.getOptions().stream()
+                .map(MenuItemOption::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getOptions().removeIf(opt -> !domainOptionIds.contains(opt.getId()));
+
+        Map<Long, MenuItemOptionJpaEntity> existingById = e.getOptions().stream()
+                .collect(Collectors.toMap(MenuItemOptionJpaEntity::getId, Function.identity()));
+
+        for (MenuItemOption domainOpt : domain.getOptions()) {
+            if (domainOpt.getId() != null && existingById.containsKey(domainOpt.getId())) {
+                menuItemOptionJpaMapper.updateEntity(existingById.get(domainOpt.getId()), domainOpt);
+            } else {
+                MenuItemOptionJpaEntity jpaOpt = menuItemOptionJpaMapper.toJpaEntity(domainOpt);
+                jpaOpt.setMenuItem(e);
+                e.getOptions().add(jpaOpt);
+            }
+        }
+    }
 
     @AfterMapping
-    default void setMenuItemReferences(@MappingTarget MenuItemJpaEntity jpaEntity) {
+    protected void setMenuItemReferences(@MappingTarget MenuItemJpaEntity jpaEntity) {
         if (jpaEntity.getOptions() != null && !jpaEntity.getOptions().isEmpty()) {
-            for (var option : jpaEntity.getOptions()) {
-                option.setMenuItem(jpaEntity);
-            }
+            jpaEntity.getOptions().forEach(o -> o.setMenuItem(jpaEntity));
         }
     }
 }

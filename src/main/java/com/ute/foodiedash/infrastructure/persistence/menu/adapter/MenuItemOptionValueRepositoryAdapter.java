@@ -21,10 +21,16 @@ public class MenuItemOptionValueRepositoryAdapter implements MenuItemOptionValue
 
     @Override
     public MenuItemOptionValue save(MenuItemOptionValue optionValue) {
-        MenuItemOptionValueJpaEntity jpaEntity = jpaRepository.findById(optionValue.getId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, optionValue);
-        return mapper.toDomain(jpaEntity);
+        MenuItemOptionValueJpaEntity jpaEntity;
+        if (optionValue.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(optionValue);
+        } else {
+            jpaEntity = jpaRepository.findById(optionValue.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, optionValue);
+        }
+        MenuItemOptionValueJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override

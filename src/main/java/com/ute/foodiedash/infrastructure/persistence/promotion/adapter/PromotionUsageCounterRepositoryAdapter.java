@@ -18,10 +18,16 @@ public class PromotionUsageCounterRepositoryAdapter implements PromotionUsageCou
 
     @Override
     public PromotionUsageCounter save(PromotionUsageCounter counter) {
-        PromotionUsageCounterJpaEntity jpaEntity = jpaRepository.findById(counter.getPromotionId())
-                .orElseThrow();
-        mapper.updateEntity(jpaEntity, counter);
-        return mapper.toDomain(jpaEntity);
+        PromotionUsageCounterJpaEntity jpaEntity;
+        if (counter.getPromotionId() == null) {
+            jpaEntity = mapper.toJpaEntity(counter);
+        } else {
+            jpaEntity = jpaRepository.findById(counter.getPromotionId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, counter);
+        }
+        PromotionUsageCounterJpaEntity saved = jpaRepository.save(jpaEntity);
+        return mapper.toDomain(saved);
     }
 
     @Override
