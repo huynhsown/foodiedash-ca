@@ -18,9 +18,10 @@ public class OrderDeliveryRepositoryAdapter implements OrderDeliveryRepository {
 
     @Override
     public OrderDelivery save(OrderDelivery orderDelivery) {
-        OrderDeliveryJpaEntity jpaEntity = mapper.toJpaEntity(orderDelivery);
-        OrderDeliveryJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        OrderDeliveryJpaEntity jpaEntity = jpaRepository.findById(orderDelivery.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, orderDelivery);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

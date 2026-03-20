@@ -23,9 +23,10 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
 
     @Override
     public Notification save(Notification notification) {
-        var entity = mapper.toJpaEntity(notification);
-        var saved = jpaRepository.save(entity);
-        return mapper.toDomain(saved);
+        var entity = jpaRepository.findById(notification.getId())
+                .orElseThrow();
+        mapper.updateEntity(entity, notification);
+        return mapper.toDomain(entity);
     }
 
     @Override

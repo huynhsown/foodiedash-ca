@@ -20,9 +20,10 @@ public class MenuRepositoryAdapter implements MenuRepository {
 
     @Override
     public Menu save(Menu menu) {
-        MenuJpaEntity jpaEntity = mapper.toJpaEntity(menu);
-        MenuJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        MenuJpaEntity jpaEntity = jpaRepository.findById(menu.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, menu);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

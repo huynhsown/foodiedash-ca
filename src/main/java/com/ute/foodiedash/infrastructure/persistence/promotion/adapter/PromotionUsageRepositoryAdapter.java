@@ -20,9 +20,10 @@ public class PromotionUsageRepositoryAdapter implements PromotionUsageRepository
 
     @Override
     public PromotionUsage save(PromotionUsage usage) {
-        PromotionUsageJpaEntity jpaEntity = mapper.toJpaEntity(usage);
-        PromotionUsageJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        PromotionUsageJpaEntity jpaEntity = jpaRepository.findById(usage.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, usage);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

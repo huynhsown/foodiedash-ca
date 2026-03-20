@@ -4,6 +4,7 @@ import com.ute.foodiedash.domain.order.model.OrderItemOptionValue;
 import com.ute.foodiedash.infrastructure.persistence.order.jpa.entity.OrderItemOptionValueJpaEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface OrderItemOptionValueJpaMapper {
@@ -30,4 +31,13 @@ public interface OrderItemOptionValueJpaMapper {
 
     @Mapping(target = "orderItemOption", ignore = true)
     OrderItemOptionValueJpaEntity toJpaEntity(OrderItemOptionValue domain);
+
+    default void updateEntity(@MappingTarget OrderItemOptionValueJpaEntity e, OrderItemOptionValue domain) {
+        e.setOptionValueId(domain.getOptionValueId());
+        e.setOptionValueName(domain.getOptionValueName());
+        e.setQuantity(domain.getQuantity());
+        e.setExtraPrice(domain.getExtraPrice());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
 }

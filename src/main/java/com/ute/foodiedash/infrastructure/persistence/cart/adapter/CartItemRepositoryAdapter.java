@@ -20,9 +20,10 @@ public class CartItemRepositoryAdapter implements CartItemRepository {
 
     @Override
     public CartItem save(CartItem cartItem) {
-        CartItemJpaEntity jpaEntity = mapper.toJpaEntity(cartItem);
-        CartItemJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        CartItemJpaEntity jpaEntity = jpaRepository.findById(cartItem.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, cartItem);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

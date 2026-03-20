@@ -20,9 +20,10 @@ public class RestaurantRatingRepositoryAdapter implements RestaurantRatingReposi
 
     @Override
     public RestaurantRating save(RestaurantRating restaurantRating) {
-        RestaurantRatingJpaEntity jpaEntity = mapper.toJpaEntity(restaurantRating);
-        RestaurantRatingJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        RestaurantRatingJpaEntity jpaEntity = jpaRepository.findById(restaurantRating.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, restaurantRating);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

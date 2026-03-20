@@ -19,9 +19,10 @@ public class CartItemOptionValueRepositoryAdapter implements CartItemOptionValue
 
     @Override
     public CartItemOptionValue save(CartItemOptionValue cartItemOptionValue) {
-        CartItemOptionValueJpaEntity jpaEntity = mapper.toJpaEntity(cartItemOptionValue);
-        CartItemOptionValueJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        CartItemOptionValueJpaEntity jpaEntity = jpaRepository.findById(cartItemOptionValue.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, cartItemOptionValue);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

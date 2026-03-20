@@ -20,9 +20,10 @@ public class RestaurantBusinessHourRepositoryAdapter implements RestaurantBusine
 
     @Override
     public RestaurantBusinessHour save(RestaurantBusinessHour businessHour) {
-        RestaurantBusinessHourJpaEntity jpaEntity = mapper.toJpaEntity(businessHour);
-        RestaurantBusinessHourJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        RestaurantBusinessHourJpaEntity jpaEntity = jpaRepository.findById(businessHour.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, businessHour);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

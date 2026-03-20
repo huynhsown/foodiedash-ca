@@ -20,9 +20,10 @@ public class RestaurantCategoryMapRepositoryAdapter implements RestaurantCategor
 
     @Override
     public RestaurantCategoryMap save(RestaurantCategoryMap categoryMap) {
-        RestaurantCategoryMapJpaEntity jpaEntity = mapper.toJpaEntity(categoryMap);
-        RestaurantCategoryMapJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        RestaurantCategoryMapJpaEntity jpaEntity = jpaRepository.findById(categoryMap.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, categoryMap);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

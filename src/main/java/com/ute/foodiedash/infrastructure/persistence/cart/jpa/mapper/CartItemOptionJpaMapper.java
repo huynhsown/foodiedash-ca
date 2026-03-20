@@ -15,6 +15,9 @@ public interface CartItemOptionJpaMapper {
     @Mapping(target = "cartItem", ignore = true)
     CartItemOptionJpaEntity toJpaEntity(CartItemOption domain);
 
+    @Mapping(target = "cartItem", ignore = true)
+    void updateEntity(@MappingTarget CartItemOptionJpaEntity entity, CartItemOption domain);
+
     @AfterMapping
     default void setCartItemOptionReferences(@MappingTarget CartItemOptionJpaEntity jpaEntity) {
         if (!jpaEntity.getValues().isEmpty()) {

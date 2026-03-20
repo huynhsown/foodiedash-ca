@@ -19,9 +19,10 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
 
     @Override
     public Restaurant save(Restaurant restaurant) {
-        RestaurantJpaEntity jpaEntity = mapper.toJpaEntity(restaurant);
-        RestaurantJpaEntity saved = jpaRepository.save(jpaEntity);
-        return mapper.toDomain(saved);
+        RestaurantJpaEntity jpaEntity = jpaRepository.findById(restaurant.getId())
+                .orElseThrow();
+        mapper.updateEntity(jpaEntity, restaurant);
+        return mapper.toDomain(jpaEntity);
     }
 
     @Override

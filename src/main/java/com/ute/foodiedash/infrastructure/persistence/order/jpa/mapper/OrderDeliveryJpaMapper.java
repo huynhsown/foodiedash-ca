@@ -9,6 +9,7 @@ import com.ute.foodiedash.infrastructure.persistence.order.jpa.entity.OrderDeliv
 import org.mapstruct.Mapper;
 
 import java.util.List;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface OrderDeliveryJpaMapper {
@@ -40,6 +41,29 @@ public interface OrderDeliveryJpaMapper {
             e.getDeletedAt(),
             e.getVersion()
         );
+    }
+
+    default void updateEntity(@MappingTarget OrderDeliveryJpaEntity e, OrderDelivery domain) {
+        if (domain == null) {
+            return;
+        }
+        e.setOrderId(domain.getOrderId());
+        e.setDriverId(domain.getDriverId());
+        e.setAddress(domain.getAddress());
+        e.setLat(domain.getLat());
+        e.setLng(domain.getLng());
+        e.setReceiverName(domain.getReceiverName());
+        e.setReceiverPhone(domain.getReceiverPhone());
+        e.setNote(domain.getNote());
+        e.setDistanceKm(domain.getDistanceKm());
+        e.setEtaMinutes(domain.getEtaMinutes());
+        e.setGeometry(toGeometryJson(domain.getGeometry()));
+        e.setPickedUpAt(domain.getPickedUpAt());
+        e.setDeliveredAt(domain.getDeliveredAt());
+        e.setUpdatedAt(domain.getUpdatedAt());
+        e.setUpdatedBy(domain.getUpdatedBy());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
     }
 
     default OrderDeliveryJpaEntity toJpaEntity(OrderDelivery domain) {

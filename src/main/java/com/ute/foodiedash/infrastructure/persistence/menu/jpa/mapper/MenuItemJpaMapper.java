@@ -86,6 +86,8 @@ public interface MenuItemJpaMapper {
 
     MenuItemJpaEntity toJpaEntity(MenuItem domain);
 
+    void updateEntity(@MappingTarget MenuItemJpaEntity entity, MenuItem domain);
+
     @AfterMapping
     default void setMenuItemReferences(@MappingTarget MenuItemJpaEntity jpaEntity) {
         if (jpaEntity.getOptions() != null && !jpaEntity.getOptions().isEmpty()) {
