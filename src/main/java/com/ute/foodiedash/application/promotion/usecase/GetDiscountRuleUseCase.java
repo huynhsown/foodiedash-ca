@@ -34,7 +34,6 @@ public class GetDiscountRuleUseCase {
             throw new BadRequestException("PROMOTION_NOT_ACTIVE");
         }
 
-        // Domain model validates usability
         promotion.ensureUsable();
 
         if (promotion.isRestaurantSpecific()) {

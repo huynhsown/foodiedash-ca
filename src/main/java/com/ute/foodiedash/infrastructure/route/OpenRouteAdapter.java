@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class OpenRouteAdapter implements RouteCalculationPort {
                 .block();
 
         if (response == null || response.isBlank()) {
-            return new RouteQueryResult(0.0, 0.0, List.of());
+            return new RouteQueryResult(0.0, 0, List.of());
         }
 
         try {
@@ -46,7 +47,7 @@ public class OpenRouteAdapter implements RouteCalculationPort {
 
             JsonNode features = root.path("features");
             if (!features.isArray() || features.isEmpty()) {
-                return new RouteQueryResult(0.0, 0.0, List.of());
+                return new RouteQueryResult(0.0, 0, List.of());
             }
 
             JsonNode firstFeature = features.get(0);
@@ -54,16 +55,16 @@ public class OpenRouteAdapter implements RouteCalculationPort {
 
             JsonNode segments = properties.path("segments");
             double distance = 0.0;
-            double duration = 0.0;
+            int duration = 0;
             if (segments.isArray() && !segments.isEmpty()) {
                 JsonNode firstSegment = segments.get(0);
                 JsonNode summary = firstSegment.path("summary");
                 if (!summary.isMissingNode()) {
                     distance = summary.path("distance").asDouble(0.0);
-                    duration = summary.path("duration").asDouble(0.0);
+                    duration = summary.path("duration").asInt(0);
                 } else {
                     distance = firstSegment.path("distance").asDouble(0.0);
-                    duration = firstSegment.path("duration").asDouble(0.0);
+                    duration = firstSegment.path("duration").asInt(0);
                 }
             }
             List<Coordinate> geometry = new ArrayList<>();
@@ -71,8 +72,8 @@ public class OpenRouteAdapter implements RouteCalculationPort {
             if (geometryNode.isArray()) {
                 for (JsonNode coordNode : geometryNode) {
                     if (coordNode.isArray() && coordNode.size() >= 2) {
-                        double lon = coordNode.get(0).asDouble();
-                        double lat = coordNode.get(1).asDouble();
+                        BigDecimal lon = BigDecimal.valueOf(coordNode.get(0).asDouble());
+                        BigDecimal lat = BigDecimal.valueOf(coordNode.get(1).asDouble());
                         geometry.add(new Coordinate(lat, lon));
                     }
                 }
@@ -80,7 +81,7 @@ public class OpenRouteAdapter implements RouteCalculationPort {
 
             return new RouteQueryResult(distance, duration, geometry);
         } catch (IOException e) {
-            return new RouteQueryResult(0.0, 0.0, List.of());
+            return new RouteQueryResult(0.0, 0, List.of());
         }
     }
 }

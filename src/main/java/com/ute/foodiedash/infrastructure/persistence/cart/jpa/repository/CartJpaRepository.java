@@ -2,6 +2,7 @@ package com.ute.foodiedash.infrastructure.persistence.cart.jpa.repository;
 
 import com.ute.foodiedash.domain.cart.enums.CartStatus;
 import com.ute.foodiedash.infrastructure.persistence.cart.jpa.entity.CartJpaEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -36,6 +37,18 @@ public interface CartJpaRepository extends JpaRepository<CartJpaEntity, Long> {
     Optional<CartJpaEntity> findActiveCart(
         @Param("userId") Long userId,
         @Param("restaurantId") Long restaurantId
+    );
+
+    @Query("""
+        SELECT c FROM CartJpaEntity c
+        WHERE c.userId = :userId
+        AND c.status = 'ACTIVE'
+        AND c.deletedAt IS NULL
+        AND c.expiresAt >= CURRENT_TIMESTAMP
+    """)
+    List<CartJpaEntity> findByUserId(
+            @Param("userId") Long userId,
+            Pageable pageable
     );
 
     @Modifying
