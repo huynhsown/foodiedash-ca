@@ -41,6 +41,13 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
     }
 
     @Override
+    public Optional<Review> findActiveById(Long id) {
+        return jpaRepository
+                .findByIdAndDeletedAtIsNullAndStatus(id, ReviewStatus.ACTIVE)
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public List<Review> findByCustomerId(Long customerId, int limit, int offset) {
         if (limit <= 0) {
             return List.of();

@@ -1,18 +1,24 @@
 package com.ute.foodiedash.interfaces.rest.review;
 
 import com.ute.foodiedash.application.reviews.command.CreateReviewCommand;
+import com.ute.foodiedash.application.reviews.command.UpdateReviewCommand;
 import com.ute.foodiedash.application.reviews.query.ReviewQueryResult;
 import com.ute.foodiedash.application.reviews.usecase.CreateReviewUseCase;
+import com.ute.foodiedash.application.reviews.usecase.UpdateReviewUseCase;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.review.dto.CreateReviewRequestDTO;
 import com.ute.foodiedash.interfaces.rest.review.dto.ReviewResponseDTO;
+import com.ute.foodiedash.interfaces.rest.review.dto.UpdateReviewRequestDTO;
 import com.ute.foodiedash.interfaces.rest.review.mapper.ReviewDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +33,7 @@ import java.util.List;
 public class ReviewController {
 
     private final CreateReviewUseCase createReviewUseCase;
+    private final UpdateReviewUseCase updateReviewUseCase;
     private final ReviewDtoMapper reviewDtoMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -48,5 +55,18 @@ public class ReviewController {
         ReviewQueryResult result = createReviewUseCase.execute(enriched, imageFiles);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewDtoMapper.toResponseDto(result));
+    }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<ReviewResponseDTO> update(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody UpdateReviewRequestDTO dto
+    ) {
+        Long customerId = SecurityContextHelper.getCurrentUserId();
+
+        UpdateReviewCommand command = reviewDtoMapper.toUpdateCommand(dto, reviewId, customerId);
+        ReviewQueryResult result = updateReviewUseCase.execute(command);
+
+        return ResponseEntity.ok(reviewDtoMapper.toResponseDto(result));
     }
 }
