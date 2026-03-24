@@ -16,6 +16,8 @@ public interface OrderRepository {
 
     List<Order> findSummariesByCustomerId(Long customerId);
 
+    List<Order> findAllById(List<Long> ids);
+
     void softDeleteById(Long id);
 
     void restoreById(Long id);

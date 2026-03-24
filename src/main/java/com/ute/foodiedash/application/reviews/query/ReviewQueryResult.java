@@ -17,7 +17,9 @@ public record ReviewQueryResult(
         String merchantReply,
         LocalDateTime repliedAt,
         String status,
-        Instant createdAt
+        Instant createdAt,
+        ReviewOrderQueryResult order,
+        ReviewCustomerQueryResult customer
 ) {
     public static ReviewQueryResult from(Review review) {
         return new ReviewQueryResult(
@@ -31,7 +33,31 @@ public record ReviewQueryResult(
                 review.getMerchantReply(),
                 review.getRepliedAt(),
                 review.getStatus() != null ? review.getStatus().name() : null,
-                review.getCreatedAt()
+                review.getCreatedAt(),
+                null,
+                null
+        );
+    }
+
+    public static ReviewQueryResult enriched(
+            Review review,
+            ReviewOrderQueryResult order,
+            ReviewCustomerQueryResult customer
+    ) {
+        return new ReviewQueryResult(
+                review.getId(),
+                review.getOrderId(),
+                review.getCustomerId(),
+                review.getRestaurantId(),
+                review.getRating(),
+                review.getComment(),
+                review.getImages(),
+                review.getMerchantReply(),
+                review.getRepliedAt(),
+                review.getStatus() != null ? review.getStatus().name() : null,
+                review.getCreatedAt(),
+                order,
+                customer
         );
     }
 }

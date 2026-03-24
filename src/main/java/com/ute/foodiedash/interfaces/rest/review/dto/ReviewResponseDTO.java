@@ -22,4 +22,6 @@ public class ReviewResponseDTO {
     private LocalDateTime repliedAt;
     private String status;
     private Instant createdAt;
+    private OrderInfoDTO order;
+    private CustomerInfoDTO customer;
 }
