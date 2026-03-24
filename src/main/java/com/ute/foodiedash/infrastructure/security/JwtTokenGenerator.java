@@ -23,6 +23,9 @@ public class JwtTokenGenerator implements TokenGenerator {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -38,6 +41,26 @@ public class JwtTokenGenerator implements TokenGenerator {
                 .claim("email", email)
                 .claim("roles", roles != null ? roles : List.of())
                 .claim("permissions", permissions != null ? permissions : List.of())
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    @Override
+    public String generateRefreshToken(Long userId, String email, List<String> roles, List<String> permissions) {
+        Date now = new Date();
+
+        Date expiryDate =
+                new Date(now.getTime() + refreshExpiration * 1000);
+
+
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim("email", email)
+                .claim("roles", roles != null ? roles : List.of())
+                .claim("permissions", permissions != null ? permissions : List.of())
+                .claim("type", "refresh")
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())

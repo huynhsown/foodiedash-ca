@@ -4,6 +4,7 @@ import java.util.List;
 
 public record GoogleLoginQueryResult(
         String token,
+        String refreshToken,
         Long userId,
         String email,
         String fullName,

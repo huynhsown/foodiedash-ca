@@ -5,6 +5,15 @@ import java.util.Map;
 
 public interface TokenGenerator {
     String generateToken(Long userId, String email, List<String> roles, List<String> permissions);
+
+    String generateRefreshToken(
+            Long userId,
+            String email,
+            List<String> roles,
+            List<String> permissions
+    );
+
     boolean validateToken(String token);
+
     Map<String, Object> extractClaims(String token);
 }

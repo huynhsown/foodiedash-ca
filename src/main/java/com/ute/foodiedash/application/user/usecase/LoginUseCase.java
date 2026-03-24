@@ -44,9 +44,11 @@ public class LoginUseCase {
         List<String> permissionNames = userPermissionResolutionPort.resolvePermissionNames(user.getRoleNames());
 
         String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames, permissionNames);
+        String refreshToken = tokenGenerator.generateRefreshToken(user.getId(), user.getEmail(), roleNames, permissionNames);
 
         return new LoginQueryResult(
                 token,
+                refreshToken,
                 user.getId(),
                 user.getEmail(),
                 user.getFullName(),

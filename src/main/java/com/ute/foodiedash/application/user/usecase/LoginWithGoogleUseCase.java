@@ -50,11 +50,13 @@ public class LoginWithGoogleUseCase {
         List<String> permissionNames = userPermissionResolutionPort.resolvePermissionNames(user.getRoleNames());
 
         String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames, permissionNames);
+        String refreshToken = tokenGenerator.generateRefreshToken(user.getId(), user.getEmail(), roleNames, permissionNames);
         String avatarUrl = user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                 ? user.getAvatarUrl()
                 : identity.picture();
         return new GoogleLoginQueryResult(
                 token,
+                refreshToken,
                 user.getId(),
                 user.getEmail(),
                 user.getFullName(),
