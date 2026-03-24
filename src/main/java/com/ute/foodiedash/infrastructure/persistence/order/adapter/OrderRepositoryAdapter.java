@@ -37,6 +37,11 @@ public class OrderRepositoryAdapter implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> findByIdAndCustomerId(Long id, Long customerId) {
+        return jpaRepository.findDetailByIdAndCustomerId(id, customerId).map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<Order> findByCode(String code) {
         return jpaRepository.findDetailByCode(code).map(mapper::toDomain);
     }

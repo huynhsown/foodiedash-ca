@@ -24,6 +24,18 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
     @Query("""
         SELECT DISTINCT o FROM OrderJpaEntity o
         LEFT JOIN FETCH o.items i
+        WHERE o.id = :id
+        AND o.customerId = :customerId
+        AND o.deletedAt IS NULL
+    """)
+    Optional<OrderJpaEntity> findDetailByIdAndCustomerId(
+            @Param("id") Long id,
+            @Param("customerId") Long customerId
+    );
+
+    @Query("""
+        SELECT DISTINCT o FROM OrderJpaEntity o
+        LEFT JOIN FETCH o.items i
         WHERE o.code = :code
         AND o.deletedAt IS NULL
     """)

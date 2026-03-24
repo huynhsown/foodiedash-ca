@@ -10,6 +10,8 @@ public interface OrderRepository {
 
     Optional<Order> findById(Long id);
 
+    Optional<Order> findByIdAndCustomerId(Long id, Long customerId);
+
     Optional<Order> findByCode(String code);
 
     List<Order> findSummariesByCustomerId(Long customerId);
