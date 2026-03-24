@@ -41,7 +41,7 @@ public class MarkReadyOrderUseCase {
 
         Order saved = orderRepository.save(order);
         orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_READY);
-        eventPublisher.publish(new OrderMarkedReadyEvent(this, saved.getId()));
+        eventPublisher.publish(new OrderMarkedReadyEvent(saved.getId()));
         return new OrderSummaryQueryResult(
                 saved.getId(),
                 saved.getCode(),

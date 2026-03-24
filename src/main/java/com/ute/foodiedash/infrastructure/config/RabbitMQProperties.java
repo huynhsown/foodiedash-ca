@@ -17,6 +17,16 @@ public class RabbitMQProperties {
 
     private Queues queues;
 
+    private String domainExchange;
+
+    private DomainRoutingKeys domainRoutingKeys;
+
+    private DomainQueues domainQueues;
+
+    private String domainDeadLetterExchange;
+
+    private DomainDlqQueues domainDlqQueues;
+
 
     @Getter
     @Setter
@@ -28,5 +38,32 @@ public class RabbitMQProperties {
     @Setter
     public static class Queues {
         private String notification;
+    }
+
+    @Getter
+    @Setter
+    public static class DomainRoutingKeys {
+        private String restaurantCreated;
+        private String restaurantUpdated;
+        private String restaurantDeleted;
+        private String orderReady;
+    }
+
+    @Getter
+    @Setter
+    public static class DomainQueues {
+        private String restaurantCreated;
+        private String restaurantUpdated;
+        private String restaurantDeleted;
+        private String orderReady;
+    }
+
+    @Getter
+    @Setter
+    public static class DomainDlqQueues {
+        private String restaurantCreated;
+        private String restaurantUpdated;
+        private String restaurantDeleted;
+        private String orderReady;
     }
 }

@@ -10,8 +10,7 @@ import com.ute.foodiedash.infrastructure.search.meilisearch.RestaurantSearchDocu
 import com.ute.foodiedash.infrastructure.search.meilisearch.docs.RestaurantSearchDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -23,8 +22,7 @@ public class RestaurantSearchEventListener {
     private final RestaurantSearchDocumentService restaurantSearchDocumentService;
     private final RestaurantRepository restaurantRepository;
 
-    @Async
-    @EventListener
+    @RabbitListener(queues = "${rabbitmq.domain-queues.restaurant-created}")
     public void handleRestaurantCreated(RestaurantCreatedEvent event) {
         try {
             log.debug("Handling RestaurantCreatedEvent for restaurant id: {}", event.getRestaurantId());
@@ -40,8 +38,7 @@ public class RestaurantSearchEventListener {
         }
     }
 
-    @Async
-    @EventListener
+    @RabbitListener(queues = "${rabbitmq.domain-queues.restaurant-updated}")
     public void handleRestaurantUpdated(RestaurantUpdatedEvent event) {
         try {
             log.debug("Handling RestaurantUpdatedEvent for restaurant id: {}", event.getRestaurantId());
@@ -57,8 +54,7 @@ public class RestaurantSearchEventListener {
         }
     }
 
-    @Async
-    @EventListener
+    @RabbitListener(queues = "${rabbitmq.domain-queues.restaurant-deleted}")
     public void handleRestaurantDeleted(RestaurantDeletedEvent event) {
         try {
             log.debug("Handling RestaurantDeletedEvent for restaurant id: {}", event.getRestaurantId());

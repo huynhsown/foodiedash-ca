@@ -1,15 +1,15 @@
 package com.ute.foodiedash.application.order.event;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.context.ApplicationEvent;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-public class OrderMarkedReadyEvent extends ApplicationEvent {
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class OrderMarkedReadyEvent {
 
-    private final Long orderId;
-
-    public OrderMarkedReadyEvent(Object source, Long orderId) {
-        super(source);
-        this.orderId = orderId;
-    }
+    private Long orderId;
 }
