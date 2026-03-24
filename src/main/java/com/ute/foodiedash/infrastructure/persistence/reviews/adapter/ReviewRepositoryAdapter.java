@@ -1,5 +1,6 @@
 package com.ute.foodiedash.infrastructure.persistence.reviews.adapter;
 
+import com.ute.foodiedash.domain.reviews.enums.ReviewStatus;
 import com.ute.foodiedash.domain.reviews.model.Review;
 import com.ute.foodiedash.domain.reviews.repository.ReviewRepository;
 import com.ute.foodiedash.infrastructure.persistence.reviews.jpa.entity.ReviewJpaEntity;
@@ -84,7 +85,8 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
         int page = offset / limit;
         Pageable pageable = PageRequest.of(page, limit);
         return jpaRepository
-                .findByRestaurantIdOrderByCreatedAtDesc(restaurantId, pageable)
+                .findByRestaurantIdAndDeletedAtIsNullAndStatusOrderByCreatedAtDesc(
+                        restaurantId, ReviewStatus.ACTIVE, pageable)
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
@@ -97,7 +99,8 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
 
     @Override
     public int countByRestaurantId(Long restaurantId) {
-        return jpaRepository.countByRestaurantId(restaurantId);
+        return jpaRepository.countByRestaurantIdAndDeletedAtIsNullAndStatus(
+                restaurantId, ReviewStatus.ACTIVE);
     }
 
     @Override
