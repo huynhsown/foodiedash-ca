@@ -13,6 +13,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -57,6 +58,37 @@ public class UserRepositoryAdapter implements UserRepository {
     public Optional<User> findById(Long id) {
         return userJpaRepository.findById(id)
                 .map(userJpaMapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findAllById(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return userJpaRepository.findAllById(ids).stream()
+                .map(userJpaMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> findBasicInfoByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return userJpaRepository.findBasicInfoByIdIn(ids).stream()
+                .<User>map(row -> {
+                    Long id = (Long) row[0];
+                    String fullName = (String) row[1];
+                    String avatarUrl = (String) row[2];
+                    return User.reconstruct(
+                            id, null, null, null, fullName, avatarUrl, null,
+                            null, null, null, null, null, null, null,
+                            null, null, null, null, null, null
+                    );
+                })
+                .toList();
     }
 
     @Override

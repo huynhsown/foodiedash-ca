@@ -1,6 +1,7 @@
 package com.ute.foodiedash.infrastructure.persistence.order.adapter;
 
 import com.ute.foodiedash.domain.order.model.Order;
+import com.ute.foodiedash.domain.order.model.OrderItem;
 import com.ute.foodiedash.domain.order.repository.OrderRepository;
 import com.ute.foodiedash.infrastructure.persistence.order.jpa.entity.OrderJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.order.jpa.mapper.OrderJpaMapper;
@@ -8,7 +9,10 @@ import com.ute.foodiedash.infrastructure.persistence.order.jpa.repository.OrderJ
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -19,7 +23,14 @@ public class OrderRepositoryAdapter implements OrderRepository {
 
     @Override
     public Order save(Order order) {
-        OrderJpaEntity jpaEntity = mapper.toJpaEntity(order);
+        OrderJpaEntity jpaEntity;
+        if (order.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(order);
+        } else {
+            jpaEntity = jpaRepository.findById(order.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, order);
+        }
         OrderJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
     }
@@ -27,6 +38,11 @@ public class OrderRepositoryAdapter implements OrderRepository {
     @Override
     public Optional<Order> findById(Long id) {
         return jpaRepository.findDetailById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Order> findByIdAndCustomerId(Long id, Long customerId) {
+        return jpaRepository.findDetailByIdAndCustomerId(id, customerId).map(mapper::toDomain);
     }
 
     @Override
@@ -78,6 +94,39 @@ public class OrderRepositoryAdapter implements OrderRepository {
                 e.getDeletedAt(),
                 e.getVersion()
         );
+    }
+
+    @Override
+    public List<Order> findAllById(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        List<Object[]> rows = jpaRepository.findBasicInfoByIdIn(ids);
+
+        Map<Long, List<OrderItem>> orderItems = new LinkedHashMap<>();
+        for (Object[] row : rows) {
+            Long orderId = (Long) row[0];
+            Long menuItemId = (Long) row[1];
+            String name = (String) row[2];
+
+            OrderItem item = OrderItem.reconstruct(
+                    null, null, menuItemId, name, null,
+                    null, null, null, null, List.of(),
+                    null, null, null, null, null, null
+            );
+            orderItems.computeIfAbsent(orderId, k -> new ArrayList<>()).add(item);
+        }
+
+        return orderItems.entrySet().stream()
+                .map(entry -> Order.reconstruct(
+                        entry.getKey(), null, null, null, null,
+                        null, null, null, null,
+                        null, null, null, null, null, null,
+                        entry.getValue(), List.of(), List.of(),
+                        null, null, null, null, null, null
+                ))
+                .toList();
     }
 
     @Override

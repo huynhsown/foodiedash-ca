@@ -42,3 +42,4 @@ build/
 /.specify/
 /specs/
 /.agents/
+/.opencode/

@@ -1,10 +1,12 @@
 package com.ute.foodiedash.infrastructure.persistence.user.jpa.mapper;
 
+import com.ute.foodiedash.domain.user.enums.MerchantVerificationStatus;
 import com.ute.foodiedash.domain.user.model.DriverProfile;
 import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.DriverProfileJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
@@ -66,5 +68,26 @@ public interface DriverProfileJpaMapper {
         DriverProfileJpaEntity jpaEntity = toJpaEntity(domain);
         jpaEntity.setUser(user);
         return jpaEntity;
+    }
+
+    default void updateEntity(@MappingTarget DriverProfileJpaEntity e, DriverProfile domain) {
+        e.setIdCardNumber(domain.getIdCardNumber());
+        e.setIdCardFrontUrl(domain.getIdCardFrontUrl());
+        e.setIdCardBackUrl(domain.getIdCardBackUrl());
+        e.setLicenseNumber(domain.getLicenseNumber());
+        e.setVehicleType(domain.getVehicleType() != null ? domain.getVehicleType().name() : null);
+        e.setVehiclePlate(domain.getVehiclePlate());
+        e.setDriverLicenseUrl(domain.getDriverLicenseUrl());
+        e.setBankName(domain.getBankName());
+        e.setBankAccount(domain.getBankAccount());
+        e.setBankHolderName(domain.getBankHolderName());
+        e.setCurrentLat(domain.getCurrentLat());
+        e.setCurrentLng(domain.getCurrentLng());
+        e.setIsOnline(domain.isOnline());
+        e.setVerificationStatus(domain.getVerificationStatus() != null
+                ? MerchantVerificationStatus.valueOf(domain.getVerificationStatus().name())
+                : null);
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
     }
 }

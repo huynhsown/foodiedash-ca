@@ -4,6 +4,7 @@ import com.ute.foodiedash.domain.notification.enums.NotificationRole;
 import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.notification.model.Notification;
 import com.ute.foodiedash.domain.notification.repository.NotificationRepository;
+import com.ute.foodiedash.infrastructure.persistence.notification.jpa.entity.NotificationJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.notification.jpa.mapper.NotificationJpaMapper;
 import com.ute.foodiedash.infrastructure.persistence.notification.jpa.repository.NotificationJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,15 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
 
     @Override
     public Notification save(Notification notification) {
-        var entity = mapper.toJpaEntity(notification);
-        var saved = jpaRepository.save(entity);
+        NotificationJpaEntity jpaEntity;
+        if (notification.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(notification);
+        } else {
+            jpaEntity = jpaRepository.findById(notification.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, notification);
+        }
+        NotificationJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
     }
 

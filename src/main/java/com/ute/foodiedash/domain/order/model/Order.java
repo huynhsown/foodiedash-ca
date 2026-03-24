@@ -345,4 +345,15 @@ public class Order extends BaseEntity {
             throw new BadRequestException("Cannot modify a completed or cancelled order");
         }
     }
+
+    public boolean isCompleted() {
+        return status == OrderStatus.COMPLETED;
+    }
+
+    public boolean isBelongToCustomer(Long customerId) {
+        if (customerId == null) {
+            return false;
+        }
+        return Objects.equals(this.customerId, customerId);
+    }
 }

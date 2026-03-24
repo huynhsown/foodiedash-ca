@@ -18,7 +18,14 @@ public class RestaurantImageRepositoryAdapter implements RestaurantImageReposito
 
     @Override
     public RestaurantImage save(RestaurantImage image) {
-        RestaurantImageJpaEntity jpaEntity = mapper.toJpaEntity(image);
+        RestaurantImageJpaEntity jpaEntity;
+        if (image.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(image);
+        } else {
+            jpaEntity = jpaRepository.findById(image.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, image);
+        }
         RestaurantImageJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
     }

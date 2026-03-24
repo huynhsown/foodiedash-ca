@@ -1,6 +1,7 @@
 package com.ute.foodiedash.infrastructure.persistence.user.jpa.mapper;
 
 import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
+import com.ute.foodiedash.domain.user.enums.RoleName;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.domain.user.model.CustomerAddress;
 import com.ute.foodiedash.domain.user.model.CustomerProfile;
@@ -11,14 +12,26 @@ import com.ute.foodiedash.domain.user.model.RestaurantDevice;
 import com.ute.foodiedash.domain.user.model.UserRole;
 import com.ute.foodiedash.domain.user.model.User;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.CustomerAddressJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.CustomerProfileJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.DriverProfileJpaEntity;
+import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.MerchantProfileJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.MerchantRestaurantJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.RestaurantDeviceJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserRoleJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
-import org.mapstruct.*;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = "spring",
@@ -31,9 +44,20 @@ import java.util.List;
         },
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
-public interface UserJpaMapper {
+public abstract class UserJpaMapper {
 
-    default User toDomain(UserJpaEntity jpaEntity) {
+    @Autowired
+    protected CustomerProfileJpaMapper customerProfileJpaMapper;
+    @Autowired
+    protected MerchantProfileJpaMapper merchantProfileJpaMapper;
+    @Autowired
+    protected DriverProfileJpaMapper driverProfileJpaMapper;
+    @Autowired
+    protected CustomerAddressJpaMapper customerAddressJpaMapper;
+    @Autowired
+    protected UserRoleJpaMapper userRoleJpaMapper;
+
+    public User toDomain(UserJpaEntity jpaEntity) {
         if (jpaEntity == null) {
             return null;
         }
@@ -221,14 +245,187 @@ public interface UserJpaMapper {
         );
     }
 
-    UserJpaEntity toJpaEntity(User domain);
+    public abstract UserJpaEntity toJpaEntity(User domain);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "roles", ignore = true)
-    void updateJpaEntity(User domain, @MappingTarget UserJpaEntity jpaEntity);
+    public void updateJpaEntity(User domain, @MappingTarget UserJpaEntity jpaEntity) {
+        jpaEntity.setEmail(domain.getEmail());
+        jpaEntity.setPhone(domain.getPhone());
+        jpaEntity.setPassword(domain.getPassword());
+        jpaEntity.setFullName(domain.getFullName());
+        jpaEntity.setAvatarUrl(domain.getAvatarUrl());
+        jpaEntity.setStatus(domain.getStatus());
+        mergeCustomerProfile(jpaEntity, domain);
+        mergeMerchantProfile(jpaEntity, domain);
+        mergeDriverProfile(jpaEntity, domain);
+        mergeAddresses(jpaEntity, domain);
+        mergeRoles(jpaEntity, domain);
+        mergeMerchantRestaurants(jpaEntity, domain);
+        mergeRestaurantDevices(jpaEntity, domain);
+        jpaEntity.setDeletedAt(domain.getDeletedAt());
+        jpaEntity.setVersion(domain.getVersion());
+    }
+
+    private void mergeCustomerProfile(UserJpaEntity e, User domain) {
+        if (domain.getCustomerProfile() != null) {
+            if (e.getCustomerProfile() != null) {
+                customerProfileJpaMapper.updateEntity(e.getCustomerProfile(), domain.getCustomerProfile());
+            } else {
+                CustomerProfileJpaEntity jpa = customerProfileJpaMapper.toJpaEntity(domain.getCustomerProfile());
+                jpa.setUser(e);
+                e.setCustomerProfile(jpa);
+            }
+        } else {
+            e.setCustomerProfile(null);
+        }
+    }
+
+    private void mergeMerchantProfile(UserJpaEntity e, User domain) {
+        if (domain.getMerchantProfile() != null) {
+            if (e.getMerchantProfile() != null) {
+                merchantProfileJpaMapper.updateEntity(e.getMerchantProfile(), domain.getMerchantProfile());
+            } else {
+                MerchantProfileJpaEntity jpa = merchantProfileJpaMapper.toJpaEntity(domain.getMerchantProfile());
+                jpa.setUser(e);
+                e.setMerchantProfile(jpa);
+            }
+        } else {
+            e.setMerchantProfile(null);
+        }
+    }
+
+    private void mergeDriverProfile(UserJpaEntity e, User domain) {
+        if (domain.getDriverProfile() != null) {
+            if (e.getDriverProfile() != null) {
+                driverProfileJpaMapper.updateEntity(e.getDriverProfile(), domain.getDriverProfile());
+            } else {
+                DriverProfileJpaEntity jpa = driverProfileJpaMapper.toJpaEntity(domain.getDriverProfile());
+                jpa.setUser(e);
+                e.setDriverProfile(jpa);
+            }
+        } else {
+            e.setDriverProfile(null);
+        }
+    }
+
+    private void mergeAddresses(UserJpaEntity e, User domain) {
+        if (domain.getAddresses() == null) {
+            e.getAddresses().clear();
+            return;
+        }
+
+        Set<Long> domainIds = domain.getAddresses().stream()
+                .map(CustomerAddress::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getAddresses().removeIf(a -> !domainIds.contains(a.getId()));
+
+        Map<Long, CustomerAddressJpaEntity> existingById = e.getAddresses().stream()
+                .collect(Collectors.toMap(CustomerAddressJpaEntity::getId, Function.identity()));
+
+        for (CustomerAddress domainAddr : domain.getAddresses()) {
+            if (domainAddr.getId() != null && existingById.containsKey(domainAddr.getId())) {
+                customerAddressJpaMapper.updateEntity(existingById.get(domainAddr.getId()), domainAddr);
+            } else {
+                CustomerAddressJpaEntity jpaAddr = customerAddressJpaMapper.toJpaEntity(domainAddr);
+                jpaAddr.setUser(e);
+                e.getAddresses().add(jpaAddr);
+            }
+        }
+    }
+
+    private void mergeRoles(UserJpaEntity e, User domain) {
+        if (domain.getRoles() == null) {
+            e.getRoles().clear();
+            return;
+        }
+
+        Set<RoleName> domainRoleNames = domain.getRoles().stream()
+                .map(UserRole::getRoleName)
+                .collect(Collectors.toSet());
+
+        e.getRoles().removeIf(r -> !domainRoleNames.contains(r.getId().getRoleName()));
+
+        Set<RoleName> existingRoleNames = e.getRoles().stream()
+                .map(r -> r.getId().getRoleName())
+                .collect(Collectors.toSet());
+
+        for (UserRole domainRole : domain.getRoles()) {
+            if (!existingRoleNames.contains(domainRole.getRoleName())) {
+                UserRoleJpaEntity jpaRole = userRoleJpaMapper.toJpaEntity(domainRole, e);
+                e.getRoles().add(jpaRole);
+            }
+        }
+    }
+
+    private void mergeMerchantRestaurants(UserJpaEntity e, User domain) {
+        if (domain.getMerchantRestaurants() == null) {
+            e.getMerchantRestaurants().clear();
+            return;
+        }
+
+        Set<Long> domainIds = domain.getMerchantRestaurants().stream()
+                .map(MerchantRestaurant::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getMerchantRestaurants().removeIf(mr -> !domainIds.contains(mr.getId()));
+
+        Map<Long, MerchantRestaurantJpaEntity> existingById = e.getMerchantRestaurants().stream()
+                .collect(Collectors.toMap(MerchantRestaurantJpaEntity::getId, Function.identity()));
+
+        for (MerchantRestaurant domainMr : domain.getMerchantRestaurants()) {
+            if (domainMr.getId() != null && existingById.containsKey(domainMr.getId())) {
+                MerchantRestaurantJpaEntity existing = existingById.get(domainMr.getId());
+                existing.setRestaurantId(domainMr.getRestaurantId());
+                existing.setDeletedAt(domainMr.getDeletedAt());
+                existing.setVersion(domainMr.getVersion());
+            } else {
+                MerchantRestaurantJpaEntity jpaMr = new MerchantRestaurantJpaEntity();
+                jpaMr.setRestaurantId(domainMr.getRestaurantId());
+                jpaMr.setUser(e);
+                e.getMerchantRestaurants().add(jpaMr);
+            }
+        }
+    }
+
+    private void mergeRestaurantDevices(UserJpaEntity e, User domain) {
+        if (domain.getRestaurantDevices() == null) {
+            e.getRestaurantDevices().clear();
+            return;
+        }
+
+        Set<Long> domainIds = domain.getRestaurantDevices().stream()
+                .map(RestaurantDevice::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        e.getRestaurantDevices().removeIf(rd -> !domainIds.contains(rd.getId()));
+
+        Map<Long, RestaurantDeviceJpaEntity> existingById = e.getRestaurantDevices().stream()
+                .collect(Collectors.toMap(RestaurantDeviceJpaEntity::getId, Function.identity()));
+
+        for (RestaurantDevice domainRd : domain.getRestaurantDevices()) {
+            if (domainRd.getId() != null && existingById.containsKey(domainRd.getId())) {
+                RestaurantDeviceJpaEntity existing = existingById.get(domainRd.getId());
+                existing.setRestaurantId(domainRd.getRestaurantId());
+                existing.setDeviceName(domainRd.getDeviceName());
+                existing.setLastLoginAt(domainRd.getLastLoginAt());
+                existing.setDeletedAt(domainRd.getDeletedAt());
+                existing.setVersion(domainRd.getVersion());
+            } else {
+                RestaurantDeviceJpaEntity jpaRd = new RestaurantDeviceJpaEntity();
+                jpaRd.setRestaurantId(domainRd.getRestaurantId());
+                jpaRd.setDeviceName(domainRd.getDeviceName());
+                jpaRd.setLastLoginAt(domainRd.getLastLoginAt());
+                jpaRd.setUser(e);
+                e.getRestaurantDevices().add(jpaRd);
+            }
+        }
+    }
 
     @AfterMapping
-    default void setUserReferences(@MappingTarget UserJpaEntity jpaEntity) {
+    protected void setUserReferences(@MappingTarget UserJpaEntity jpaEntity) {
         if (jpaEntity.getCustomerProfile() != null) {
             jpaEntity.getCustomerProfile().setUser(jpaEntity);
         }

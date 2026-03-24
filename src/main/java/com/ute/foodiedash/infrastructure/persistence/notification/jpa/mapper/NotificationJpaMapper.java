@@ -11,6 +11,7 @@ import org.mapstruct.Mapper;
 
 import java.util.Collections;
 import java.util.Map;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface NotificationJpaMapper {
@@ -39,6 +40,24 @@ public interface NotificationJpaMapper {
                 e.getDeletedAt(),
                 e.getVersion()
         );
+    }
+
+    default void updateEntity(@MappingTarget NotificationJpaEntity e, Notification domain) {
+        if (domain == null) {
+            return;
+        }
+        e.setRecipientUserId(domain.getRecipientUserId());
+        e.setRecipientRole(domain.getRecipientRole());
+        e.setType(domain.getType());
+        e.setTitleKey(domain.getTitleKey());
+        e.setBodyKey(domain.getBodyKey());
+        e.setPayload(serializePayload(domain.getPayload()));
+        e.setDedupeKey(domain.getDedupeKey());
+        e.setReadAt(domain.getReadAt());
+        e.setUpdatedAt(domain.getUpdatedAt());
+        e.setUpdatedBy(domain.getUpdatedBy());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
     }
 
     default NotificationJpaEntity toJpaEntity(Notification domain) {

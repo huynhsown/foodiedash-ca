@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class LoginResponseDTO {
     private String token;
+    private String refreshToken;
     private Long userId;
     private String email;
     private String fullName;

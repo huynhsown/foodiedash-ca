@@ -3,6 +3,7 @@ package com.ute.foodiedash.infrastructure.persistence.menu.jpa.mapper;
 import com.ute.foodiedash.domain.menu.model.Menu;
 import com.ute.foodiedash.infrastructure.persistence.menu.jpa.entity.MenuJpaEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface MenuJpaMapper {
@@ -29,4 +30,15 @@ public interface MenuJpaMapper {
     }
 
     MenuJpaEntity toJpaEntity(Menu domain);
+
+    default void updateEntity(@MappingTarget MenuJpaEntity e, Menu domain) {
+        e.setId(domain.getId());
+        e.setRestaurantId(domain.getRestaurantId());
+        e.setName(domain.getName());
+        e.setStartTime(domain.getStartTime());
+        e.setEndTime(domain.getEndTime());
+        e.setStatus(domain.getStatus());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
+    }
 }

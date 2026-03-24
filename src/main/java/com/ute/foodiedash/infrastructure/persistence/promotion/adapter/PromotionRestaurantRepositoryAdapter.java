@@ -16,7 +16,14 @@ public class PromotionRestaurantRepositoryAdapter implements PromotionRestaurant
 
     @Override
     public PromotionRestaurant save(PromotionRestaurant promotionRestaurant) {
-        PromotionRestaurantJpaEntity jpaEntity = mapper.toJpaEntity(promotionRestaurant);
+        PromotionRestaurantJpaEntity jpaEntity;
+        if (promotionRestaurant.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(promotionRestaurant);
+        } else {
+            jpaEntity = jpaRepository.findById(promotionRestaurant.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, promotionRestaurant);
+        }
         PromotionRestaurantJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
     }

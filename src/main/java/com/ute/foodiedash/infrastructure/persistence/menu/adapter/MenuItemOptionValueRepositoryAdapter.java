@@ -21,20 +21,16 @@ public class MenuItemOptionValueRepositoryAdapter implements MenuItemOptionValue
 
     @Override
     public MenuItemOptionValue save(MenuItemOptionValue optionValue) {
-        MenuItemOptionValueJpaEntity jpaEntity = mapper.toJpaEntity(optionValue);
+        MenuItemOptionValueJpaEntity jpaEntity;
+        if (optionValue.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(optionValue);
+        } else {
+            jpaEntity = jpaRepository.findById(optionValue.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, optionValue);
+        }
         MenuItemOptionValueJpaEntity saved = jpaRepository.save(jpaEntity);
-        return com.ute.foodiedash.domain.menu.model.MenuItemOptionValue.reconstruct(
-                saved.getId(),
-                saved.getOption() != null ? saved.getOption().getId() : null,
-                saved.getName(),
-                saved.getExtraPrice(),
-                saved.getCreatedAt(),
-                saved.getUpdatedAt(),
-                saved.getCreatedBy(),
-                saved.getUpdatedBy(),
-                saved.getDeletedAt(),
-                saved.getVersion()
-        );
+        return mapper.toDomain(saved);
     }
 
     @Override

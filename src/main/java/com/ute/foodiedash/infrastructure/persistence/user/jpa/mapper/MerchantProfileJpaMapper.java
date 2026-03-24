@@ -4,6 +4,7 @@ import com.ute.foodiedash.domain.user.model.MerchantProfile;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.MerchantProfileJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface MerchantProfileJpaMapper {
@@ -39,5 +40,19 @@ public interface MerchantProfileJpaMapper {
         MerchantProfileJpaEntity jpaEntity = toJpaEntity(merchant);
         jpaEntity.setUser(user);
         return jpaEntity;
+    }
+
+    default void updateEntity(@MappingTarget MerchantProfileJpaEntity e, MerchantProfile domain) {
+        e.setBusinessName(domain.getBusinessName());
+        e.setBusinessLicense(domain.getBusinessLicense());
+        e.setTaxCode(domain.getTaxCode());
+        e.setBankName(domain.getBankName());
+        e.setBankAccount(domain.getBankAccount());
+        e.setBankHolderName(domain.getBankHolderName());
+        e.setContactEmail(domain.getContactEmail());
+        e.setContactPhone(domain.getContactPhone());
+        e.setVerificationStatus(domain.getVerificationStatus());
+        e.setDeletedAt(domain.getDeletedAt());
+        e.setVersion(domain.getVersion());
     }
 }

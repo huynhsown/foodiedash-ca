@@ -3,6 +3,7 @@ package com.ute.foodiedash.application.notification.usecase;
 import com.ute.foodiedash.application.common.port.DomainEventPublisher;
 import com.ute.foodiedash.application.notification.command.CreateNotificationCommand;
 import com.ute.foodiedash.application.notification.event.NotificationCreatedEvent;
+import com.ute.foodiedash.application.notification.port.NotificationPort;
 import com.ute.foodiedash.application.notification.query.NotificationResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.notification.model.Notification;
@@ -17,6 +18,7 @@ public class CreateNotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final DomainEventPublisher domainEventPublisher;
+    private final NotificationPort notificationPort;
 
     @Transactional
     public NotificationResult execute(CreateNotificationCommand command) {
@@ -60,13 +62,11 @@ public class CreateNotificationUseCase {
 
         NotificationResult result = toResult(saved);
 
-        domainEventPublisher.publish(new NotificationCreatedEvent(
-                this,
+        notificationPort.pushToUser(
                 saved.getRecipientUserId(),
                 saved.getRecipientRole(),
                 result
-        ));
-
+        );
 
         return result;
     }

@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String email = claims.get("email") != null ? claims.get("email").toString() : null;
             List<SimpleGrantedAuthority> authorities =
                     new ArrayList<>(mapPermissionsToAuthorities(claims.get("permissions")));
-//            authorities.addAll(mapRolesToAuthorities(claims.get("roles")));
+            authorities.addAll(mapRolesToAuthorities(claims.get("roles")));
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId,

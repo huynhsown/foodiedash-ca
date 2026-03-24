@@ -3,6 +3,7 @@ package com.ute.foodiedash.infrastructure.persistence.order.jpa.mapper;
 import com.ute.foodiedash.domain.order.model.OrderPayment;
 import com.ute.foodiedash.infrastructure.persistence.order.jpa.entity.OrderPaymentJpaEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface OrderPaymentJpaMapper {
@@ -29,4 +30,6 @@ public interface OrderPaymentJpaMapper {
     }
 
     OrderPaymentJpaEntity toJpaEntity(OrderPayment domain);
+
+    void updateEntity(@MappingTarget OrderPaymentJpaEntity entity, OrderPayment domain);
 }

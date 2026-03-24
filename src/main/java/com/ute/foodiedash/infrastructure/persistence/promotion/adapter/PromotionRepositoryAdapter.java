@@ -7,6 +7,7 @@ import com.ute.foodiedash.infrastructure.persistence.promotion.jpa.mapper.Promot
 import com.ute.foodiedash.infrastructure.persistence.promotion.jpa.repository.PromotionJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,7 +19,14 @@ public class PromotionRepositoryAdapter implements PromotionRepository {
 
     @Override
     public Promotion save(Promotion promotion) {
-        PromotionJpaEntity jpaEntity = mapper.toJpaEntity(promotion);
+        PromotionJpaEntity jpaEntity;
+        if (promotion.getId() == null) {
+            jpaEntity = mapper.toJpaEntity(promotion);
+        } else {
+            jpaEntity = jpaRepository.findById(promotion.getId())
+                    .orElseThrow();
+            mapper.updateEntity(jpaEntity, promotion);
+        }
         PromotionJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
     }
