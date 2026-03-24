@@ -22,22 +22,11 @@ public class MerchantProfileController {
     private final GetMerchantProfileUseCase getMerchantProfileUseCase;
     private final MerchantProfileDtoMapper dtoMapper;
 
-    @GetMapping("/me")
+    @GetMapping("/api/v1/merchant/profile")
     public ResponseEntity<MerchantProfileResponseDTO> getMerchantProfile() {
         Long currentUserId = SecurityContextHelper.getCurrentUserId();
         MerchantProfileQueryResult result = getMerchantProfileUseCase.execute(currentUserId);
         MerchantProfileResponseDTO response = dtoMapper.toResponse(result);
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/api/v1/merchant/profile")
-    public Object test(Authentication authentication) {
-
-        System.out.println(authentication.getName());
-
-        authentication.getAuthorities()
-                .forEach(System.out::println);
-
-        return "ok";
     }
 }
