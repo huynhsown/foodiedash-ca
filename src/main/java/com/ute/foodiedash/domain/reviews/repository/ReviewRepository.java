@@ -10,6 +10,8 @@ public interface ReviewRepository {
 
     Optional<Review> findById(Long id);
 
+    Optional<Review> findActiveById(Long id);
+
     List<Review> findByCustomerId(Long customerId, int limit, int offset);
 
     List<Review> findByOrderId(Long orderId, int limit, int offset);

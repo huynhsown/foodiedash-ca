@@ -6,8 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long> {
+
+    Optional<ReviewJpaEntity> findByIdAndDeletedAtIsNullAndStatus(Long id, ReviewStatus status);
 
     List<ReviewJpaEntity> findByCustomerIdOrderByCreatedAtDesc(Long customerId, Pageable pageable);
 
