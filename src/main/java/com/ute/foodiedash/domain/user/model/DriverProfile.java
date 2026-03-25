@@ -40,7 +40,7 @@ public class DriverProfile extends BaseEntity {
         profile.userId = userId;
         profile.vehicleType = vehicleType != null ? vehicleType : VehicleType.MOTORBIKE;
         profile.isOnline = false;
-        profile.verificationStatus = DriverVerificationStatus.PENDING;
+        profile.verificationStatus = DriverVerificationStatus.DRAFT;
         return profile;
     }
 
@@ -144,17 +144,23 @@ public class DriverProfile extends BaseEntity {
         return this.verificationStatus == DriverVerificationStatus.APPROVED;
     }
 
-    public void approve() {
-        if (this.verificationStatus == DriverVerificationStatus.APPROVED) {
-            throw new BadRequestException("Driver is already approved");
+    public void submit() {
+        ensureCanSubmit();
+        if (!hasMinimumVerificationData()) {
+            throw new BadRequestException(
+                    "You must provide either identity documents or driving license information"
+            );
         }
+        this.verificationStatus = DriverVerificationStatus.PENDING;
+    }
+
+    public void approve() {
+        ensurePending();
         this.verificationStatus = DriverVerificationStatus.APPROVED;
     }
 
     public void reject() {
-        if (this.verificationStatus == DriverVerificationStatus.REJECTED) {
-            throw new BadRequestException("Driver is already rejected");
-        }
+        ensurePending();
         this.verificationStatus = DriverVerificationStatus.REJECTED;
     }
 
@@ -167,6 +173,38 @@ public class DriverProfile extends BaseEntity {
 
     public void goOffline() {
         this.isOnline = false;
+    }
+
+    private void ensureCanSubmit() {
+        if (verificationStatus == DriverVerificationStatus.PENDING) {
+            throw new BadRequestException("Verification already submitted");
+        }
+    }
+
+    private void ensurePending() {
+        if (verificationStatus != DriverVerificationStatus.PENDING) {
+            throw new BadRequestException("Driver must be in PENDING state");
+        }
+    }
+
+    private boolean hasMinimumVerificationData() {
+
+        boolean hasIdentity =
+                isNotBlank(idCardNumber)
+                        && isNotBlank(idCardFrontUrl)
+                        && isNotBlank(idCardBackUrl);
+
+        boolean hasLicense =
+                isNotBlank(licenseNumber)
+                        && isNotBlank(driverLicenseUrl)
+                        && isNotBlank(vehiclePlate);
+
+        return hasIdentity || hasLicense;
+
+    }
+
+    private boolean isNotBlank(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 }
 
