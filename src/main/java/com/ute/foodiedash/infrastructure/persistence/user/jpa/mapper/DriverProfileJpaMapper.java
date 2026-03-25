@@ -21,16 +21,16 @@ public interface DriverProfileJpaMapper {
         VehicleType vehicleType = null;
         if (jpaEntity.getVehicleType() != null) {
             try {
-                vehicleType = VehicleType.valueOf(jpaEntity.getVehicleType());
+                vehicleType = jpaEntity.getVehicleType();
             } catch (IllegalArgumentException ignored) {
                 vehicleType = null;
             }
         }
 
         DriverVerificationStatus verificationStatus = null;
-        if (jpaEntity.getVerificationStatus() != null) {
+        if (jpaEntity.getDriverVerificationStatus() != null) {
             try {
-                verificationStatus = DriverVerificationStatus.valueOf(jpaEntity.getVerificationStatus().name());
+                verificationStatus = DriverVerificationStatus.valueOf(jpaEntity.getDriverVerificationStatus().name());
             } catch (IllegalArgumentException ignored) {
                 verificationStatus = null;
             }
@@ -75,7 +75,7 @@ public interface DriverProfileJpaMapper {
         e.setIdCardFrontUrl(domain.getIdCardFrontUrl());
         e.setIdCardBackUrl(domain.getIdCardBackUrl());
         e.setLicenseNumber(domain.getLicenseNumber());
-        e.setVehicleType(domain.getVehicleType() != null ? domain.getVehicleType().name() : null);
+        e.setVehicleType(domain.getVehicleType() != null ? domain.getVehicleType() : null);
         e.setVehiclePlate(domain.getVehiclePlate());
         e.setDriverLicenseUrl(domain.getDriverLicenseUrl());
         e.setBankName(domain.getBankName());
@@ -84,8 +84,8 @@ public interface DriverProfileJpaMapper {
         e.setCurrentLat(domain.getCurrentLat());
         e.setCurrentLng(domain.getCurrentLng());
         e.setIsOnline(domain.isOnline());
-        e.setVerificationStatus(domain.getVerificationStatus() != null
-                ? MerchantVerificationStatus.valueOf(domain.getVerificationStatus().name())
+        e.setDriverVerificationStatus(domain.getDriverVerificationStatus() != null
+                ? DriverVerificationStatus.valueOf(domain.getDriverVerificationStatus().name())
                 : null);
         e.setDeletedAt(domain.getDeletedAt());
         e.setVersion(domain.getVersion());

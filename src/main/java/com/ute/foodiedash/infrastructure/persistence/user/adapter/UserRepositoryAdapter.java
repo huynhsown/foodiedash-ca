@@ -2,6 +2,9 @@ package com.ute.foodiedash.infrastructure.persistence.user.adapter;
 
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
+import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
+import com.ute.foodiedash.domain.user.enums.UserStatus;
+import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.domain.user.model.User;
 import com.ute.foodiedash.domain.user.repository.UserRepository;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
@@ -10,9 +13,14 @@ import com.ute.foodiedash.infrastructure.persistence.user.jpa.repository.UserJpa
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -146,6 +154,31 @@ public class UserRepositoryAdapter implements UserRepository {
             return false;
         }
         return userJpaRepository.existsMerchantRestaurant(userId, restaurantId);
+    }
+
+    @Override
+    public List<User> listDrivers(String keyword, UserStatus userStatus,
+                                  DriverVerificationStatus driverVerificationStatus, VehicleType vehicleType,
+                                  Instant createdFrom, Instant createdTo,
+                                  Integer page, Integer size,
+                                  String sortBy, String sortDirection) {
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                sort
+        );
+
+        Page<UserJpaEntity> userJpaEntities = userJpaRepository.searchDrivers(
+                keyword, userStatus, driverVerificationStatus, vehicleType,
+                createdFrom, createdTo, pageable
+        );
+
+        return List.of();
     }
 
     @Override

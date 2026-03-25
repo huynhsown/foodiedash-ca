@@ -1,13 +1,18 @@
 package com.ute.foodiedash.infrastructure.persistence.user.jpa.repository;
 
+import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.UserStatus;
+import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,4 +103,38 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
         WHERE u.id IN :ids AND u.deletedAt IS NULL
     """)
     List<Object[]> findBasicInfoByIdIn(@Param("ids") List<Long> ids);
+
+
+    @Query("""
+        SELECT DISTINCT u FROM UserJpaEntity u
+        JOIN u.driverProfile dp
+        WHERE
+            (:keyword IS NULL OR
+                LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR u.phone LIKE CONCAT('%', :keyword, '%')
+                OR u.email LIKE CONCAT('%', :keyword, '%')
+                OR dp.licenseNumber LIKE CONCAT('%', :keyword, '%')
+            )
+        AND (:userStatus IS NULL
+             OR u.status = :userStatus)
+        AND (:driverVerificationStatus IS NULL
+                         OR dp.driverVerificationStatus = :driverVerificationStatus)
+        AND (:vehicleType IS NULL
+                     OR dp.vehicleType = :vehicleType)
+        AND (u.createdAt >= :createdFrom)
+        AND (u.createdAt <= :createdTo)
+    """)
+    Page<UserJpaEntity> searchDrivers(
+            @Param("keyword") String keyword,
+            @Param("userStatus") UserStatus userStatus,
+            @Param("driverVerificationStatus")
+            DriverVerificationStatus driverVerificationStatus,
+            @Param("vehicleType")
+            VehicleType vehicleType,
+            @Param("createdFrom")
+            Instant createdFrom,
+            @Param("createdTo")
+            Instant createdTo,
+            Pageable pageable
+    );
 }

@@ -130,7 +130,7 @@ public abstract class UserJpaMapper {
                     jpaEntity.getMerchantProfile().getBankHolderName(),
                     jpaEntity.getMerchantProfile().getContactEmail(),
                     jpaEntity.getMerchantProfile().getContactPhone(),
-                    jpaEntity.getMerchantProfile().getVerificationStatus(),
+                    jpaEntity.getMerchantProfile().getMerchantVerificationStatus(),
                     jpaEntity.getMerchantProfile().getCreatedAt(),
                     jpaEntity.getMerchantProfile().getUpdatedAt(),
                     jpaEntity.getMerchantProfile().getCreatedBy(),
@@ -145,17 +145,17 @@ public abstract class UserJpaMapper {
             VehicleType vehicleType = null;
             if (jpaEntity.getDriverProfile().getVehicleType() != null) {
                 try {
-                    vehicleType = VehicleType.valueOf(jpaEntity.getDriverProfile().getVehicleType());
+                    vehicleType = jpaEntity.getDriverProfile().getVehicleType();
                 } catch (IllegalArgumentException ignored) {
                     vehicleType = null;
                 }
             }
 
             DriverVerificationStatus verificationStatus = null;
-            if (jpaEntity.getDriverProfile().getVerificationStatus() != null) {
+            if (jpaEntity.getDriverProfile().getDriverVerificationStatus() != null) {
                 try {
                     verificationStatus = DriverVerificationStatus.valueOf(
-                            jpaEntity.getDriverProfile().getVerificationStatus().name()
+                            jpaEntity.getDriverProfile().getDriverVerificationStatus().name()
                     );
                 } catch (IllegalArgumentException ignored) {
                     verificationStatus = null;

@@ -1,6 +1,8 @@
 package com.ute.foodiedash.infrastructure.persistence.user.jpa.entity;
 
+import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.MerchantVerificationStatus;
+import com.ute.foodiedash.domain.user.enums.VehicleType;
 import com.ute.foodiedash.infrastructure.persistence.common.jpa.entity.BaseJpaEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,7 +36,8 @@ public class DriverProfileJpaEntity extends BaseJpaEntity {
     private String licenseNumber;
 
     @Column(name = "vehicle_type", nullable = false, length = 30)
-    private String vehicleType;
+    @Enumerated(EnumType.STRING)
+    private VehicleType vehicleType;
 
     @Column(name = "vehicle_plate", length = 20)
     private String vehiclePlate;
@@ -62,5 +65,5 @@ public class DriverProfileJpaEntity extends BaseJpaEntity {
 
     @Column(name = "verification_status", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    private MerchantVerificationStatus verificationStatus;
+    private DriverVerificationStatus driverVerificationStatus;
 }

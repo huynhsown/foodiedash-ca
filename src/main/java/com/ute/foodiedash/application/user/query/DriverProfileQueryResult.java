@@ -51,7 +51,7 @@ public record DriverProfileQueryResult(
                 profile != null ? profile.getCurrentLat() : null,
                 profile != null ? profile.getCurrentLng() : null,
                 profile != null && profile.isOnline(),
-                profile != null ? profile.getVerificationStatus() : null
+                profile != null ? profile.getDriverVerificationStatus() : null
         );
     }
 }

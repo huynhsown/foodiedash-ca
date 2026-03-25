@@ -24,7 +24,7 @@ public interface MerchantProfileJpaMapper {
                 jpaEntity.getBankHolderName(),
                 jpaEntity.getContactEmail(),
                 jpaEntity.getContactPhone(),
-                jpaEntity.getVerificationStatus(),
+                jpaEntity.getMerchantVerificationStatus(),
                 jpaEntity.getCreatedAt(),
                 jpaEntity.getUpdatedAt(),
                 jpaEntity.getCreatedBy(),
@@ -51,7 +51,7 @@ public interface MerchantProfileJpaMapper {
         e.setBankHolderName(domain.getBankHolderName());
         e.setContactEmail(domain.getContactEmail());
         e.setContactPhone(domain.getContactPhone());
-        e.setVerificationStatus(domain.getVerificationStatus());
+        e.setMerchantVerificationStatus(domain.getMerchantVerificationStatus());
         e.setDeletedAt(domain.getDeletedAt());
         e.setVersion(domain.getVersion());
     }

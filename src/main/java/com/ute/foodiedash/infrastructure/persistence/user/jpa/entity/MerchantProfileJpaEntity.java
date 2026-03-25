@@ -45,5 +45,5 @@ public class MerchantProfileJpaEntity extends BaseJpaEntity {
 
     @Column(name = "verification_status", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    private MerchantVerificationStatus verificationStatus;
+    private MerchantVerificationStatus merchantVerificationStatus;
 }

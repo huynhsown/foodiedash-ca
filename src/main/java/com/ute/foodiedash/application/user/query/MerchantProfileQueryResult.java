@@ -68,7 +68,7 @@ public record MerchantProfileQueryResult(
                 profile != null ? profile.getBankHolderName() : null,
                 profile != null ? profile.getContactEmail() : null,
                 profile != null ? profile.getContactPhone() : null,
-                profile != null ? profile.getVerificationStatus() : null,
+                profile != null ? profile.getMerchantVerificationStatus() : null,
                 profile != null ? profile.getCreatedAt() : null,
                 profile != null ? profile.getUpdatedAt() : null,
                 restaurantSummaries

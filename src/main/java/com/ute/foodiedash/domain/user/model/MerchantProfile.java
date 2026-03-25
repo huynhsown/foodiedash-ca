@@ -23,7 +23,7 @@ public class MerchantProfile extends BaseEntity {
     private String contactEmail;
     private String contactPhone;
 
-    private MerchantVerificationStatus verificationStatus;
+    private MerchantVerificationStatus merchantVerificationStatus;
 
     private MerchantProfile() {}
 
@@ -42,7 +42,7 @@ public class MerchantProfile extends BaseEntity {
         profile.businessName = businessName;
         profile.contactEmail = contactEmail;
         profile.contactPhone = contactPhone;
-        profile.verificationStatus = MerchantVerificationStatus.PENDING;
+        profile.merchantVerificationStatus = MerchantVerificationStatus.PENDING;
 
         return profile;
     }
@@ -77,7 +77,7 @@ public class MerchantProfile extends BaseEntity {
         profile.bankHolderName = bankHolderName;
         profile.contactEmail = contactEmail;
         profile.contactPhone = contactPhone;
-        profile.verificationStatus = verificationStatus;
+        profile.merchantVerificationStatus = verificationStatus;
         profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
@@ -133,20 +133,20 @@ public class MerchantProfile extends BaseEntity {
 
     public void approve() {
 
-        if (this.verificationStatus == MerchantVerificationStatus.APPROVED) {
+        if (this.merchantVerificationStatus == MerchantVerificationStatus.APPROVED) {
             throw new BadRequestException("Merchant is already approved");
         }
 
-        this.verificationStatus = MerchantVerificationStatus.APPROVED;
+        this.merchantVerificationStatus = MerchantVerificationStatus.APPROVED;
     }
 
     public void reject() {
 
-        if (this.verificationStatus == MerchantVerificationStatus.REJECTED) {
+        if (this.merchantVerificationStatus == MerchantVerificationStatus.REJECTED) {
             throw new BadRequestException("Merchant is already rejected");
         }
 
-        this.verificationStatus = MerchantVerificationStatus.REJECTED;
+        this.merchantVerificationStatus = MerchantVerificationStatus.REJECTED;
     }
 
 }
