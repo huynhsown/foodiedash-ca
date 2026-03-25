@@ -1,11 +1,7 @@
 package com.ute.foodiedash.interfaces.rest.driver;
 
 import com.ute.foodiedash.application.user.query.DriverProfileQueryResult;
-import com.ute.foodiedash.application.user.usecase.CreateDriverIdentityUseCase;
-import com.ute.foodiedash.application.user.usecase.GetDriverProfileUseCase;
-import com.ute.foodiedash.application.user.usecase.UpdateDriverBankUseCase;
-import com.ute.foodiedash.application.user.usecase.UpdateDriverLicenseUseCase;
-import com.ute.foodiedash.application.user.usecase.UpdateDriverVehicleUseCase;
+import com.ute.foodiedash.application.user.usecase.*;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.driver.dto.DriverProfileResponseDTO;
 import com.ute.foodiedash.interfaces.rest.driver.dto.UpdateDriverBankDTO;
@@ -31,6 +27,8 @@ public class DriverProfileController {
     private final UpdateDriverBankUseCase updateDriverBankUseCase;
     private final DriverProfileDtoMapper profileDtoMapper;
     private final DriverDtoMapper dtoMapper;
+    private final SubmitDriverProfileUseCase submitDriverProfileUseCase;
+    private final ApproveDriverProfileUseCase approveDriverProfileUseCase;
 
     @GetMapping()
     public ResponseEntity<DriverProfileResponseDTO> getMe() {
@@ -40,7 +38,7 @@ public class DriverProfileController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/identity")
+    @PatchMapping("/profile/identity")
     public ResponseEntity<DriverProfileResponseDTO> updateIdentity(
             @Valid @RequestBody UpdateDriverIdentityDTO dto) {
         Long driverId = SecurityContextHelper.getCurrentUserId();
@@ -78,5 +76,12 @@ public class DriverProfileController {
         DriverProfileQueryResult result = updateDriverBankUseCase.execute(command, driverId);
         DriverProfileResponseDTO response = profileDtoMapper.toResponseDto(result);
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/profile/submit")
+    public ResponseEntity<Void> submit() {
+        Long driverId = SecurityContextHelper.getCurrentUserId();
+        submitDriverProfileUseCase.execute(driverId);
+        return ResponseEntity.ok().build();
     }
 }

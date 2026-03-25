@@ -30,7 +30,7 @@ public class DriverProfile extends BaseEntity {
     private BigDecimal currentLat;
     private BigDecimal currentLng;
     private boolean isOnline;
-    private DriverVerificationStatus verificationStatus;
+    private DriverVerificationStatus driverVerificationStatus;
 
     private DriverProfile() {}
 
@@ -40,7 +40,7 @@ public class DriverProfile extends BaseEntity {
         profile.userId = userId;
         profile.vehicleType = vehicleType != null ? vehicleType : VehicleType.MOTORBIKE;
         profile.isOnline = false;
-        profile.verificationStatus = DriverVerificationStatus.PENDING;
+        profile.driverVerificationStatus = DriverVerificationStatus.DRAFT;
         return profile;
     }
 
@@ -84,7 +84,7 @@ public class DriverProfile extends BaseEntity {
         profile.currentLat = currentLat;
         profile.currentLng = currentLng;
         profile.isOnline = isOnline;
-        profile.verificationStatus = verificationStatus;
+        profile.driverVerificationStatus = verificationStatus;
         profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
@@ -141,21 +141,27 @@ public class DriverProfile extends BaseEntity {
     }
 
     public boolean isApproved() {
-        return this.verificationStatus == DriverVerificationStatus.APPROVED;
+        return this.driverVerificationStatus == DriverVerificationStatus.APPROVED;
+    }
+
+    public void submit() {
+        ensureCanSubmit();
+        if (!hasMinimumVerificationData()) {
+            throw new BadRequestException(
+                    "You must provide either identity documents or driving license information"
+            );
+        }
+        this.driverVerificationStatus = DriverVerificationStatus.PENDING;
     }
 
     public void approve() {
-        if (this.verificationStatus == DriverVerificationStatus.APPROVED) {
-            throw new BadRequestException("Driver is already approved");
-        }
-        this.verificationStatus = DriverVerificationStatus.APPROVED;
+        ensurePending();
+        this.driverVerificationStatus = DriverVerificationStatus.APPROVED;
     }
 
     public void reject() {
-        if (this.verificationStatus == DriverVerificationStatus.REJECTED) {
-            throw new BadRequestException("Driver is already rejected");
-        }
-        this.verificationStatus = DriverVerificationStatus.REJECTED;
+        ensurePending();
+        this.driverVerificationStatus = DriverVerificationStatus.REJECTED;
     }
 
     public void goOnline() {
@@ -167,6 +173,38 @@ public class DriverProfile extends BaseEntity {
 
     public void goOffline() {
         this.isOnline = false;
+    }
+
+    private void ensureCanSubmit() {
+        if (driverVerificationStatus == DriverVerificationStatus.PENDING) {
+            throw new BadRequestException("Verification already submitted");
+        }
+    }
+
+    private void ensurePending() {
+        if (driverVerificationStatus != DriverVerificationStatus.PENDING) {
+            throw new BadRequestException("Driver must be in PENDING state");
+        }
+    }
+
+    private boolean hasMinimumVerificationData() {
+
+        boolean hasIdentity =
+                isNotBlank(idCardNumber)
+                        && isNotBlank(idCardFrontUrl)
+                        && isNotBlank(idCardBackUrl);
+
+        boolean hasLicense =
+                isNotBlank(licenseNumber)
+                        && isNotBlank(driverLicenseUrl)
+                        && isNotBlank(vehiclePlate);
+
+        return hasIdentity || hasLicense;
+
+    }
+
+    private boolean isNotBlank(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 }
 
