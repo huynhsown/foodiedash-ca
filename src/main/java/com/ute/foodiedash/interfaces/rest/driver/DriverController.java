@@ -1,10 +1,10 @@
-package com.ute.foodiedash.interfaces.rest.user;
+package com.ute.foodiedash.interfaces.rest.driver;
 
 import com.ute.foodiedash.application.user.query.UserQueryResult;
-import com.ute.foodiedash.application.user.usecase.RegisterCustomerUseCase;
-import com.ute.foodiedash.interfaces.rest.user.dto.RegisterCustomerDTO;
+import com.ute.foodiedash.application.user.usecase.RegisterDriverUseCase;
+import com.ute.foodiedash.interfaces.rest.driver.dto.RegisterDriverDTO;
+import com.ute.foodiedash.interfaces.rest.driver.mapper.DriverDtoMapper;
 import com.ute.foodiedash.interfaces.rest.user.dto.UserResponseDTO;
-import com.ute.foodiedash.interfaces.rest.user.mapper.UserDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,17 +15,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/customers")
+@RequestMapping("/api/v1/driver")
 @RequiredArgsConstructor
-public class UserController {
-    private final RegisterCustomerUseCase registerCustomerUseCase;
-    private final UserDtoMapper dtoMapper;
+public class DriverController {
+    private final RegisterDriverUseCase registerDriverUseCase;
+    private final DriverDtoMapper dtoMapper;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerCustomer(
-            @Valid @RequestBody RegisterCustomerDTO dto) {
+    public ResponseEntity<UserResponseDTO> registerDriver(
+            @Valid @RequestBody RegisterDriverDTO dto) {
         var command = dtoMapper.toCommand(dto);
-        UserQueryResult result = registerCustomerUseCase.execute(command);
+        UserQueryResult result = registerDriverUseCase.execute(command);
         UserResponseDTO response = dtoMapper.toResponseDto(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
