@@ -117,7 +117,7 @@ class OrderJpaMapperTest {
     @Test
     @Transactional
     void toDomain_shouldMapNestedStructure() {
-        OrderJpaEntity orderJpa = orderJpaEntityRepository.findDetailById(7L).get();
+        OrderJpaEntity orderJpa = orderJpaEntityRepository.findDetailById(8L).get();
 
         Order domain = orderJpaMapper.toDomain(orderJpa);
 

@@ -60,11 +60,11 @@ public class OpenRouteAdapter implements RouteCalculationPort {
                 JsonNode firstSegment = segments.get(0);
                 JsonNode summary = firstSegment.path("summary");
                 if (!summary.isMissingNode()) {
-                    distance = summary.path("distance").asDouble(0.0);
-                    duration = summary.path("duration").asInt(0);
+                    distance = summary.path("distance").asDouble(0.0) / 1000.0;
+                    duration = summary.path("duration").asInt(0) / 60;
                 } else {
-                    distance = firstSegment.path("distance").asDouble(0.0);
-                    duration = firstSegment.path("duration").asInt(0);
+                    distance = firstSegment.path("distance").asDouble(0.0) / 1000.0;
+                    duration = firstSegment.path("duration").asInt(0) / 60;
                 }
             }
             List<Coordinate> geometry = new ArrayList<>();

@@ -19,7 +19,6 @@ public interface MenuItemJpaRepository extends JpaRepository<MenuItemJpaEntity, 
     @Query("""
                 SELECT mi FROM MenuItemJpaEntity mi
                 LEFT JOIN FETCH mi.options o
-                LEFT JOIN FETCH o.values
                 WHERE mi.id = :id
             """)
     Optional<MenuItemJpaEntity> findById(@Param("id") Long id);
@@ -27,7 +26,6 @@ public interface MenuItemJpaRepository extends JpaRepository<MenuItemJpaEntity, 
     @Query("""
                 SELECT mi FROM MenuItemJpaEntity mi
                 LEFT JOIN FETCH mi.options o
-                LEFT JOIN FETCH o.values
                 WHERE o.id = :optionId
             """)
     Optional<MenuItemJpaEntity> findByOptionId(@Param("optionId") Long optionId);
