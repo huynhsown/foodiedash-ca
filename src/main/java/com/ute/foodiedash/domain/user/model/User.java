@@ -149,7 +149,7 @@ public class User extends BaseEntity {
         user.fullName = fullName;
         user.status = UserStatus.PENDING_VERIFICATION;
 
-        user.driverProfile = DriverProfile.create(user.id, vehicleType);
+        user.driverProfile = DriverProfile.create(null, vehicleType);
         user.merchantRestaurants = new ArrayList<>();
         user.restaurantDevices = new ArrayList<>();
         user.roles.add(UserRole.create(RoleName.DRIVER));

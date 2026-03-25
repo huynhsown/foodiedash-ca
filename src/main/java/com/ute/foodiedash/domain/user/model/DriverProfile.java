@@ -35,9 +35,6 @@ public class DriverProfile extends BaseEntity {
     private DriverProfile() {}
 
     public static DriverProfile create(Long userId, VehicleType vehicleType) {
-        if (userId == null) {
-            throw new BadRequestException("User ID is required");
-        }
 
         DriverProfile profile = new DriverProfile();
         profile.userId = userId;
