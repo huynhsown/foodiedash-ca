@@ -2,6 +2,7 @@ package com.ute.foodiedash.domain.paymentmethod.model;
 
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodType;
 import lombok.Getter;
 
@@ -10,33 +11,33 @@ import java.time.Instant;
 @Getter
 public class PaymentMethod extends BaseEntity {
     private Long id;
-    private String code;
+    private PaymentMethodCode code;
     private String name;
     private PaymentMethodType type;
     private boolean active;
 
-    public static PaymentMethod create(String code, String name, PaymentMethodType type, boolean active) {
-        if (code == null || code.isBlank()) {
-            throw new BadRequestException("Payment method code required");
-        }
-        if (name == null || name.isBlank()) {
-            throw new BadRequestException("Payment method name required");
-        }
-        if (type == null) {
-            throw new BadRequestException("Payment method type required");
-        }
-
-        PaymentMethod pm = new PaymentMethod();
-        pm.code = code.trim().toUpperCase();
-        pm.name = name.trim();
-        pm.type = type;
-        pm.active = active;
-        return pm;
-    }
+//    public static PaymentMethod create(String code, String name, PaymentMethodType type, boolean active) {
+//        if (code == null || code.isBlank()) {
+//            throw new BadRequestException("Payment method code required");
+//        }
+//        if (name == null || name.isBlank()) {
+//            throw new BadRequestException("Payment method name required");
+//        }
+//        if (type == null) {
+//            throw new BadRequestException("Payment method type required");
+//        }
+//
+//        PaymentMethod pm = new PaymentMethod();
+//        pm.code = code.trim().toUpperCase();
+//        pm.name = name.trim();
+//        pm.type = type;
+//        pm.active = active;
+//        return pm;
+//    }
 
     public static PaymentMethod reconstruct(
             Long id,
-            String code,
+            PaymentMethodCode code,
             String name,
             PaymentMethodType type,
             boolean active,

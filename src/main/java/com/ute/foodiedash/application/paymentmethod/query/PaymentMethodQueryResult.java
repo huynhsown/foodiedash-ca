@@ -1,11 +1,12 @@
 package com.ute.foodiedash.application.paymentmethod.query;
 
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodType;
 import com.ute.foodiedash.domain.paymentmethod.model.PaymentMethod;
 
 public record PaymentMethodQueryResult(
         Long id,
-        String code,
+        PaymentMethodCode code,
         String name,
         PaymentMethodType type,
         boolean active
