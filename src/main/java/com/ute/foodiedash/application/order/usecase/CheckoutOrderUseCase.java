@@ -63,7 +63,8 @@ public class CheckoutOrderUseCase {
         }
 
         BigDecimal subtotal = cart.getItems().stream()
-                .map(ci -> ci.getUnitPrice().multiply(BigDecimal.valueOf(ci.getQuantity())))
+                .filter(ci -> ci != null && !ci.isDeleted())
+                .map(CartItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         RouteQueryResult route = routeCalculationPort.calculateRoute(
@@ -72,7 +73,8 @@ public class CheckoutOrderUseCase {
         );
 
         BigDecimal distanceInKm = BigDecimal.valueOf(route.distance());
-        Integer etaInMinutes = 20 + route.eta();
+        BigDecimal distanceInMeters = distanceInKm.multiply(BigDecimal.valueOf(1000));
+        Integer etaInMinutes = 20 + route.etaInMinutes();
         BigDecimal deliveryFee = calculateDeliveryFee(distanceInKm);
 
         String lockId = null;
@@ -119,7 +121,7 @@ public class CheckoutOrderUseCase {
                 discount,
                 deliveryFee,
                 total,
-                BigDecimal.valueOf(route.distance()),
+                distanceInMeters,
                 etaInMinutes
         );
     }

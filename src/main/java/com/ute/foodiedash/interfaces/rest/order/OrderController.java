@@ -1,10 +1,15 @@
 package com.ute.foodiedash.interfaces.rest.order;
 
 import com.ute.foodiedash.application.order.command.CheckoutOrderCommand;
+import com.ute.foodiedash.application.order.command.PreviewOrderCommand;
 import com.ute.foodiedash.application.order.query.CheckoutOrderResult;
+import com.ute.foodiedash.application.order.query.PreviewOrderResult;
 import com.ute.foodiedash.application.order.usecase.CheckoutOrderUseCase;
+import com.ute.foodiedash.application.order.usecase.PreviewOrderUseCase;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderRequestDTO;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderResponseDTO;
+import com.ute.foodiedash.interfaces.rest.order.dto.PreviewOrderRequestDTO;
+import com.ute.foodiedash.interfaces.rest.order.dto.PreviewOrderResponseDTO;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
     private final CheckoutOrderUseCase checkoutOrderUseCase;
+    private final PreviewOrderUseCase previewOrderUseCase;
 
     private final OrderMapper orderMapper;
 
@@ -27,5 +33,12 @@ public class OrderController {
         CheckoutOrderCommand command = orderMapper.toCommand(dto);
         CheckoutOrderResult result = checkoutOrderUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(orderMapper.toResponseDto(result));
+    }
+
+    @PostMapping("/preview")
+    public ResponseEntity<PreviewOrderResponseDTO> preview(@RequestBody PreviewOrderRequestDTO dto) {
+        PreviewOrderCommand command = orderMapper.toPreviewCommand(dto);
+        PreviewOrderResult result = previewOrderUseCase.execute(command);
+        return ResponseEntity.ok(orderMapper.toPreviewResponseDto(result));
     }
 }

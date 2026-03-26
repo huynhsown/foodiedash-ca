@@ -4,7 +4,7 @@ import java.util.List;
 
 public record RouteQueryResult(
         double distance,
-        int eta,
+        int etaInMinutes,
         List<Coordinate> geometry
 ) {}
 
