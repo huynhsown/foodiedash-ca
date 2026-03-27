@@ -33,6 +33,8 @@ public class Order extends BaseEntity {
     private String cancelReason;
 
     private final List<OrderItem> items = new ArrayList<>();
+    private final List<OrderPromotion> promotions = new ArrayList<>();
+    private final List<OrderStatusHistory> statusHistories = new ArrayList<>();
 
     private static final EnumSet<OrderStatus> FINAL_STATUSES =
             EnumSet.of(OrderStatus.COMPLETED, OrderStatus.CANCELLED);
@@ -91,6 +93,8 @@ public class Order extends BaseEntity {
             LocalDateTime cancelledAt,
             String cancelReason,
             List<OrderItem> items,
+            List<OrderPromotion> promotions,
+            List<OrderStatusHistory> statusHistories,
             Instant createdAt,
             Instant updatedAt,
             String createdBy,
@@ -120,6 +124,12 @@ public class Order extends BaseEntity {
         if (items != null && !items.isEmpty()) {
             order.items.addAll(items);
         }
+        if (promotions != null && !promotions.isEmpty()) {
+            order.promotions.addAll(promotions);
+        }
+        if (statusHistories != null && !statusHistories.isEmpty()) {
+            order.statusHistories.addAll(statusHistories);
+        }
 
         order.restoreAudit(
                 createdAt,
@@ -140,6 +150,21 @@ public class Order extends BaseEntity {
         }
         this.items.add(item);
         recalculateTotals();
+    }
+
+    public void addPromotion(OrderPromotion promotion) {
+        ensureMutable();
+        if (promotion == null) {
+            throw new BadRequestException("Order promotion required");
+        }
+        this.promotions.add(promotion);
+    }
+
+    public void addStatusHistory(OrderStatusHistory history) {
+        if (history == null) {
+            throw new BadRequestException("Order status history required");
+        }
+        this.statusHistories.add(history);
     }
 
     public void removeItemById(Long itemId) {

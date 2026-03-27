@@ -43,6 +43,7 @@ public class LoginUseCase {
                 user.getId(),
                 user.getEmail(),
                 user.getFullName(),
+                user.getAvatarUrl(),
                 roleNames
         );
     }

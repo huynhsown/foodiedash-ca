@@ -5,6 +5,7 @@ import com.ute.foodiedash.domain.common.model.BaseEntity;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Getter
 public class OrderPromotion extends BaseEntity {
@@ -56,7 +57,13 @@ public class OrderPromotion extends BaseEntity {
             Long orderId,
             Long promotionId,
             String promotionCode,
-            BigDecimal discountAmount
+            BigDecimal discountAmount,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
     ) {
 
         OrderPromotion promotion = new OrderPromotion();
@@ -65,6 +72,7 @@ public class OrderPromotion extends BaseEntity {
         promotion.promotionId = promotionId;
         promotion.promotionCode = promotionCode;
         promotion.discountAmount = discountAmount;
+        promotion.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
 
         return promotion;
     }

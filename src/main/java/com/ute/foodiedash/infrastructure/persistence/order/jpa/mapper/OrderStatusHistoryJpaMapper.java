@@ -16,7 +16,13 @@ public interface OrderStatusHistoryJpaMapper {
             e.getId(),
             e.getOrder() != null ? e.getOrder().getId() : null,
             e.getStatus(),
-            e.getNote()
+            e.getNote(),
+            e.getCreatedAt(),
+            e.getUpdatedAt(),
+            e.getCreatedBy(),
+            e.getUpdatedBy(),
+            e.getDeletedAt(),
+            e.getVersion()
         );
     }
 
