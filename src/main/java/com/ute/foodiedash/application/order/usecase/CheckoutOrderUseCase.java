@@ -6,6 +6,7 @@ import com.ute.foodiedash.application.order.port.RouteCalculationPort;
 import com.ute.foodiedash.application.order.query.CheckoutOrderResult;
 import com.ute.foodiedash.application.order.query.Coordinate;
 import com.ute.foodiedash.application.order.query.RouteQueryResult;
+import com.ute.foodiedash.application.promotion.query.PromotionPreviewResult;
 import com.ute.foodiedash.application.promotion.service.PromotionCheckoutService;
 import com.ute.foodiedash.domain.cart.model.CartItem;
 import com.ute.foodiedash.domain.cart.model.CartItemOption;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -62,8 +64,11 @@ public class CheckoutOrderUseCase {
             throw new BadRequestException("Kitchen is unavailable");
         }
 
-        BigDecimal subtotal = cart.getItems().stream()
+        List<CartItem> activeCartItems = cart.getItems().stream()
                 .filter(ci -> ci != null && !ci.isDeleted())
+                .toList();
+
+        BigDecimal subtotal = activeCartItems.stream()
                 .map(CartItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -77,20 +82,19 @@ public class CheckoutOrderUseCase {
         Integer etaInMinutes = 20 + route.etaInMinutes();
         BigDecimal deliveryFee = calculateDeliveryFee(distanceInKm);
 
-        String lockId = null;
-        BigDecimal discount = BigDecimal.ZERO;
-        Long promotionId = null;
-
-        if (command.voucherCode() != null && !command.voucherCode().isBlank()) {
-            var promotionCheckoutData = promotionCheckoutService.prepareForCheckout(
+        PromotionPreviewResult promotionPreview = promotionCheckoutService.previewForCheckout(
                 command.voucherCode(),
                 command.customerId(),
                 command.restaurantId(),
                 subtotal
-            );
-            discount = promotionCheckoutData.discount();
-            promotionId = promotionCheckoutData.promotionId();
+        );
+        if (promotionPreview != null && !promotionPreview.isValid()) {
+            throw new BadRequestException(promotionPreview.message());
         }
+
+        BigDecimal discount = promotionPreview != null ? promotionPreview.discount() : BigDecimal.ZERO;
+        Long promotionId = promotionPreview != null ? promotionPreview.promotionId() : null;
+
         BigDecimal total = subtotal.add(deliveryFee).subtract(discount);
         if (total.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Total amount must be greater than zero");
@@ -102,7 +106,7 @@ public class CheckoutOrderUseCase {
                 .replace("-", "")
                 .substring(0, 30).toUpperCase();
         Order order = Order.create(orderCode, command.customerId(), command.restaurantId(), deliveryFee);
-        for (CartItem cartItem : cart.getItems()) {
+        for (CartItem cartItem : activeCartItems) {
             order.addItem(toOrderItem(cartItem));
         }
         order.setDiscountAmount(discount);

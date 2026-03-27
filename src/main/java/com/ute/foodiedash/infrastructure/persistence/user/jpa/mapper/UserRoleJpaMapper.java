@@ -5,14 +5,17 @@ import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserJpaEnti
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserRoleId;
 import com.ute.foodiedash.infrastructure.persistence.user.jpa.entity.UserRoleJpaEntity;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserRoleJpaMapper {
 
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "roleName", source = "id.roleName")
-    UserRole toDomain(UserRoleJpaEntity jpaEntity);
+    default UserRole toDomain(UserRoleJpaEntity jpaEntity) {
+        if (jpaEntity == null || jpaEntity.getId() == null) {
+            return null;
+        }
+        Long userId = jpaEntity.getUser() != null ? jpaEntity.getUser().getId() : jpaEntity.getId().getUserId();
+        return UserRole.reconstruct(userId, jpaEntity.getId().getRoleName());
+    }
 
     default UserRoleJpaEntity toJpaEntity(UserRole domain) {
         UserRoleJpaEntity entity = new UserRoleJpaEntity();
