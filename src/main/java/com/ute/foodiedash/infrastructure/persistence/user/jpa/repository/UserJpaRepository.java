@@ -107,7 +107,8 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
 
     @Query("""
         SELECT DISTINCT u FROM UserJpaEntity u
-        JOIN u.driverProfile dp
+        JOIN FETCH u.driverProfile dp
+        LEFT JOIN FETCH u.roles
         WHERE
             (:keyword IS NULL OR
                 LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))

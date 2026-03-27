@@ -2,6 +2,7 @@ package com.ute.foodiedash.infrastructure.persistence.user.adapter;
 
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
+import com.ute.foodiedash.domain.common.model.PageResult;
 import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.UserStatus;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
@@ -157,11 +158,12 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public List<User> listDrivers(String keyword, UserStatus userStatus,
-                                  DriverVerificationStatus driverVerificationStatus, VehicleType vehicleType,
-                                  Instant createdFrom, Instant createdTo,
-                                  Integer page, Integer size,
-                                  String sortBy, String sortDirection) {
+    @Transactional
+    public PageResult<User> searchDrivers(String keyword, UserStatus userStatus,
+                                          DriverVerificationStatus driverVerificationStatus, VehicleType vehicleType,
+                                          Instant createdFrom, Instant createdTo,
+                                          Integer page, Integer size,
+                                          String sortBy, String sortDirection) {
 
         Sort sort = sortDirection.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -173,12 +175,18 @@ public class UserRepositoryAdapter implements UserRepository {
                 sort
         );
 
-        Page<UserJpaEntity> userJpaEntities = userJpaRepository.searchDrivers(
+        Page<UserJpaEntity> userJpaEntityPage = userJpaRepository.searchDrivers(
                 keyword, userStatus, driverVerificationStatus, vehicleType,
                 createdFrom, createdTo, pageable
         );
 
-        return List.of();
+        return new PageResult<>(userJpaEntityPage.stream()
+                .map(userJpaMapper::toDomainWithDriverProfile).toList(),
+                userJpaEntityPage.getNumber(),
+                userJpaEntityPage.getSize(),
+                userJpaEntityPage.getTotalElements(),
+                userJpaEntityPage.getTotalPages()
+        );
     }
 
     @Override
