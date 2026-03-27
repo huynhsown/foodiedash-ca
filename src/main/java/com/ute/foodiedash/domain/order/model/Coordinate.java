@@ -1,4 +1,4 @@
-package com.ute.foodiedash.application.order.query;
+package com.ute.foodiedash.domain.order.model;
 
 import java.math.BigDecimal;
 

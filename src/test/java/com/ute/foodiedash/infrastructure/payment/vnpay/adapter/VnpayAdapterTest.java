@@ -34,7 +34,7 @@ class VnpayAdapterTest {
         VnpayAdapter adapter = new VnpayAdapter(props);
 
         long amount = 10200L;
-        Long orderId = 23L;
+        String orderId = "12312312";
         String url = adapter.createPaymentUrl(orderId, amount);
 
         assertThat(url).startsWith(props.getUrl() + "?");

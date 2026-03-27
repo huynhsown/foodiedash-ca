@@ -3,7 +3,7 @@ package com.ute.foodiedash.application.order.usecase;
 import com.ute.foodiedash.application.order.command.PreviewOrderCommand;
 import com.ute.foodiedash.application.order.port.KitchenAvailabilityPort;
 import com.ute.foodiedash.application.order.port.RouteCalculationPort;
-import com.ute.foodiedash.application.order.query.Coordinate;
+import com.ute.foodiedash.domain.order.model.Coordinate;
 import com.ute.foodiedash.application.order.query.PriceBreakdownResult;
 import com.ute.foodiedash.application.order.query.PreviewOrderItemOptionResult;
 import com.ute.foodiedash.application.order.query.PreviewOrderItemOptionValueResult;

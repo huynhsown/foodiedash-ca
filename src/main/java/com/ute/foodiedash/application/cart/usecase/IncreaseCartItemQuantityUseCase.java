@@ -1,12 +1,9 @@
 package com.ute.foodiedash.application.cart.usecase;
 
-import com.ute.common.exception.BadRequestException;
 import com.ute.foodiedash.application.cart.query.CartItemQueryResult;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.repository.CartRepository;
-import com.ute.foodiedash.domain.common.exception.NotFoundException;
-import com.ute.foodiedash.domain.cart.model.CartItem;
-import com.ute.foodiedash.domain.cart.repository.CartItemRepository;
+import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

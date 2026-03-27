@@ -11,6 +11,9 @@ public class CheckoutOrderRequestDTO {
     private String deliveryAddress;
     private BigDecimal deliveryLat;
     private BigDecimal deliveryLng;
+    private String receiverName;
+    private String receiverPhone;
+    private String note;
     private String voucherCode;
     private String paymentMethod;
 }

@@ -1,7 +1,5 @@
 package com.ute.foodiedash;
 
-import com.ute.foodiedash.application.order.query.Coordinate;
-import com.ute.foodiedash.application.order.query.RouteQueryResult;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.model.CartItem;
 import com.ute.foodiedash.domain.cart.model.CartItemOption;

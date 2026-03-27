@@ -4,8 +4,9 @@ import com.ute.foodiedash.application.order.command.CheckoutOrderCommand;
 import com.ute.foodiedash.application.order.port.KitchenAvailabilityPort;
 import com.ute.foodiedash.application.order.port.RouteCalculationPort;
 import com.ute.foodiedash.application.order.query.CheckoutOrderResult;
-import com.ute.foodiedash.application.order.query.Coordinate;
 import com.ute.foodiedash.application.order.query.RouteQueryResult;
+import com.ute.foodiedash.application.paymentmethod.factory.PaymentPortFactory;
+import com.ute.foodiedash.application.paymentmethod.port.PaymentPort;
 import com.ute.foodiedash.application.promotion.query.PromotionPreviewResult;
 import com.ute.foodiedash.application.promotion.service.PromotionCheckoutService;
 import com.ute.foodiedash.domain.cart.model.CartItem;
@@ -14,11 +15,12 @@ import com.ute.foodiedash.domain.cart.model.CartItemOptionValue;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.repository.CartRepository;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
-import com.ute.foodiedash.domain.order.model.OrderItemOption;
-import com.ute.foodiedash.domain.order.model.OrderItemOptionValue;
-import com.ute.foodiedash.domain.order.model.Order;
-import com.ute.foodiedash.domain.order.model.OrderItem;
+import com.ute.foodiedash.domain.order.enums.OrderStatus;
+import com.ute.foodiedash.domain.order.model.*;
+import com.ute.foodiedash.domain.order.repository.OrderDeliveryRepository;
 import com.ute.foodiedash.domain.order.repository.OrderRepository;
+import com.ute.foodiedash.domain.order.repository.OrderPaymentRepository;
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import com.ute.foodiedash.domain.restaurant.model.Restaurant;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,10 @@ public class CheckoutOrderUseCase {
     private final RouteCalculationPort routeCalculationPort;
     private final RestaurantRepository restaurantRepository;
     private final OrderRepository orderRepository;
+    private final OrderPaymentRepository orderPaymentRepository;
+    private final OrderDeliveryRepository orderDeliveryRepository;
+
+    private final PaymentPortFactory paymentGatewayFactory;
 
     @Transactional
     public CheckoutOrderResult execute(CheckoutOrderCommand command) {
@@ -113,9 +119,53 @@ public class CheckoutOrderUseCase {
 
         Order saved = orderRepository.save(order);
         Long orderId = saved.getId();
+
+        OrderStatusHistory statusHistory = OrderStatusHistory.create(
+                orderId,
+                OrderStatus.PENDING,
+                "Order created from checkout"
+        );
+        saved.addStatusHistory(statusHistory);
+
         if (promotionId != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+            OrderPromotion orderPromotion = OrderPromotion.create(
+                    orderId,
+                    promotionId,
+                    promotionPreview.code(),
+                    discount
+            );
+            saved.addPromotion(orderPromotion);
             promotionCheckoutService.reserve(promotionId, command.customerId(), orderId);
         }
+
+        saved = orderRepository.save(saved);
+
+        PaymentPort paymentPort = paymentGatewayFactory.get(command.paymentMethod());
+        String paymentUrl = null;
+        if (!command.paymentMethod().equals(PaymentMethodCode.COD)) {
+            paymentUrl = paymentPort.createPaymentUrl(orderCode, order.getTotalAmount().longValue());
+        }
+
+        OrderPayment orderPayment = OrderPayment.create(
+                orderId,
+                command.paymentMethod()
+        );
+        orderPaymentRepository.save(orderPayment);
+
+        OrderDelivery orderDelivery = OrderDelivery.create(
+                orderId,
+                command.deliveryAddress(),
+                command.deliveryLat(),
+                command.deliveryLng(),
+                command.receiverName(),
+                command.receiverPhone(),
+                command.note()
+        );
+
+        orderDelivery.updateRouteInfo(distanceInKm, etaInMinutes, route.geometry());
+        orderDeliveryRepository.save(orderDelivery);
+
+
 
         return new CheckoutOrderResult(
                 saved.getId(),
@@ -126,7 +176,8 @@ public class CheckoutOrderUseCase {
                 deliveryFee,
                 total,
                 distanceInMeters,
-                etaInMinutes
+                etaInMinutes,
+                paymentUrl
         );
     }
 

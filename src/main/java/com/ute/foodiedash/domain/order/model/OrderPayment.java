@@ -2,8 +2,8 @@ package com.ute.foodiedash.domain.order.model;
 
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
-import com.ute.foodiedash.domain.order.enums.PaymentMethod;
 import com.ute.foodiedash.domain.order.enums.PaymentStatus;
+import com.ute.foodiedash.domain.paymentmethod.enums.PaymentMethodCode;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -12,13 +12,13 @@ import java.time.Instant;
 public class OrderPayment extends BaseEntity {
     private Long id;
     private Long orderId;
-    private PaymentMethod paymentMethod;
+    private PaymentMethodCode paymentMethod;
     private PaymentStatus paymentStatus;
     private String transactionId;
     private Instant paidAt;
     private Instant refundedAt;
 
-    public static OrderPayment create(Long orderId, PaymentMethod paymentMethod) {
+    public static OrderPayment create(Long orderId, PaymentMethodCode paymentMethod) {
         if (orderId == null) {
             throw new BadRequestException("Order id required");
         }
@@ -38,7 +38,7 @@ public class OrderPayment extends BaseEntity {
     public static OrderPayment reconstruct(
             Long id,
             Long orderId,
-            PaymentMethod paymentMethod,
+            PaymentMethodCode paymentMethod,
             PaymentStatus paymentStatus,
             String transactionId,
             Instant paidAt,

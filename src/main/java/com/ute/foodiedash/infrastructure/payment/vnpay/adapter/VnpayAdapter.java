@@ -24,10 +24,10 @@ public class VnpayAdapter implements PaymentPort {
     }
 
     @Override
-    public String createPaymentUrl(Long orderId, long amount) {
+    public String createPaymentUrl(String orderCode, long amount) {
         String vnpVersion = "2.1.0";
         String vnpCommand = "pay";
-        String vnpTxnRef = String.valueOf(orderId);
+        String vnpTxnRef = String.valueOf(orderCode);
         String vnpIpAddr = "127.0.0.1";
 
         Map<String, String> vnpParams = new HashMap<>();
@@ -37,7 +37,7 @@ public class VnpayAdapter implements PaymentPort {
         vnpParams.put("vnp_Amount", String.valueOf(amount * 100));
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", vnpTxnRef);
-        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang " + orderId);
+        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang " + orderCode);
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
         vnpParams.put("vnp_ReturnUrl", props.getReturnUrl());

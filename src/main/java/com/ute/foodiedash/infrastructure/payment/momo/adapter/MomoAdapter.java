@@ -19,7 +19,7 @@ public class MomoAdapter implements PaymentPort {
     }
 
     @Override
-    public String createPaymentUrl(Long orderId, long amount) {
+    public String createPaymentUrl(String orderCode, long amount) {
         throw new BadRequestException("Not implement yet");
     }
 }

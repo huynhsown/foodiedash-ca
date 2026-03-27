@@ -3,7 +3,7 @@ package com.ute.foodiedash.infrastructure.route;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.foodiedash.application.order.port.RouteCalculationPort;
-import com.ute.foodiedash.application.order.query.Coordinate;
+import com.ute.foodiedash.domain.order.model.Coordinate;
 import com.ute.foodiedash.application.order.query.RouteQueryResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
