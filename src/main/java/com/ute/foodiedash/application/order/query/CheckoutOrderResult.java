@@ -12,5 +12,11 @@ public record CheckoutOrderResult(
         BigDecimal total,
         BigDecimal distanceMeters,
         Integer etaInMinutes,
-        String paymentUrl
+        String paymentUrl,
+        String deliveryAddress,
+        BigDecimal deliveryLat,
+        BigDecimal deliveryLng,
+        String receiverName,
+        String receiverPhone,
+        String note
 ) {}

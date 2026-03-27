@@ -8,6 +8,8 @@ import com.ute.foodiedash.infrastructure.persistence.order.jpa.repository.OrderP
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class OrderPaymentRepositoryAdapter implements OrderPaymentRepository {
@@ -19,5 +21,10 @@ public class OrderPaymentRepositoryAdapter implements OrderPaymentRepository {
         OrderPaymentJpaEntity jpaEntity = mapper.toJpaEntity(orderPayment);
         OrderPaymentJpaEntity saved = jpaRepository.save(jpaEntity);
         return mapper.toDomain(saved);
+    }
+
+    @Override
+    public Optional<OrderPayment> findByOrderId(Long orderId) {
+        return jpaRepository.findByOrderId(orderId).map(mapper::toDomain);
     }
 }
