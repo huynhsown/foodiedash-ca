@@ -5,10 +5,6 @@ import com.ute.foodiedash.application.menu.query.MenuItemOptionValueQueryResult;
 import com.ute.foodiedash.application.menu.query.MenuItemQueryResult;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.menu.model.MenuItem;
-import com.ute.foodiedash.domain.menu.model.MenuItemOption;
-import com.ute.foodiedash.domain.menu.model.MenuItemOptionValue;
-import com.ute.foodiedash.domain.menu.repository.MenuItemOptionRepository;
-import com.ute.foodiedash.domain.menu.repository.MenuItemOptionValueRepository;
 import com.ute.foodiedash.domain.menu.repository.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,21 +16,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GetMenuItemByIdUseCase {
     private final MenuItemRepository menuItemRepository;
-    private final MenuItemOptionRepository menuItemOptionRepository;
-    private final MenuItemOptionValueRepository menuItemOptionValueRepository;
 
     public MenuItemQueryResult execute(Long id) {
         MenuItem menuItem = menuItemRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Menu Item not found"));
 
-        List<MenuItemOption> options = menuItemOptionRepository.findByMenuItemIdAndDeletedAtIsNull(id);
-        
-        List<MenuItemOptionQueryResult> optionResults = options.stream()
+        List<MenuItemOptionQueryResult> optionResults = menuItem.getOptions().stream()
+            .filter(option -> !option.isDeleted())
             .map(option -> {
-                List<MenuItemOptionValue> values = menuItemOptionValueRepository
-                    .findByOptionIdAndDeletedAt(option.getId(), null);
-                
-                List<MenuItemOptionValueQueryResult> valueResults = values.stream()
+                List<MenuItemOptionValueQueryResult> valueResults = option.getValues().stream()
+                    .filter(value -> !value.isDeleted())
                     .map(value -> new MenuItemOptionValueQueryResult(
                         value.getId(),
                         value.getOptionId(),

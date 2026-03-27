@@ -4,10 +4,9 @@ import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.model.BaseEntity;
 import com.ute.foodiedash.domain.user.enums.MerchantVerificationStatus;
 import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
 
 @Getter
-@Setter
 public class MerchantProfile extends BaseEntity {
 
     private Long id;
@@ -26,6 +25,8 @@ public class MerchantProfile extends BaseEntity {
 
     private MerchantVerificationStatus verificationStatus;
 
+    private MerchantProfile() {}
+
     public static MerchantProfile create(
             Long userId,
             String businessName,
@@ -34,11 +35,11 @@ public class MerchantProfile extends BaseEntity {
     ) {
 
         if (userId == null) {
-            throw new BadRequestException("USER_ID_REQUIRED");
+            throw new BadRequestException("User ID is required");
         }
 
         if (businessName == null || businessName.isBlank()) {
-            throw new BadRequestException("BUSINESS_NAME_REQUIRED");
+            throw new BadRequestException("Business name is required");
         }
 
         MerchantProfile profile = new MerchantProfile();
@@ -48,6 +49,41 @@ public class MerchantProfile extends BaseEntity {
         profile.contactPhone = contactPhone;
         profile.verificationStatus = MerchantVerificationStatus.PENDING;
 
+        return profile;
+    }
+
+    public static MerchantProfile reconstruct(
+            Long id,
+            Long userId,
+            String businessName,
+            String businessLicense,
+            String taxCode,
+            String bankName,
+            String bankAccount,
+            String bankHolderName,
+            String contactEmail,
+            String contactPhone,
+            MerchantVerificationStatus verificationStatus,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        MerchantProfile profile = new MerchantProfile();
+        profile.id = id;
+        profile.userId = userId;
+        profile.businessName = businessName;
+        profile.businessLicense = businessLicense;
+        profile.taxCode = taxCode;
+        profile.bankName = bankName;
+        profile.bankAccount = bankAccount;
+        profile.bankHolderName = bankHolderName;
+        profile.contactEmail = contactEmail;
+        profile.contactPhone = contactPhone;
+        profile.verificationStatus = verificationStatus;
+        profile.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return profile;
     }
 
@@ -103,7 +139,7 @@ public class MerchantProfile extends BaseEntity {
     public void approve() {
 
         if (this.verificationStatus == MerchantVerificationStatus.APPROVED) {
-            throw new BadRequestException("MERCHANT_ALREADY_APPROVED");
+            throw new BadRequestException("Merchant is already approved");
         }
 
         this.verificationStatus = MerchantVerificationStatus.APPROVED;
@@ -112,7 +148,7 @@ public class MerchantProfile extends BaseEntity {
     public void reject() {
 
         if (this.verificationStatus == MerchantVerificationStatus.REJECTED) {
-            throw new BadRequestException("MERCHANT_ALREADY_REJECTED");
+            throw new BadRequestException("Merchant is already rejected");
         }
 
         this.verificationStatus = MerchantVerificationStatus.REJECTED;

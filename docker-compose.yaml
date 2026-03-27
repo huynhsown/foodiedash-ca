@@ -1,39 +1,71 @@
 version: "3.8"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    restart: always
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: demo_db
-      MYSQL_USER: debezium
-      MYSQL_PASSWORD: dbz
+      POSTGRES_DB: foodiedash
+      POSTGRES_USER: foodiedash
+      POSTGRES_PASSWORD: foodiedash
     ports:
-      - "3306:3306"
-    command:
-      [
-        "--server-id=223344",
-        "--log-bin=mysql-bin",
-        "--binlog-format=ROW",
-        "--binlog-row-image=FULL"
-      ]
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodiedash -d foodiedash"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  meilisearch:
-    image: getmeili/meilisearch:v1.16
-    container_name: meilisearch
-    restart: always
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    restart: unless-stopped
     environment:
-      MEILI_MASTER_KEY: masterKey
-      MEILI_HTTP_ADDR: "0.0.0.0:7700"
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
-      - "7700:7700"
+      - "9200:9200"
+      - "9300:9300"
     volumes:
-      - meili_data:/meili_data
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+  
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.4
+    container_name: kibana
+    restart: unless-stopped
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  redis:
+    image: redis:8
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 
 volumes:
-  mysql_data:
-  meili_data:
+  postgres_data:
+  elasticsearch_data:
+  redis_data:

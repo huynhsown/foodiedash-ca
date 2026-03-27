@@ -12,5 +12,4 @@ CREATE TABLE role_permissions
     CONSTRAINT fk_rp_permission
         FOREIGN KEY (permission_id) REFERENCES permissions (id)
             ON DELETE CASCADE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+);

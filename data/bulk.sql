@@ -215,29 +215,29 @@ INSERT INTO menu_items (id, menu_id, name, description, price, image_url, status
 -- Menu Item Options
 INSERT INTO menu_item_options (id, menu_item_id, name, required, min_value, max_value, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES
 -- Pizza items have size options
-(1, 22, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(2, 23, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(3, 24, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(4, 25, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(5, 26, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(1, 22, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(2, 23, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(3, 24, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(4, 25, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(5, 26, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 -- Burger items have extra options
-(6, 27, 'Thêm topping', 0, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(7, 28, 'Thêm topping', 0, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(8, 41, 'Thêm topping', 0, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(9, 42, 'Thêm topping', 0, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(6, 27, 'Thêm topping', FALSE, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(7, 28, 'Thêm topping', FALSE, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(8, 41, 'Thêm topping', FALSE, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(9, 42, 'Thêm topping', FALSE, 0, 3, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 -- Cơm tấm items have size options
-(10, 9, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(11, 10, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(12, 11, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(13, 16, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(14, 17, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(15, 18, 'Kích thước', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(10, 9, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(11, 10, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(12, 11, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(13, 16, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(14, 17, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(15, 18, 'Kích thước', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
 -- Bún bò Huế items have spice level
-(16, 45, 'Độ cay', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(17, 46, 'Độ cay', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(18, 47, 'Độ cay', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(19, 48, 'Độ cay', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
-(20, 50, 'Độ cay', 1, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0);
+(16, 45, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(17, 46, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(18, 47, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(19, 48, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0),
+(20, 50, 'Độ cay', TRUE, 1, 1, NOW(), NOW(), 'admin', 'admin', NULL, 0);
 
 -- Menu Item Option Values
 INSERT INTO menu_item_option_values (id, option_id, name, extra_price, created_at, updated_at, created_by, updated_by, deleted_at, version) VALUES

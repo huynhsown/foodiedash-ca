@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/restaurants")
@@ -57,6 +58,16 @@ public class SearchController {
                 .orElseThrow(() -> new NotFoundException("Restaurant not found"));
         var document = restaurantSearchDocumentService.toSearchDocument(restaurant);
         meilisearchService.indexRestaurant(document);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/search/reindex")
+    public ResponseEntity<?> reindexAllRestaurants() {
+        List<Restaurant> restaurants = restaurantRepository.findAllActive();
+        var documents = restaurants.stream()
+                .map(restaurantSearchDocumentService::toSearchDocument)
+                .toList();
+        meilisearchService.indexRestaurants(documents);
         return ResponseEntity.ok().build();
     }
 }
