@@ -30,6 +30,7 @@ public class Order extends BaseEntity {
     private LocalDateTime acceptedAt;
     private LocalDateTime preparedAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime completeAt;
     private String cancelReason;
 
     private final List<OrderItem> items = new ArrayList<>();
@@ -91,6 +92,7 @@ public class Order extends BaseEntity {
             LocalDateTime acceptedAt,
             LocalDateTime preparedAt,
             LocalDateTime cancelledAt,
+            LocalDateTime completeAt,
             String cancelReason,
             List<OrderItem> items,
             List<OrderPromotion> promotions,
@@ -119,6 +121,7 @@ public class Order extends BaseEntity {
         order.acceptedAt = acceptedAt;
         order.preparedAt = preparedAt;
         order.cancelledAt = cancelledAt;
+        order.completeAt = completeAt;
         order.cancelReason = cancelReason;
 
         if (items != null && !items.isEmpty()) {
@@ -307,11 +310,17 @@ public class Order extends BaseEntity {
         ));
     }
 
-    public void markCompleted() {
-        if (status != OrderStatus.READY && status != OrderStatus.DELIVERING) {
+    public void markCompleted(String note) {
+        if (status != OrderStatus.DELIVERING) {
             throw new BadRequestException("Only ready or delivering orders can be completed");
         }
         this.status = OrderStatus.COMPLETED;
+        this.completeAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.COMPLETED,
+                note
+        ));
     }
 
     public void cancel(String reason) {

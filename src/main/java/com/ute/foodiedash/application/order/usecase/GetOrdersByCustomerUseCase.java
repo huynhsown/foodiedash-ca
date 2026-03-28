@@ -43,7 +43,8 @@ public class GetOrdersByCustomerUseCase {
                 order.getPlacedAt(),
                 order.getAcceptedAt(),
                 order.getPreparedAt(),
-                order.getCancelledAt()
+                order.getCancelledAt(),
+                order.getCompleteAt()
         );
     }
 }

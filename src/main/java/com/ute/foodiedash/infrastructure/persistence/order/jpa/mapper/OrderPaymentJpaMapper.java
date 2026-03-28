@@ -18,7 +18,13 @@ public interface OrderPaymentJpaMapper {
             e.getPaymentStatus(),
             e.getTransactionId(),
             e.getPaidAt(),
-            e.getRefundedAt()
+            e.getRefundedAt(),
+            e.getCreatedAt(),
+            e.getUpdatedAt(),
+            e.getCreatedBy(),
+            e.getUpdatedBy(),
+            e.getDeletedAt(),
+            e.getVersion()
         );
     }
 

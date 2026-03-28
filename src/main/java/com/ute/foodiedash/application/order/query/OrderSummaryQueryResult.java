@@ -14,6 +14,7 @@ public record OrderSummaryQueryResult(
         LocalDateTime placedAt,
         LocalDateTime acceptedAt,
         LocalDateTime preparedAt,
-        LocalDateTime cancelledAt
+        LocalDateTime cancelledAt,
+        LocalDateTime completeAt
 ) {}
 

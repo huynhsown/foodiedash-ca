@@ -83,7 +83,13 @@ public class OrderDelivery extends BaseEntity {
             Integer etaMinutes,
             List<Coordinate> geometry,
             Instant pickedUpAt,
-            Instant deliveredAt
+            Instant deliveredAt,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
     ) {
 
         OrderDelivery delivery = new OrderDelivery();
@@ -102,6 +108,15 @@ public class OrderDelivery extends BaseEntity {
         delivery.geometry = geometry;
         delivery.pickedUpAt = pickedUpAt;
         delivery.deliveredAt = deliveredAt;
+
+        delivery.restoreAudit(
+                createdAt,
+                updatedAt,
+                createdBy,
+                updatedBy,
+                deletedAt,
+                version
+        );
 
         return delivery;
     }
