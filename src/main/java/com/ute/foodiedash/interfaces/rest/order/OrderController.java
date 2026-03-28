@@ -7,6 +7,7 @@ import com.ute.foodiedash.application.order.query.CheckoutOrderResult;
 import com.ute.foodiedash.application.order.query.OrderDetailQueryResult;
 import com.ute.foodiedash.application.order.query.OrderSummariesQueryResult;
 import com.ute.foodiedash.application.order.usecase.CancelOrderUseCase;
+import com.ute.foodiedash.application.order.usecase.CompleteOrderUseCase;
 import com.ute.foodiedash.application.order.query.PreviewOrderResult;
 import com.ute.foodiedash.application.order.usecase.CheckoutOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrderDetailUseCase;
@@ -46,6 +47,7 @@ public class OrderController {
     private final GetOrderDetailUseCase getOrderDetailUseCase;
     private final GetOrdersByCustomerUseCase getOrdersByCustomerUseCase;
     private final CancelOrderUseCase cancelOrderUseCase;
+    private final CompleteOrderUseCase completeOrderUseCase;
 
     private final OrderMapper orderMapper;
     private final OrderDetailDtoMapper orderDetailDtoMapper;
@@ -86,6 +88,12 @@ public class OrderController {
             @Valid @RequestBody CancelOrderRequestDTO dto) {
         CancelOrderCommand command = cancelOrderDtoMapper.toCommand(orderId, dto);
         var result = cancelOrderUseCase.execute(getCurrentCustomerId(), command);
+        return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
+    }
+
+    @PostMapping("/{orderId}/complete")
+    public ResponseEntity<?> completeOrder(@PathVariable Long orderId) {
+        var result = completeOrderUseCase.execute(getCurrentCustomerId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
     }
 

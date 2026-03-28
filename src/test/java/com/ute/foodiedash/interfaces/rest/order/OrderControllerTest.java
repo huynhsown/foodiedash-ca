@@ -2,14 +2,19 @@ package com.ute.foodiedash.interfaces.rest.order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ute.foodiedash.application.order.query.OrderDetailQueryResult;
+import com.ute.foodiedash.application.order.usecase.CancelOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.CheckoutOrderUseCase;
+import com.ute.foodiedash.application.order.usecase.CompleteOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrderDetailUseCase;
+import com.ute.foodiedash.application.order.usecase.GetOrdersByCustomerUseCase;
 import com.ute.foodiedash.application.order.usecase.PreviewOrderUseCase;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.interfaces.exception.GlobalExceptionHandler;
 import com.ute.foodiedash.interfaces.rest.order.dto.OrderDetailResponseDTO;
+import com.ute.foodiedash.interfaces.rest.order.mapper.CancelOrderDtoMapper;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderDetailDtoMapper;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderMapper;
+import com.ute.foodiedash.interfaces.rest.order.mapper.OrderSummaryDtoMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +52,25 @@ class OrderControllerTest {
     private GetOrderDetailUseCase getOrderDetailUseCase;
 
     @MockBean
+    private GetOrdersByCustomerUseCase getOrdersByCustomerUseCase;
+
+    @MockBean
+    private CancelOrderUseCase cancelOrderUseCase;
+
+    @MockBean
+    private CompleteOrderUseCase completeOrderUseCase;
+
+    @MockBean
     private OrderMapper orderMapper;
 
     @MockBean
     private OrderDetailDtoMapper orderDetailDtoMapper;
+
+    @MockBean
+    private OrderSummaryDtoMapper orderSummaryDtoMapper;
+
+    @MockBean
+    private CancelOrderDtoMapper cancelOrderDtoMapper;
 
     @Test
     void getOrderDetail_shouldReturn200_withResponseShape() throws Exception {
