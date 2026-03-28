@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class OrderDelivery extends BaseEntity {
@@ -152,6 +153,10 @@ public class OrderDelivery extends BaseEntity {
         this.distanceKm = distanceKm;
         this.etaMinutes = etaMinutes;
         this.geometry = geometry;
+    }
+
+    public boolean isAssignedToDriver(Long driverId) {
+        return Objects.equals(this.driverId, driverId);
     }
 
     public void markPickedUp() {
