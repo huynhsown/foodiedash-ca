@@ -231,20 +231,68 @@ public class Order extends BaseEntity {
         this.totalAmount = total;
     }
 
-    public void accept() {
+    public void accept(String note) {
         if (status != OrderStatus.PENDING) {
             throw new BadRequestException("Only pending orders can be accepted");
         }
         this.status = OrderStatus.ACCEPTED;
         this.acceptedAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.ACCEPTED,
+                note
+        ));
     }
 
-    public void startPreparing() {
+    public void startPreparing(String note) {
         if (status != OrderStatus.ACCEPTED) {
             throw new BadRequestException("Only accepted orders can be moved to preparing");
         }
         this.status = OrderStatus.PREPARING;
         this.preparedAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.PREPARING,
+                note
+        ));
+    }
+
+    public void markReady(String note) {
+        if (status != OrderStatus.PREPARING) {
+            throw new BadRequestException("Only preparing orders can be moved to ready");
+        }
+        this.status = OrderStatus.READY;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.READY,
+                note
+        ));
+    }
+
+    public void startDelivery(String note) {
+        if (status != OrderStatus.READY) {
+            throw new BadRequestException("Only ready orders can start delivery");
+        }
+        this.status = OrderStatus.DELIVERING;
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.DELIVERING,
+                note
+        ));
+    }
+
+    public void recordPendingPlacementHistory(String note) {
+        if (this.id == null) {
+            throw new BadRequestException("Order id required");
+        }
+        if (this.status != OrderStatus.PENDING) {
+            throw new BadRequestException("Only pending orders can record placement history");
+        }
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.PENDING,
+                note
+        ));
     }
 
     public void markCompleted() {
@@ -264,6 +312,11 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.CANCELLED;
         this.cancelReason = reason;
         this.cancelledAt = LocalDateTime.now();
+        this.addStatusHistory(OrderStatusHistory.create(
+                this.id,
+                OrderStatus.CANCELLED,
+                reason
+        ));
     }
 
     private void ensureMutable() {

@@ -22,6 +22,29 @@ public class RestaurantDevice extends BaseEntity {
         return device;
     }
 
+    public static RestaurantDevice reconstruct(
+            Long id,
+            Long userId,
+            Long restaurantId,
+            String deviceName,
+            Instant lastLoginAt,
+            Instant createdAt,
+            Instant updatedAt,
+            String createdBy,
+            String updatedBy,
+            Instant deletedAt,
+            Long version
+    ) {
+        RestaurantDevice device = new RestaurantDevice();
+        device.id = id;
+        device.userId = userId;
+        device.restaurantId = restaurantId;
+        device.deviceName = deviceName;
+        device.lastLoginAt = lastLoginAt;
+        device.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
+        return device;
+    }
+
     public void recordLogin() {
         this.lastLoginAt = Instant.now();
     }

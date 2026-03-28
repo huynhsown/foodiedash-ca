@@ -1,7 +1,7 @@
 package com.ute.foodiedash.application.restaurant.usecase;
 
 import com.ute.foodiedash.application.restaurant.command.CreateRestaurantCommand;
-import com.ute.foodiedash.application.restaurant.port.DomainEventPublisher;
+import com.ute.foodiedash.application.common.port.DomainEventPublisher;
 import com.ute.foodiedash.application.restaurant.query.RestaurantQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.restaurant.event.RestaurantCreatedEvent;

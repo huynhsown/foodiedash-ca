@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodieDash — test WebSocket (driver STOMP)</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+    label { display: block; margin-top: 0.75rem; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: 0.5rem; margin-top: 0.25rem; }
+    button { margin-top: 1rem; margin-right: 0.5rem; padding: 0.5rem 1rem; cursor: pointer; }
+    #log {
+      margin-top: 1rem; padding: 1rem; background: #111; color: #0f0;
+      font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap;
+      min-height: 200px; border-radius: 6px; overflow: auto;
+    }
+    .err { color: #f66; }
+    .info { color: #8cf; }
+  </style>
+</head>
+<body>
+  <h1>Test kết nối WebSocket (SockJS + STOMP)</h1>
+  <p>
+    Mở trang này qua HTTP (ví dụ Live Server cổng 5500, hoặc <code>python -m http.server</code>)
+    để khớp <code>app.websocket.allowed-origins</code> trong <code>application.properties</code>.
+  </p>
+
+  <label>Base URL backend (không có /ws)</label>
+  <input id="baseUrl" type="text" value="http://localhost:8080" />
+
+  <label>Endpoint SockJS (theo <code>app.websocket.endpoint</code>)</label>
+  <input id="endpoint" type="text" value="/ws" />
+
+  <label>JWT token (query <code>token</code> khi handshake — hiện interceptor chỉ cần có token)</label>
+  <input id="token" type="text" placeholder="Bearer value hoặc raw token" />
+
+  <div>
+    <button type="button" id="btnConnect">Kết nối</button>
+    <button type="button" id="btnDisconnect" disabled>Ngắt</button>
+    <button type="button" id="btnHeartbeat" disabled>Gửi GPS heartbeat</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    function log(msg, cls) {
+      const line = document.createElement('div');
+      line.className = cls || '';
+      line.textContent = '[' + new Date().toISOString() + '] ' + msg;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    let stompClient = null;
+    let sock = null;
+
+    function disconnect() {
+      if (stompClient) {
+        try { stompClient.disconnect(() => log('Đã disconnect STOMP', 'info')); } catch (e) { log('Lỗi disconnect: ' + e, 'err'); }
+        stompClient = null;
+      }
+      sock = null;
+      document.getElementById('btnConnect').disabled = false;
+      document.getElementById('btnDisconnect').disabled = true;
+      document.getElementById('btnHeartbeat').disabled = true;
+    }
+
+    document.getElementById('btnConnect').onclick = function () {
+      const base = document.getElementById('baseUrl').value.replace(/\/$/, '');
+      const path = document.getElementById('endpoint').value.replace(/^\//, '');
+      const token = document.getElementById('token').value.trim();
+      if (!token) {
+        log('Cần nhập token (handshake sẽ bị từ chối nếu thiếu).', 'err');
+        return;
+      }
+
+      const wsUrl = base + '/' + path + '?token=' + encodeURIComponent(token);
+      log('Đang mở SockJS: ' + wsUrl.replace(token, '***'), 'info');
+
+      sock = new SockJS(wsUrl);
+      stompClient = Stomp.over(sock);
+      stompClient.debug = function (str) { log('[STOMP] ' + str); };
+
+      stompClient.connect(
+        {},
+        function () {
+          log('STOMP connected.', 'info');
+          document.getElementById('btnConnect').disabled = true;
+          document.getElementById('btnDisconnect').disabled = false;
+          document.getElementById('btnHeartbeat').disabled = false;
+        },
+        function (err) {
+          log('STOMP error: ' + (err && err.headers ? JSON.stringify(err.headers) : String(err)), 'err');
+          disconnect();
+        }
+      );
+    };
+
+    document.getElementById('btnDisconnect').onclick = disconnect;
+
+    document.getElementById('btnHeartbeat').onclick = function () {
+      if (!stompClient || !stompClient.connected) {
+        log('Chưa kết nối.', 'err');
+        return;
+      }
+      const body = {
+        lat: 10.762622,
+        lng: 106.660172,
+        ts: Date.now()
+      };
+      stompClient.send('/app/driver/gps/heartbeat', { 'content-type': 'application/json' }, JSON.stringify(body));
+      log('Đã gửi /app/driver/gps/heartbeat: ' + JSON.stringify(body), 'info');
+    };
+  </script>
+</body>
+</html>

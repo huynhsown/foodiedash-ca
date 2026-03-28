@@ -78,4 +78,16 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
         WHERE u.status = :status AND u.deletedAt IS NULL
     """)
     long countByStatus(@Param("status") UserStatus status);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(mr) > 0 THEN true ELSE false END
+        FROM MerchantRestaurantJpaEntity mr
+        WHERE mr.user.id = :userId
+          AND mr.restaurantId = :restaurantId
+          AND mr.deletedAt IS NULL
+    """)
+    boolean existsMerchantRestaurant(
+            @Param("userId") Long userId,
+            @Param("restaurantId") Long restaurantId
+    );
 }

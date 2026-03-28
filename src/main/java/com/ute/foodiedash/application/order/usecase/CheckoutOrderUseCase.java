@@ -15,7 +15,6 @@ import com.ute.foodiedash.domain.cart.model.CartItemOptionValue;
 import com.ute.foodiedash.domain.cart.model.Cart;
 import com.ute.foodiedash.domain.cart.repository.CartRepository;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
-import com.ute.foodiedash.domain.order.enums.OrderStatus;
 import com.ute.foodiedash.domain.order.model.*;
 import com.ute.foodiedash.domain.order.repository.OrderDeliveryRepository;
 import com.ute.foodiedash.domain.order.repository.OrderRepository;
@@ -120,12 +119,7 @@ public class CheckoutOrderUseCase {
         Order saved = orderRepository.save(order);
         Long orderId = saved.getId();
 
-        OrderStatusHistory statusHistory = OrderStatusHistory.create(
-                orderId,
-                OrderStatus.PENDING,
-                "Order created from checkout"
-        );
-        saved.addStatusHistory(statusHistory);
+        saved.recordPendingPlacementHistory("Order created from checkout");
 
         if (promotionId != null && discount.compareTo(BigDecimal.ZERO) > 0) {
             OrderPromotion orderPromotion = OrderPromotion.create(
