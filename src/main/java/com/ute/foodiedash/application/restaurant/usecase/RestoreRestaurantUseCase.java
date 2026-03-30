@@ -1,6 +1,6 @@
 package com.ute.foodiedash.application.restaurant.usecase;
 
-import com.ute.foodiedash.application.restaurant.port.DomainEventPublisher;
+import com.ute.foodiedash.application.common.port.DomainEventPublisher;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.restaurant.event.RestaurantUpdatedEvent;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;

@@ -108,6 +108,15 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean existsMerchantRestaurant(Long userId, Long restaurantId) {
+        if (userId == null || restaurantId == null) {
+            return false;
+        }
+        return userJpaRepository.existsMerchantRestaurant(userId, restaurantId);
+    }
+
+    @Override
     @Transactional
     public void softDeleteById(Long id) {
         userJpaRepository.softDeleteById(id);

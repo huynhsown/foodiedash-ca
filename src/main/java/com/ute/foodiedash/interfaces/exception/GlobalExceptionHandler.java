@@ -2,6 +2,7 @@ package com.ute.foodiedash.interfaces.exception;
 
 import com.ute.foodiedash.interfaces.exception.ErrorResponse;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.InternalException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
@@ -64,6 +65,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException e) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(errorResponse);
     }
 
     @ExceptionHandler(UnauthorizedException.class)

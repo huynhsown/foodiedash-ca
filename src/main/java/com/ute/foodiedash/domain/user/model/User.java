@@ -29,6 +29,8 @@ public class User extends BaseEntity {
     private MerchantProfile merchantProfile;
     private DriverProfile driverProfile;
     private List<CustomerAddress> addresses = new ArrayList<>();
+    private List<MerchantRestaurant> merchantRestaurants = new ArrayList<>();
+    private List<RestaurantDevice> restaurantDevices = new ArrayList<>();
     private List<UserRole> roles = new ArrayList<>();
 
     private User() {}
@@ -45,6 +47,8 @@ public class User extends BaseEntity {
             MerchantProfile merchantProfile,
             DriverProfile driverProfile,
             List<CustomerAddress> addresses,
+            List<MerchantRestaurant> merchantRestaurants,
+            List<RestaurantDevice> restaurantDevices,
             List<UserRole> roles,
             Instant createdAt,
             Instant updatedAt,
@@ -65,6 +69,8 @@ public class User extends BaseEntity {
         user.merchantProfile = merchantProfile;
         user.driverProfile = driverProfile;
         user.addresses = addresses != null ? addresses : new ArrayList<>();
+        user.merchantRestaurants = merchantRestaurants != null ? merchantRestaurants : new ArrayList<>();
+        user.restaurantDevices = restaurantDevices != null ? restaurantDevices : new ArrayList<>();
         user.roles = roles != null ? roles : new ArrayList<>();
         user.restoreAudit(createdAt, updatedAt, createdBy, updatedBy, deletedAt, version);
         return user;
@@ -117,6 +123,8 @@ public class User extends BaseEntity {
         user.merchantProfile = MerchantProfile.create(
                 user.id, businessName, contactEmail, contactPhone
         );
+        user.merchantRestaurants = new ArrayList<>();
+        user.restaurantDevices = new ArrayList<>();
         user.roles.add(UserRole.create(RoleName.MERCHANT));
         user.addresses = new ArrayList<>();
 
@@ -142,6 +150,8 @@ public class User extends BaseEntity {
         user.status = UserStatus.PENDING_VERIFICATION;
 
         user.driverProfile = DriverProfile.create(user.id, vehicleType);
+        user.merchantRestaurants = new ArrayList<>();
+        user.restaurantDevices = new ArrayList<>();
         user.roles.add(UserRole.create(RoleName.DRIVER));
         user.addresses = new ArrayList<>();
 

@@ -17,5 +17,6 @@ public class OrderSummaryResponseDTO {
     private LocalDateTime acceptedAt;
     private LocalDateTime preparedAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime completeAt;
 }
 
