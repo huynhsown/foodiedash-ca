@@ -1,8 +1,8 @@
 package com.ute.foodiedash.infrastructure.config;
 
-import com.ute.foodiedash.infrastructure.websocket.DriverHandshakeHandler;
-import com.ute.foodiedash.infrastructure.websocket.DriverJwtHandshakeInterceptor;
 import com.ute.foodiedash.infrastructure.websocket.StompPrincipalChannelInterceptor;
+import com.ute.foodiedash.infrastructure.websocket.UserHandshakeHandler;
+import com.ute.foodiedash.infrastructure.websocket.UserJwtHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final DriverJwtHandshakeInterceptor driverJwtHandshakeInterceptor;
+    private final UserJwtHandshakeInterceptor userJwtHandshakeInterceptor;
     private final StompPrincipalChannelInterceptor stompPrincipalChannelInterceptor;
 
     @Value("${app.websocket.allowed-origins:http://localhost:5173}")
@@ -38,14 +38,16 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes(appPrefix);
         registry.setUserDestinationPrefix("/user");
     }
+    
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint(endpoint)
                 .setAllowedOriginPatterns(allowedOrigins)
-                .addInterceptors(driverJwtHandshakeInterceptor)
-                .setHandshakeHandler(new DriverHandshakeHandler())
+                .addInterceptors(userJwtHandshakeInterceptor)
+                .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
     }
+
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(stompPrincipalChannelInterceptor);
