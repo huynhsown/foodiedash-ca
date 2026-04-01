@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DriverJwtHandshakeInterceptor implements HandshakeInterceptor {
+public class UserJwtHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
@@ -30,7 +30,7 @@ public class DriverJwtHandshakeInterceptor implements HandshakeInterceptor {
         }
         try {
             Long driverUserId = 1L;
-            attributes.put("PRINCIPAL", new DriverWebSocketPrincipal(driverUserId));
+            attributes.put("PRINCIPAL", new UserWebSocketPrincipal(driverUserId));
             log.info("WebSocket handshake accepted: driverUserId={}", driverUserId);
         } catch (Exception e) {
             log.warn("WebSocket handshake rejected: {}", e.toString());
