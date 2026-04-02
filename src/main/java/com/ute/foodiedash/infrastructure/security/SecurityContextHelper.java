@@ -1,6 +1,7 @@
 package com.ute.foodiedash.infrastructure.security;
 
 import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,9 +12,15 @@ import java.util.stream.Collectors;
 
 public class SecurityContextHelper {
 
+    private static boolean isAnonymousOrMissing(Authentication authentication) {
+        return authentication == null
+                || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken;
+    }
+
     public static Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (isAnonymousOrMissing(authentication)) {
             throw new UnauthorizedException("Authentication required");
         }
 
@@ -27,7 +34,7 @@ public class SecurityContextHelper {
 
     public static String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (isAnonymousOrMissing(authentication)) {
             throw new UnauthorizedException("Authentication required");
         }
 
@@ -46,7 +53,7 @@ public class SecurityContextHelper {
 
     public static List<String> getCurrentUserRoles() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (isAnonymousOrMissing(authentication)) {
             throw new UnauthorizedException("Authentication required");
         }
 

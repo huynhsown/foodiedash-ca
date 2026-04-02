@@ -15,6 +15,9 @@ public record OrderSummaryQueryResult(
         LocalDateTime acceptedAt,
         LocalDateTime preparedAt,
         LocalDateTime cancelledAt,
-        LocalDateTime completeAt
+        LocalDateTime completeAt,
+        Long restaurantId,
+        String restaurantName,
+        String restaurantImageUrl
 ) {}
 

@@ -1,6 +1,8 @@
 package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.order.query.PickupOrderResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -20,6 +22,7 @@ public class PickupOrderUseCase {
     private final OrderRepository orderRepository;
     private final OrderDeliveryRepository orderDeliveryRepository;
     private final OrderPaymentRepository orderPaymentRepository;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @Transactional
     public PickupOrderResult execute(Long driverId, Long orderId) {
@@ -41,6 +44,7 @@ public class PickupOrderUseCase {
 
         OrderDelivery savedDelivery = orderDeliveryRepository.save(orderDelivery);
         Order savedOrder = orderRepository.save(order);
+        orderCustomerNotificationPort.notifyForOrderStatus(savedOrder, NotificationType.ORDER_PICKED_UP);
 
         return PickupOrderResult.from(savedOrder, savedDelivery, orderPayment);
     }
