@@ -4,6 +4,7 @@ import com.ute.foodiedash.application.auth.port.TokenGenerator;
 import com.ute.foodiedash.application.user.command.LoginCommand;
 import com.ute.foodiedash.application.user.port.PasswordHasher;
 import com.ute.foodiedash.application.user.query.LoginQueryResult;
+import com.ute.foodiedash.application.user.port.UserPermissionResolutionPort;
 import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.domain.user.enums.RoleName;
 import com.ute.foodiedash.domain.user.model.User;
@@ -22,6 +23,7 @@ public class LoginUseCase {
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
     private final TokenGenerator tokenGenerator;
+    private final UserPermissionResolutionPort userPermissionResolutionPort;
 
     @Transactional(readOnly = true)
     public LoginQueryResult execute(LoginCommand command) {
@@ -36,7 +38,9 @@ public class LoginUseCase {
                 .map(RoleName::name)
                 .collect(Collectors.toList());
 
-        String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames);
+        List<String> permissionNames = userPermissionResolutionPort.resolvePermissionNames(user.getRoleNames());
+
+        String token = tokenGenerator.generateToken(user.getId(), user.getEmail(), roleNames, permissionNames);
 
         return new LoginQueryResult(
                 token,
@@ -44,7 +48,8 @@ public class LoginUseCase {
                 user.getEmail(),
                 user.getFullName(),
                 user.getAvatarUrl(),
-                roleNames
+                roleNames,
+                permissionNames
         );
     }
 }

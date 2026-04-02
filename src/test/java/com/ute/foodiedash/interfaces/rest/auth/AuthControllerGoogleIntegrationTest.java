@@ -62,14 +62,18 @@ class AuthControllerGoogleIntegrationTest {
                 99L,
                 "user@gmail.com",
                 "Google User",
-                List.of("CUSTOMER")
+                null,
+                List.of("CUSTOMER"),
+                List.of()
         );
         LoginResponseDTO responseDTO = new LoginResponseDTO(
                 "jwt-token",
                 99L,
                 "user@gmail.com",
                 "Google User",
-                List.of("CUSTOMER")
+                null,
+                List.of("CUSTOMER"),
+                List.of()
         );
 
         when(authDtoMapper.toCommand(any(GoogleLoginDTO.class))).thenReturn(command);

@@ -29,14 +29,15 @@ public class JwtTokenGenerator implements TokenGenerator {
     }
 
     @Override
-    public String generateToken(Long userId, String email, List<String> roles) {
+    public String generateToken(Long userId, String email, List<String> roles, List<String> permissions) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration * 1000);
 
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("email", email)
-                .claim("roles", roles)
+                .claim("roles", roles != null ? roles : List.of())
+                .claim("permissions", permissions != null ? permissions : List.of())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey())
@@ -71,6 +72,7 @@ public class JwtTokenGenerator implements TokenGenerator {
             claimsMap.put("sub", claims.getSubject());
             claimsMap.put("email", claims.get("email"));
             claimsMap.put("roles", claims.get("roles"));
+            claimsMap.put("permissions", claims.get("permissions"));
             claimsMap.put("iat", claims.getIssuedAt());
             claimsMap.put("exp", claims.getExpiration());
 

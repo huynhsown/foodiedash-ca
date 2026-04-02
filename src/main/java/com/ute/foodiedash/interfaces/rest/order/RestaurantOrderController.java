@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/restaurant/orders")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('MERCHANT')")
 public class RestaurantOrderController {
 
     private final AcceptOrderUseCase acceptOrderUseCase;
@@ -31,18 +30,21 @@ public class RestaurantOrderController {
     }
 
     @PostMapping("/{orderId}/accept")
+    @PreAuthorize("hasAuthority('KITCHEN_ACCEPT')")
     public ResponseEntity<OrderSummaryResponseDTO> acceptOrder(@PathVariable Long orderId) {
         OrderSummaryQueryResult result = acceptOrderUseCase.execute(getCurrentMerchantId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
     }
 
     @PostMapping("/{orderId}/prepare")
+    @PreAuthorize("hasAuthority('KITCHEN_START_COOKING')")
     public ResponseEntity<OrderSummaryResponseDTO> prepareOrder(@PathVariable Long orderId) {
         OrderSummaryQueryResult result = prepareOrderUseCase.execute(getCurrentMerchantId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
     }
 
     @PostMapping("/{orderId}/ready")
+    @PreAuthorize("hasAuthority('KITCHEN_MARK_READY')")
     public ResponseEntity<OrderSummaryResponseDTO> markReady(@PathVariable Long orderId) {
         OrderSummaryQueryResult result = markReadyOrderUseCase.execute(getCurrentMerchantId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));

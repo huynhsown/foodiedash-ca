@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/carts")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAuthority('CART_MANAGE')")
 public class CartItemController {
     private final SoftDeleteCartItemUseCase softDeleteCartItemUseCase;
     private final RestoreCartItemUseCase restoreCartItemUseCase;

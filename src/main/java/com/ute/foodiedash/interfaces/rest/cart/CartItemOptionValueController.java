@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/cart-item-option-values")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
+@PreAuthorize("hasAuthority('CART_MANAGE')")
 public class CartItemOptionValueController {
     private final SoftDeleteCartItemOptionValueUseCase softDeleteCartItemOptionValueUseCase;
     private final RestoreCartItemOptionValueUseCase restoreCartItemOptionValueUseCase;

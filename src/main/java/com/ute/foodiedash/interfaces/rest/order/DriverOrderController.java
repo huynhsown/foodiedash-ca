@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/driver/orders")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('DRIVER')")
+@PreAuthorize("hasAuthority('ORDER_PICKUP')")
 public class DriverOrderController {
 
     private final PickupOrderUseCase pickupOrderUseCase;
