@@ -119,4 +119,10 @@ public class ReviewRepositoryAdapter implements ReviewRepository {
     public boolean existsByOrderIdAndCustomerId(Long orderId, Long customerId) {
         return jpaRepository.existsByOrderIdAndCustomerId(orderId, customerId);
     }
+
+    @Override
+    public Optional<Review> findByOrderIdAndCustomerId(Long orderId, Long customerId) {
+        return jpaRepository.findByOrderIdAndCustomerId(orderId, customerId)
+                .map(mapper::toDomain);
+    }
 }

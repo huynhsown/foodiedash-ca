@@ -25,4 +25,6 @@ public interface ReviewRepository {
     long countByOrderId(Long orderId);
 
     boolean existsByOrderIdAndCustomerId(Long orderId, Long customerId);
+
+    Optional<Review> findByOrderIdAndCustomerId(Long orderId, Long customerId);
 }

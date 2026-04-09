@@ -30,4 +30,6 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewJpaEntity, Long
     long countByOrderId(Long orderId);
 
     boolean existsByOrderIdAndCustomerId(Long orderId, Long customerId);
+
+    Optional<ReviewJpaEntity> findByOrderIdAndCustomerId(Long orderId, Long customerId);
 }
