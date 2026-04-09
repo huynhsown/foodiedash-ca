@@ -1,5 +1,6 @@
 package com.ute.foodiedash.infrastructure.persistence.user.adapter;
 
+import com.ute.foodiedash.domain.common.model.PageResult;
 import com.ute.foodiedash.domain.user.enums.DriverVerificationStatus;
 import com.ute.foodiedash.domain.user.enums.UserStatus;
 import com.ute.foodiedash.domain.user.enums.VehicleType;
@@ -48,7 +49,8 @@ class UserRepositoryAdapterTest {
         String sortBy = "createdAt";
         String sortDirection = "desc";
 
-        userRepository.listDrivers(keyword, userStatus, driverVerificationStatus,
+        PageResult<User> users = userRepository.searchDrivers(keyword, userStatus, driverVerificationStatus,
                 vehicleType, createdFrom, createdTo, page, size, sortBy, sortDirection);
+        System.out.println("OK");
     }
 }

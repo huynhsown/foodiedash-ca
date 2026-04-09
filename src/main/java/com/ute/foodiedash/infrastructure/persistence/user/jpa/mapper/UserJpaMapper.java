@@ -57,6 +57,83 @@ public abstract class UserJpaMapper {
     @Autowired
     protected UserRoleJpaMapper userRoleJpaMapper;
 
+    public User toDomainWithDriverProfile(UserJpaEntity jpaEntity) {
+        if (jpaEntity == null) return null;
+
+        DriverProfile driverProfile = null;
+        if (jpaEntity.getDriverProfile() != null) {
+            driverProfile = mapDriverProfile(jpaEntity);
+        }
+
+        List<UserRole> roles = new ArrayList<>();
+        if (jpaEntity.getRoles() != null) {
+            for (UserRoleJpaEntity r : jpaEntity.getRoles()) {
+                if (r == null || r.getId() == null) continue;
+                roles.add(UserRole.reconstruct(jpaEntity.getId(), r.getId().getRoleName()));
+            }
+        }
+
+        return User.reconstruct(
+                jpaEntity.getId(), jpaEntity.getEmail(), jpaEntity.getPhone(),
+                jpaEntity.getPassword(), jpaEntity.getFullName(), jpaEntity.getAvatarUrl(),
+                jpaEntity.getStatus(),
+                null, null, driverProfile,
+                null, null, null, roles,
+                jpaEntity.getCreatedAt(), jpaEntity.getUpdatedAt(),
+                jpaEntity.getCreatedBy(), jpaEntity.getUpdatedBy(),
+                jpaEntity.getDeletedAt(), jpaEntity.getVersion()
+        );
+    }
+
+    private DriverProfile mapDriverProfile(UserJpaEntity jpaEntity) {
+        if (jpaEntity.getDriverProfile() == null) return null;
+
+        VehicleType vehicleType = null;
+        if (jpaEntity.getDriverProfile().getVehicleType() != null) {
+            try {
+                vehicleType = jpaEntity.getDriverProfile().getVehicleType();
+            } catch (IllegalArgumentException ignored) {
+                vehicleType = null;
+            }
+        }
+
+        DriverVerificationStatus verificationStatus = null;
+        if (jpaEntity.getDriverProfile().getDriverVerificationStatus() != null) {
+            try {
+                verificationStatus = DriverVerificationStatus.valueOf(
+                        jpaEntity.getDriverProfile().getDriverVerificationStatus().name()
+                );
+            } catch (IllegalArgumentException ignored) {
+                verificationStatus = null;
+            }
+        }
+
+        return DriverProfile.reconstruct(
+                jpaEntity.getDriverProfile().getId(),
+                jpaEntity.getId(),
+                jpaEntity.getDriverProfile().getIdCardNumber(),
+                jpaEntity.getDriverProfile().getIdCardFrontUrl(),
+                jpaEntity.getDriverProfile().getIdCardBackUrl(),
+                jpaEntity.getDriverProfile().getLicenseNumber(),
+                vehicleType,
+                jpaEntity.getDriverProfile().getVehiclePlate(),
+                jpaEntity.getDriverProfile().getDriverLicenseUrl(),
+                jpaEntity.getDriverProfile().getBankName(),
+                jpaEntity.getDriverProfile().getBankAccount(),
+                jpaEntity.getDriverProfile().getBankHolderName(),
+                jpaEntity.getDriverProfile().getCurrentLat(),
+                jpaEntity.getDriverProfile().getCurrentLng(),
+                Boolean.TRUE.equals(jpaEntity.getDriverProfile().getIsOnline()),
+                verificationStatus,
+                jpaEntity.getDriverProfile().getCreatedAt(),
+                jpaEntity.getDriverProfile().getUpdatedAt(),
+                jpaEntity.getDriverProfile().getCreatedBy(),
+                jpaEntity.getDriverProfile().getUpdatedBy(),
+                jpaEntity.getDriverProfile().getDeletedAt(),
+                jpaEntity.getDriverProfile().getVersion()
+        );
+    }
+
     public User toDomain(UserJpaEntity jpaEntity) {
         if (jpaEntity == null) {
             return null;
@@ -140,53 +217,7 @@ public abstract class UserJpaMapper {
             );
         }
 
-        DriverProfile driverProfile = null;
-        if (jpaEntity.getDriverProfile() != null) {
-            VehicleType vehicleType = null;
-            if (jpaEntity.getDriverProfile().getVehicleType() != null) {
-                try {
-                    vehicleType = jpaEntity.getDriverProfile().getVehicleType();
-                } catch (IllegalArgumentException ignored) {
-                    vehicleType = null;
-                }
-            }
-
-            DriverVerificationStatus verificationStatus = null;
-            if (jpaEntity.getDriverProfile().getDriverVerificationStatus() != null) {
-                try {
-                    verificationStatus = DriverVerificationStatus.valueOf(
-                            jpaEntity.getDriverProfile().getDriverVerificationStatus().name()
-                    );
-                } catch (IllegalArgumentException ignored) {
-                    verificationStatus = null;
-                }
-            }
-
-            driverProfile = DriverProfile.reconstruct(
-                    jpaEntity.getDriverProfile().getId(),
-                    jpaEntity.getId(),
-                    jpaEntity.getDriverProfile().getIdCardNumber(),
-                    jpaEntity.getDriverProfile().getIdCardFrontUrl(),
-                    jpaEntity.getDriverProfile().getIdCardBackUrl(),
-                    jpaEntity.getDriverProfile().getLicenseNumber(),
-                    vehicleType,
-                    jpaEntity.getDriverProfile().getVehiclePlate(),
-                    jpaEntity.getDriverProfile().getDriverLicenseUrl(),
-                    jpaEntity.getDriverProfile().getBankName(),
-                    jpaEntity.getDriverProfile().getBankAccount(),
-                    jpaEntity.getDriverProfile().getBankHolderName(),
-                    jpaEntity.getDriverProfile().getCurrentLat(),
-                    jpaEntity.getDriverProfile().getCurrentLng(),
-                    Boolean.TRUE.equals(jpaEntity.getDriverProfile().getIsOnline()),
-                    verificationStatus,
-                    jpaEntity.getDriverProfile().getCreatedAt(),
-                    jpaEntity.getDriverProfile().getUpdatedAt(),
-                    jpaEntity.getDriverProfile().getCreatedBy(),
-                    jpaEntity.getDriverProfile().getUpdatedBy(),
-                    jpaEntity.getDriverProfile().getDeletedAt(),
-                    jpaEntity.getDriverProfile().getVersion()
-            );
-        }
+        DriverProfile driverProfile = mapDriverProfile(jpaEntity);
 
         List<CustomerAddress> addresses = new ArrayList<>();
         if (jpaEntity.getAddresses() != null) {
