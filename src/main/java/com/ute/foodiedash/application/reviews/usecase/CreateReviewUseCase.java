@@ -1,9 +1,12 @@
 package com.ute.foodiedash.application.reviews.usecase;
 
+import com.ute.foodiedash.application.order.port.OrderValidationPort;
+import com.ute.foodiedash.application.order.port.model.OrderValidation;
 import com.ute.foodiedash.application.restaurant.port.ImageUploadPort;
 import com.ute.foodiedash.application.reviews.command.CreateReviewCommand;
 import com.ute.foodiedash.application.reviews.query.ReviewQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.order.enums.OrderStatus;
 import com.ute.foodiedash.domain.order.model.Order;
 import com.ute.foodiedash.domain.order.repository.OrderRepository;
 import com.ute.foodiedash.domain.reviews.model.Review;
@@ -23,18 +26,30 @@ public class CreateReviewUseCase {
     private final ReviewRepository reviewRepository;
     private final OrderRepository orderRepository;
     private final ImageUploadPort imageUploadPort;
+    private final OrderValidationPort orderValidationPort;
 
     @Transactional
     public ReviewQueryResult execute(CreateReviewCommand command, List<MultipartFile> images) {
-        Order order = orderRepository.findById(command.orderId()).orElseThrow(
-                () -> new BadRequestException("Order not found")
-        );
+//        Order order = orderRepository.findById(command.orderId()).orElseThrow(
+//                () -> new BadRequestException("Order not found")
+//        );
+//
+//        if (!order.isBelongToCustomer(command.customerId())) {
+//            throw new BadRequestException("Not your order");
+//        }
+//
+//        if (!order.isCompleted()) {
+//            throw new BadRequestException("Cannot review uncompleted order");
+//        }
 
-        if (!order.isBelongToCustomer(command.customerId())) {
+        OrderValidation orderValidation = orderValidationPort.findForReview(command.orderId())
+                .orElseThrow(() -> new BadRequestException("Order not found"));
+
+        if (!orderValidation.customerId().equals(command.customerId())) {
             throw new BadRequestException("Not your order");
         }
 
-        if (!order.isCompleted()) {
+        if (orderValidation.status() != OrderStatus.COMPLETED) {
             throw new BadRequestException("Cannot review uncompleted order");
         }
 
@@ -54,8 +69,8 @@ public class CreateReviewUseCase {
                 })
                 .toList();
 
-        Review review = Review.create(order.getCustomerId(), order.getId(),
-                order.getRestaurantId(), command.rating(),
+        Review review = Review.create(orderValidation.customerId(), orderValidation.orderId(),
+                orderValidation.restaurantId(), command.rating(),
                 command.comment(), imageURLs);
 
         review = reviewRepository.save(review);

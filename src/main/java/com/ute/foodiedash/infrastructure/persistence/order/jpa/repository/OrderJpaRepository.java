@@ -1,5 +1,6 @@
 package com.ute.foodiedash.infrastructure.persistence.order.jpa.repository;
 
+import com.ute.foodiedash.application.order.port.model.OrderValidation;
 import com.ute.foodiedash.infrastructure.persistence.order.jpa.entity.OrderJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -64,6 +65,18 @@ public interface OrderJpaRepository extends JpaRepository<OrderJpaEntity, Long> 
         ORDER BY o.placedAt DESC
     """)
     List<OrderJpaEntity> findSummariesByCustomerId(@Param("customerId") Long customerId);
+
+    @Query("""
+        SELECT new com.ute.foodiedash.application.order.port.model.OrderValidation(
+            o.id,
+            o.customerId,
+            o.restaurantId,
+            o.status
+        )
+        FROM OrderJpaEntity o
+        WHERE o.id = :orderId
+    """)
+    Optional<OrderValidation> findForReview(Long orderId);
 
     @Modifying
     @Query("""
