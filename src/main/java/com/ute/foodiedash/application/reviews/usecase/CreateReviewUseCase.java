@@ -41,6 +41,9 @@ public class CreateReviewUseCase {
 //        if (!order.isCompleted()) {
 //            throw new BadRequestException("Cannot review uncompleted order");
 //        }
+        if (images.size() > 5) {
+            throw new BadRequestException("You can upload up to 5 images");
+        }
 
         OrderValidation orderValidation = orderValidationPort.findForReview(command.orderId())
                 .orElseThrow(() -> new BadRequestException("Order not found"));
