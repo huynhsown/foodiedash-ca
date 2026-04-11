@@ -1,13 +1,20 @@
 package com.ute.foodiedash.infrastructure.persistence.inventory.adapter;
 
+import com.ute.foodiedash.domain.common.model.PageResult;
+import com.ute.foodiedash.domain.inventory.enums.InventoryStatus;
 import com.ute.foodiedash.domain.inventory.model.InventoryItem;
 import com.ute.foodiedash.domain.inventory.model.InventoryTransaction;
 import com.ute.foodiedash.domain.inventory.repository.InventoryRepository;
+import com.ute.foodiedash.infrastructure.persistence.inventory.jpa.entity.InventoryItemJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.inventory.jpa.entity.InventoryTransactionJpaEntity;
 import com.ute.foodiedash.infrastructure.persistence.inventory.jpa.mapper.InventoryJpaMapper;
 import com.ute.foodiedash.infrastructure.persistence.inventory.jpa.repository.InventoryItemJpaRepository;
 import com.ute.foodiedash.infrastructure.persistence.inventory.jpa.repository.InventoryTransactionJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -98,6 +105,30 @@ public class InventoryRepositoryAdapter implements InventoryRepository {
         return transactionJpaRepository.findByInventoryItemIdOrderByCreatedAtAsc(inventoryItemId).stream()
                 .map(this::transactionToDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResult<InventoryItem> search(String keyword, InventoryStatus status, Boolean lowStock,
+                                            Long restaurantId, Long id,
+                                            Integer page, Integer size,
+                                            String sortBy, String sortDirection) {
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<InventoryItemJpaEntity> jpaPage = itemJpaRepository.search(
+                keyword, status, lowStock, restaurantId, id, pageable
+        );
+
+        return new PageResult<>(
+                jpaPage.stream().map(mapper::toDomain).toList(),
+                jpaPage.getNumber(),
+                jpaPage.getSize(),
+                jpaPage.getTotalElements(),
+                jpaPage.getTotalPages()
+        );
     }
 
     private InventoryTransaction transactionToDomain(InventoryTransactionJpaEntity e) {
