@@ -4,6 +4,7 @@ import com.ute.foodiedash.application.inventory.command.AdjustInventoryCommand;
 import com.ute.foodiedash.application.inventory.command.ChangeInventoryStatusCommand;
 import com.ute.foodiedash.application.inventory.command.ConsumeStockCommand;
 import com.ute.foodiedash.application.inventory.command.CreateInventoryItemCommand;
+import com.ute.foodiedash.application.inventory.command.ListInventoryItemsCommand;
 import com.ute.foodiedash.application.inventory.command.MarkWasteCommand;
 import com.ute.foodiedash.application.inventory.command.ReceiveStockCommand;
 import com.ute.foodiedash.application.inventory.command.ReturnStockCommand;
@@ -13,10 +14,12 @@ import com.ute.foodiedash.application.inventory.usecase.AdjustInventoryUseCase;
 import com.ute.foodiedash.application.inventory.usecase.ChangeInventoryStatusUseCase;
 import com.ute.foodiedash.application.inventory.usecase.ConsumeStockUseCase;
 import com.ute.foodiedash.application.inventory.usecase.CreateInventoryItemUseCase;
+import com.ute.foodiedash.application.inventory.usecase.ListInventoryItemsUseCase;
 import com.ute.foodiedash.application.inventory.usecase.MarkWasteUseCase;
 import com.ute.foodiedash.application.inventory.usecase.ReceiveStockUseCase;
 import com.ute.foodiedash.application.inventory.usecase.ReturnStockUseCase;
 import com.ute.foodiedash.application.inventory.usecase.UpdateInventoryItemUseCase;
+import com.ute.foodiedash.domain.common.model.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,7 @@ public class InventoryFacade {
     private final AdjustInventoryUseCase adjustInventoryUseCase;
     private final ReturnStockUseCase returnStockUseCase;
     private final ChangeInventoryStatusUseCase changeInventoryStatusUseCase;
+    private final ListInventoryItemsUseCase listInventoryItemsUseCase;
 
     public InventoryItemQueryResult create(CreateInventoryItemCommand command) {
         return createInventoryItemUseCase.execute(command);
@@ -62,5 +66,9 @@ public class InventoryFacade {
 
     public InventoryItemQueryResult changeStatus(ChangeInventoryStatusCommand command) {
         return changeInventoryStatusUseCase.execute(command);
+    }
+
+    public PageResult<InventoryItemQueryResult> list(ListInventoryItemsCommand command) {
+        return listInventoryItemsUseCase.execute(command);
     }
 }

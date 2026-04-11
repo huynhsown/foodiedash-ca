@@ -2,7 +2,9 @@ package com.ute.foodiedash.interfaces.rest.inventory;
 
 import com.ute.foodiedash.application.inventory.InventoryFacade;
 import com.ute.foodiedash.application.inventory.query.InventoryItemQueryResult;
+import com.ute.foodiedash.domain.common.model.PageResult;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
+import com.ute.foodiedash.interfaces.rest.common.dto.PageInfo;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.AdjustInventoryDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.ChangeInventoryStatusDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.ConsumeStockDTO;
@@ -11,12 +13,15 @@ import com.ute.foodiedash.interfaces.rest.inventory.dto.InventoryItemResponseDTO
 import com.ute.foodiedash.interfaces.rest.inventory.dto.MarkWasteDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.ReceiveStockDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.ReturnStockDTO;
+import com.ute.foodiedash.interfaces.rest.inventory.dto.SearchInventoryItemsRequestDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.UpdateInventoryItemDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.mapper.InventoryDtoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,12 +29,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/inventory")
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryFacade inventoryFacade;
     private final InventoryDtoMapper dtoMapper;
+
+    @GetMapping
+    public ResponseEntity<PageInfo<InventoryItemResponseDTO>> listItems(
+            @Valid @ModelAttribute SearchInventoryItemsRequestDTO request) {
+        Long userId = SecurityContextHelper.getCurrentUserId();
+        var command = dtoMapper.toCommand(request, userId);
+        PageResult<InventoryItemQueryResult> result = inventoryFacade.list(command);
+        List<InventoryItemResponseDTO> content = result.getContent().stream()
+                .map(dtoMapper::toResponseDto)
+                .toList();
+        PageInfo<InventoryItemResponseDTO> page = new PageInfo<>(
+                content, result.getPage(), result.getSize(),
+                result.getTotalElements(), result.getTotalPages(),
+                content.isEmpty(), content.size(),
+                result.hasNext(), result.hasPrevious()
+        );
+        return ResponseEntity.ok(page);
+    }
 
     @PostMapping
     public ResponseEntity<InventoryItemResponseDTO> createItem(

@@ -1,5 +1,7 @@
 package com.ute.foodiedash.domain.inventory.repository;
 
+import com.ute.foodiedash.domain.common.model.PageResult;
+import com.ute.foodiedash.domain.inventory.enums.InventoryStatus;
 import com.ute.foodiedash.domain.inventory.model.InventoryItem;
 import com.ute.foodiedash.domain.inventory.model.InventoryTransaction;
 
@@ -26,4 +28,8 @@ public interface InventoryRepository {
     InventoryTransaction saveTransaction(InventoryTransaction transaction);
 
     List<InventoryTransaction> findTransactionsByItemId(Long inventoryItemId);
+
+    PageResult<InventoryItem> search(String keyword, InventoryStatus status,
+                                     Boolean lowStock, Long restaurantId, Long id,
+                                     Integer page, Integer size, String sortBy, String sortDirection);
 }
