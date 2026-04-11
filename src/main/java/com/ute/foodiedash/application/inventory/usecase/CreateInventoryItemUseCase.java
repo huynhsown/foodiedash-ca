@@ -3,9 +3,11 @@ package com.ute.foodiedash.application.inventory.usecase;
 import com.ute.foodiedash.application.inventory.command.CreateInventoryItemCommand;
 import com.ute.foodiedash.application.inventory.query.InventoryItemQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
+import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.inventory.model.InventoryItem;
 import com.ute.foodiedash.domain.inventory.repository.InventoryRepository;
+import com.ute.foodiedash.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateInventoryItemUseCase {
     private final InventoryRepository inventoryRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public InventoryItemQueryResult execute(CreateInventoryItemCommand command) {
+
+        if (!userRepository.existsMerchantRestaurant(command.userId(), command.restaurantId())) {
+            throw new ForbiddenException(
+                    "User does not have permission to access this restaurant"
+            );
+        }
+
         if (inventoryRepository.existsBySkuAndRestaurantId(command.sku(), command.restaurantId())) {
             throw new BadRequestException("SKU already exists for this restaurant.");
         }
@@ -33,18 +43,6 @@ public class CreateInventoryItemUseCase {
 
         InventoryItem saved = inventoryRepository.save(item);
 
-        return new InventoryItemQueryResult(
-                saved.getId(),
-                saved.getRestaurantId(),
-                saved.getSku(),
-                saved.getName(),
-                saved.getUnit(),
-                saved.getQuantityOnHand(),
-                saved.getReorderLevel(),
-                saved.getReorderQuantity(),
-                saved.getUnitCost(),
-                saved.getStatus(),
-                saved.isLowStock()
-        );
+        return InventoryItemQueryResult.from(saved);
     }
 }
