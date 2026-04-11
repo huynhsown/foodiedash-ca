@@ -4,6 +4,7 @@ import com.ute.foodiedash.application.inventory.InventoryFacade;
 import com.ute.foodiedash.application.inventory.query.InventoryItemQueryResult;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.AdjustInventoryDTO;
+import com.ute.foodiedash.interfaces.rest.inventory.dto.ChangeInventoryStatusDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.ConsumeStockDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.CreateInventoryItemDTO;
 import com.ute.foodiedash.interfaces.rest.inventory.dto.InventoryItemResponseDTO;
@@ -102,6 +103,17 @@ public class InventoryController {
         Long userId = SecurityContextHelper.getCurrentUserId();
         var command = dtoMapper.toCommand(userId, id, dto);
         InventoryItemQueryResult result = inventoryFacade.returnStock(command);
+        InventoryItemResponseDTO response = dtoMapper.toResponseDto(result);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<InventoryItemResponseDTO> changeStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangeInventoryStatusDTO dto) {
+        Long userId = SecurityContextHelper.getCurrentUserId();
+        var command = dtoMapper.toCommand(userId, id, dto);
+        InventoryItemQueryResult result = inventoryFacade.changeStatus(command);
         InventoryItemResponseDTO response = dtoMapper.toResponseDto(result);
         return ResponseEntity.ok(response);
     }

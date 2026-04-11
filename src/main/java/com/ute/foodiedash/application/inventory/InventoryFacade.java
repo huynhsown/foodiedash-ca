@@ -1,6 +1,7 @@
 package com.ute.foodiedash.application.inventory;
 
 import com.ute.foodiedash.application.inventory.command.AdjustInventoryCommand;
+import com.ute.foodiedash.application.inventory.command.ChangeInventoryStatusCommand;
 import com.ute.foodiedash.application.inventory.command.ConsumeStockCommand;
 import com.ute.foodiedash.application.inventory.command.CreateInventoryItemCommand;
 import com.ute.foodiedash.application.inventory.command.MarkWasteCommand;
@@ -9,6 +10,7 @@ import com.ute.foodiedash.application.inventory.command.ReturnStockCommand;
 import com.ute.foodiedash.application.inventory.command.UpdateInventoryItemCommand;
 import com.ute.foodiedash.application.inventory.query.InventoryItemQueryResult;
 import com.ute.foodiedash.application.inventory.usecase.AdjustInventoryUseCase;
+import com.ute.foodiedash.application.inventory.usecase.ChangeInventoryStatusUseCase;
 import com.ute.foodiedash.application.inventory.usecase.ConsumeStockUseCase;
 import com.ute.foodiedash.application.inventory.usecase.CreateInventoryItemUseCase;
 import com.ute.foodiedash.application.inventory.usecase.MarkWasteUseCase;
@@ -28,6 +30,7 @@ public class InventoryFacade {
     private final MarkWasteUseCase markWasteUseCase;
     private final AdjustInventoryUseCase adjustInventoryUseCase;
     private final ReturnStockUseCase returnStockUseCase;
+    private final ChangeInventoryStatusUseCase changeInventoryStatusUseCase;
 
     public InventoryItemQueryResult create(CreateInventoryItemCommand command) {
         return createInventoryItemUseCase.execute(command);
@@ -55,5 +58,9 @@ public class InventoryFacade {
 
     public InventoryItemQueryResult returnStock(ReturnStockCommand command) {
         return returnStockUseCase.execute(command);
+    }
+
+    public InventoryItemQueryResult changeStatus(ChangeInventoryStatusCommand command) {
+        return changeInventoryStatusUseCase.execute(command);
     }
 }
