@@ -1,5 +1,9 @@
 package com.ute.foodiedash.application.menu.usecase;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.ute.foodiedash.application.common.cache.CacheKey;
+import com.ute.foodiedash.application.common.cache.CacheTtlSeconds;
+import com.ute.foodiedash.application.common.port.CachePort;
 import com.ute.foodiedash.application.menu.query.MenuItemOptionQueryResult;
 import com.ute.foodiedash.application.menu.query.MenuItemOptionValueQueryResult;
 import com.ute.foodiedash.domain.menu.model.MenuItemOption;
@@ -20,8 +24,18 @@ import java.util.stream.Collectors;
 public class GetMenuItemOptionsByMenuItemIdUseCase {
     private final MenuItemOptionRepository menuItemOptionRepository;
     private final MenuItemOptionValueRepository menuItemOptionValueRepository;
+    private final CachePort cachePort;
 
     public List<MenuItemOptionQueryResult> execute(Long menuItemId) {
+        String cacheKey = CacheKey.menuItemOptions(menuItemId);
+        List<MenuItemOptionQueryResult> cached = cachePort.get(
+                cacheKey,
+                new TypeReference<List<MenuItemOptionQueryResult>>() {}
+        );
+        if (cached != null) {
+            return cached;
+        }
+
         List<MenuItemOption> options = menuItemOptionRepository
             .findByMenuItemIdAndDeletedAtIsNull(menuItemId);
         
@@ -59,7 +73,8 @@ public class GetMenuItemOptionsByMenuItemIdUseCase {
                 valueResults
             ));
         }
-        
+
+        cachePort.set(cacheKey, results, CacheTtlSeconds.MENU_ITEM_OPTIONS);
         return results;
     }
 }

@@ -1,5 +1,8 @@
 package com.ute.foodiedash.application.menu.usecase;
 
+import com.ute.foodiedash.application.common.cache.CacheKey;
+import com.ute.foodiedash.application.common.cache.CacheTtlSeconds;
+import com.ute.foodiedash.application.common.port.CachePort;
 import com.ute.foodiedash.application.menu.query.MenuItemOptionQueryResult;
 import com.ute.foodiedash.application.menu.query.MenuItemOptionValueQueryResult;
 import com.ute.foodiedash.application.menu.query.MenuItemQueryResult;
@@ -16,8 +19,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GetMenuItemByIdUseCase {
     private final MenuItemRepository menuItemRepository;
+    private final CachePort cachePort;
 
     public MenuItemQueryResult execute(Long id) {
+        String cacheKey = CacheKey.menuItem(id);
+        MenuItemQueryResult cached = cachePort.get(cacheKey, MenuItemQueryResult.class);
+        if (cached != null) {
+            return cached;
+        }
+
         MenuItem menuItem = menuItemRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Menu Item not found"));
 
@@ -46,7 +56,7 @@ public class GetMenuItemByIdUseCase {
             })
             .collect(Collectors.toList());
 
-        return new MenuItemQueryResult(
+        MenuItemQueryResult result = new MenuItemQueryResult(
             menuItem.getId(),
             menuItem.getMenuId(),
             menuItem.getRestaurantId(),
@@ -57,5 +67,7 @@ public class GetMenuItemByIdUseCase {
             menuItem.getStatus(),
             optionResults
         );
+        cachePort.set(cacheKey, result, CacheTtlSeconds.MENU_ITEM);
+        return result;
     }
 }

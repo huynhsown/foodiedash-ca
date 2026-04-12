@@ -1,5 +1,8 @@
 package com.ute.foodiedash.application.menu.usecase;
 
+import com.ute.foodiedash.application.common.cache.CacheKey;
+import com.ute.foodiedash.application.common.cache.CacheTtlSeconds;
+import com.ute.foodiedash.application.common.port.CachePort;
 import com.ute.foodiedash.application.menu.query.MenuDetailQueryResult;
 import com.ute.foodiedash.application.menu.query.RestaurantMenuQueryResult;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -7,7 +10,6 @@ import com.ute.foodiedash.domain.menu.model.Menu;
 import com.ute.foodiedash.domain.menu.model.MenuItem;
 import com.ute.foodiedash.domain.menu.repository.MenuItemRepository;
 import com.ute.foodiedash.domain.menu.repository.MenuRepository;
-import com.ute.foodiedash.domain.restaurant.repository.RestaurantBusinessHourRepository;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantRepository;
 import com.ute.foodiedash.infrastructure.util.RestaurantUtils;
 import com.ute.foodiedash.domain.menu.enums.MenuStatus;
@@ -27,10 +29,19 @@ public class GetRestaurantMenuUseCase {
     private final MenuRepository menuRepository;
     private final MenuItemRepository menuItemRepository;
     private final RestaurantRepository restaurantRepository;
-    private final RestaurantBusinessHourRepository restaurantBusinessHourRepository;
+
+    private final CachePort cachePort;
     private final RestaurantUtils restaurantUtils;
 
     public RestaurantMenuQueryResult execute(Long restaurantId) {
+
+        String cacheKey = CacheKey.restaurantMenus(restaurantId);
+
+        RestaurantMenuQueryResult cacheResult = cachePort
+                .get(cacheKey, RestaurantMenuQueryResult.class);
+
+        if (cacheResult != null) return cacheResult;
+
         if (!restaurantRepository.existsById(restaurantId)) {
             throw new NotFoundException("Restaurant not found");
         }
@@ -85,7 +96,11 @@ public class GetRestaurantMenuUseCase {
             menuDetails.add(menuDetail);
         }
 
-        return new RestaurantMenuQueryResult(menuDetails);
+        RestaurantMenuQueryResult result = new RestaurantMenuQueryResult(menuDetails);
+
+        cachePort.set(cacheKey, result, CacheTtlSeconds.RESTAURANT_MENU);
+
+        return result;
     }
 
     private boolean isMenuAvailableNow(Menu menu) {
