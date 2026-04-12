@@ -4,6 +4,7 @@ import com.ute.foodiedash.application.auth.port.TokenGenerator;
 import com.ute.foodiedash.application.user.command.GoogleLoginCommand;
 import com.ute.foodiedash.application.user.port.GoogleIdentityVerifierPort;
 import com.ute.foodiedash.application.user.port.PasswordHasher;
+import com.ute.foodiedash.application.user.port.UserPermissionResolutionPort;
 import com.ute.foodiedash.application.user.query.GoogleIdentityQueryResult;
 import com.ute.foodiedash.application.user.query.GoogleLoginQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
@@ -25,6 +26,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +42,8 @@ class LoginWithGoogleUseCaseTest {
     private TokenGenerator tokenGenerator;
     @Mock
     private PasswordHasher passwordHasher;
+    @Mock
+    private UserPermissionResolutionPort userPermissionResolutionPort;
 
     private LoginWithGoogleUseCase useCase;
 
@@ -48,7 +53,8 @@ class LoginWithGoogleUseCaseTest {
                 userRepository,
                 googleIdentityVerifierPort,
                 tokenGenerator,
-                passwordHasher
+                passwordHasher,
+                userPermissionResolutionPort
         );
     }
 
@@ -80,7 +86,10 @@ class LoginWithGoogleUseCaseTest {
 
         when(googleIdentityVerifierPort.verifyIdToken(command.idToken())).thenReturn(identity);
         when(userRepository.findByEmailWithRoles(identity.email())).thenReturn(Optional.of(existing));
-        when(tokenGenerator.generateToken(10L, "customer@example.com", List.of("CUSTOMER"))).thenReturn("jwt-token");
+        when(userPermissionResolutionPort.resolvePermissionNames(anyList())).thenReturn(List.of());
+        when(tokenGenerator.generateToken(
+                eq(10L), eq("customer@example.com"), eq(List.of("CUSTOMER")), anyList()))
+                .thenReturn("jwt-token");
 
         GoogleLoginQueryResult result = useCase.execute(command);
 
@@ -121,7 +130,10 @@ class LoginWithGoogleUseCaseTest {
         when(userRepository.findByEmailWithRoles(identity.email())).thenReturn(Optional.empty());
         when(passwordHasher.hash(any())).thenReturn("hashed");
         when(userRepository.save(any(User.class))).thenReturn(saved);
-        when(tokenGenerator.generateToken(20L, "new@example.com", List.of("CUSTOMER"))).thenReturn("jwt-token");
+        when(userPermissionResolutionPort.resolvePermissionNames(anyList())).thenReturn(List.of());
+        when(tokenGenerator.generateToken(
+                eq(20L), eq("new@example.com"), eq(List.of("CUSTOMER")), anyList()))
+                .thenReturn("jwt-token");
 
         GoogleLoginQueryResult result = useCase.execute(command);
 

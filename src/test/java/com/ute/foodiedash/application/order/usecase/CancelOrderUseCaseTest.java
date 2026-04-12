@@ -2,6 +2,7 @@ package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.order.command.CancelOrderCommand;
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -30,6 +31,9 @@ class CancelOrderUseCaseTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @InjectMocks
     private CancelOrderUseCase useCase;

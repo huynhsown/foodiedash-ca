@@ -2,6 +2,8 @@ package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.driver.port.DriverBusyStatePort;
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -25,6 +27,7 @@ public class CompleteOrderUseCase {
     private final OrderDeliveryRepository orderDeliveryRepository;
     private final OrderPaymentRepository orderPaymentRepository;
     private final DriverBusyStatePort driverBusyStatePort;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @Transactional
     public OrderSummaryQueryResult execute(Long driverId, Long orderId) {
@@ -55,6 +58,7 @@ public class CompleteOrderUseCase {
         orderPaymentRepository.save(orderPayment);
 
         driverBusyStatePort.clear(driverId);
+        orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_COMPLETED);
 
         return new OrderSummaryQueryResult(
                 saved.getId(),
@@ -68,7 +72,10 @@ public class CompleteOrderUseCase {
                 saved.getAcceptedAt(),
                 saved.getPreparedAt(),
                 saved.getCancelledAt(),
-                saved.getCompleteAt()
+                saved.getCompleteAt(),
+                null,
+                null,
+                null
         );
     }
 }

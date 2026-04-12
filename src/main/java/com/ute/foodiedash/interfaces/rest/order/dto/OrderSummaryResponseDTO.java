@@ -18,5 +18,8 @@ public class OrderSummaryResponseDTO {
     private LocalDateTime preparedAt;
     private LocalDateTime cancelledAt;
     private LocalDateTime completeAt;
+    private Long restaurantId;
+    private String restaurantName;
+    private String restaurantImageUrl;
 }
 

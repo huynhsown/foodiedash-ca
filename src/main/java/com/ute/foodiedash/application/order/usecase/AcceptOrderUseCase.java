@@ -1,6 +1,8 @@
 package com.ute.foodiedash.application.order.usecase;
 
 import com.ute.foodiedash.application.order.query.OrderSummaryQueryResult;
+import com.ute.foodiedash.application.order.port.OrderCustomerNotificationPort;
+import com.ute.foodiedash.domain.notification.enums.NotificationType;
 import com.ute.foodiedash.domain.common.exception.ForbiddenException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
 import com.ute.foodiedash.domain.order.model.Order;
@@ -16,6 +18,7 @@ public class AcceptOrderUseCase {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final OrderCustomerNotificationPort orderCustomerNotificationPort;
 
     @Transactional
     public OrderSummaryQueryResult execute(Long merchantId, Long orderId) {
@@ -30,6 +33,7 @@ public class AcceptOrderUseCase {
         order.accept("Order accepted by restaurant");
 
         Order saved = orderRepository.save(order);
+        orderCustomerNotificationPort.notifyForOrderStatus(saved, NotificationType.ORDER_ACCEPTED);
         return new OrderSummaryQueryResult(
                 saved.getId(),
                 saved.getCode(),
@@ -42,7 +46,10 @@ public class AcceptOrderUseCase {
                 saved.getAcceptedAt(),
                 saved.getPreparedAt(),
                 saved.getCancelledAt(),
-                saved.getCompleteAt()
+                saved.getCompleteAt(),
+                null,
+                null,
+                null
         );
     }
 }

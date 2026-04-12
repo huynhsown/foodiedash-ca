@@ -1,7 +1,6 @@
 package com.ute.foodiedash.infrastructure.security;
 
 import com.ute.foodiedash.application.auth.port.TokenGenerator;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,56 +28,73 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        filterChain.doFilter(request, response);
-        return;
+        String token = extractTokenFromRequest(request);
+        if (token == null || token.isBlank()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-//        String path = request.getRequestURI();
-//
-//        // Skip filter for public endpoints
-//        if (path.startsWith("/api/v1/auth/") || path.startsWith("/api/v1/users/register/")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-//
-//        String token = extractTokenFromRequest(request);
-//
-//        if (token == null) {
-//            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
-//            return;
-//        }
-//
-//        try {
-//            if (!tokenGenerator.validateToken(token)) {
-//                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-//                return;
-//            }
-//
-//            Map<String, Object> claims = tokenGenerator.extractClaims(token);
-//            String userId = (String) claims.get("sub");
-//            String email = (String) claims.get("email");
-//            @SuppressWarnings("unchecked")
-//            List<String> roles = (List<String>) claims.get("roles");
-//
-//            List<SimpleGrantedAuthority> authorities = roles.stream()
-//                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-//                    .collect(Collectors.toList());
-//
-//            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-//                    userId,
-//                    null,
-//                    authorities
-//            );
-//
-//            // Store additional user info in details
-//            authentication.setDetails(Map.of("email", email, "userId", Long.parseLong(userId)));
-//
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            filterChain.doFilter(request, response);
-//        } catch (ExpiredJwtException e) {
-//            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
-//        } catch (Exception e) {
-//            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-//        }
+        try {
+            if (!tokenGenerator.validateToken(token)) {
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
+                return;
+            }
+
+            Map<String, Object> claims = tokenGenerator.extractClaims(token);
+            String userId = claims.get("sub") != null ? claims.get("sub").toString() : null;
+            if (userId == null || userId.isBlank()) {
+                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token subject");
+                return;
+            }
+
+            String email = claims.get("email") != null ? claims.get("email").toString() : null;
+            List<SimpleGrantedAuthority> authorities =
+                    new ArrayList<>(mapPermissionsToAuthorities(claims.get("permissions")));
+//            authorities.addAll(mapRolesToAuthorities(claims.get("roles")));
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userId,
+                    null,
+                    authorities
+            );
+            authentication.setDetails(Map.of(
+                    "email", email != null ? email : "",
+                    "userId", Long.parseLong(userId)
+            ));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
+        } catch (NumberFormatException e) {
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid user id in token");
+        } catch (Exception e) {
+            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+        }
+    }
+
+    private static List<SimpleGrantedAuthority> mapRolesToAuthorities(Object rolesClaim) {
+        if (rolesClaim == null) {
+            return List.of();
+        }
+        if (rolesClaim instanceof List<?> list) {
+            return list.stream()
+                    .filter(o -> o != null && !o.toString().isBlank())
+                    .map(o -> new SimpleGrantedAuthority("ROLE_" + o.toString().trim()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        return List.of();
+    }
+
+    private static List<SimpleGrantedAuthority> mapPermissionsToAuthorities(Object permissionsClaim) {
+        if (permissionsClaim == null) {
+            return List.of();
+        }
+        if (permissionsClaim instanceof List<?> list) {
+            return list.stream()
+                    .filter(o -> o != null && !o.toString().isBlank())
+                    .map(o -> new SimpleGrantedAuthority(o.toString().trim()))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        return List.of();
     }
 
     private String extractTokenFromRequest(HttpServletRequest request) {

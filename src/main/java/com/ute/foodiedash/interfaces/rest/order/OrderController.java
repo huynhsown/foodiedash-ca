@@ -13,7 +13,6 @@ import com.ute.foodiedash.application.order.usecase.CheckoutOrderUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrderDetailUseCase;
 import com.ute.foodiedash.application.order.usecase.GetOrdersByCustomerUseCase;
 import com.ute.foodiedash.application.order.usecase.PreviewOrderUseCase;
-import com.ute.foodiedash.domain.common.exception.UnauthorizedException;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderRequestDTO;
 import com.ute.foodiedash.interfaces.rest.order.dto.CheckoutOrderResponseDTO;
 import com.ute.foodiedash.interfaces.rest.order.dto.CancelOrderRequestDTO;
@@ -27,6 +26,7 @@ import com.ute.foodiedash.interfaces.rest.order.mapper.OrderMapper;
 import com.ute.foodiedash.interfaces.rest.order.mapper.OrderSummaryDtoMapper;
 import com.ute.foodiedash.infrastructure.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,14 +55,11 @@ public class OrderController {
     private final CancelOrderDtoMapper cancelOrderDtoMapper;
 
     private Long getCurrentCustomerId() {
-        try {
-            return SecurityContextHelper.getCurrentUserId();
-        } catch (UnauthorizedException e) {
-            return 1L;
-        }
+        return SecurityContextHelper.getCurrentUserId();
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<CheckoutOrderResponseDTO> checkout(@RequestBody CheckoutOrderRequestDTO dto) {
         CheckoutOrderCommand command = orderMapper.toCommand(dto);
         CheckoutOrderResult result = checkoutOrderUseCase.execute(command);
@@ -70,6 +67,7 @@ public class OrderController {
     }
 
     @PostMapping("/preview")
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<PreviewOrderResponseDTO> preview(@RequestBody PreviewOrderRequestDTO dto) {
         PreviewOrderCommand command = orderMapper.toPreviewCommand(dto);
         PreviewOrderResult result = previewOrderUseCase.execute(command);
@@ -77,12 +75,14 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<OrderDetailResponseDTO> getOrderDetail(@PathVariable Long orderId) {
         OrderDetailQueryResult result = getOrderDetailUseCase.execute(getCurrentCustomerId(), orderId);
         return ResponseEntity.ok(orderDetailDtoMapper.toResponseDto(result));
     }
 
     @PostMapping("/{orderId}/cancel")
+    @PreAuthorize("hasAuthority('ORDER_CANCEL')")
     public ResponseEntity<?> cancelOrder(
             @PathVariable Long orderId,
             @Valid @RequestBody CancelOrderRequestDTO dto) {
@@ -92,12 +92,14 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/complete")
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<?> completeOrder(@PathVariable Long orderId) {
         var result = completeOrderUseCase.execute(getCurrentCustomerId(), orderId);
         return ResponseEntity.ok(orderSummaryDtoMapper.toResponseDto(result));
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ORDER_VIEW_OWN')")
     public ResponseEntity<OrderSummariesResponseDTO> getOrdersOfCurrentCustomer() {
         Long customerId = getCurrentCustomerId();
         OrderSummariesQueryResult result = getOrdersByCustomerUseCase.execute(customerId);
