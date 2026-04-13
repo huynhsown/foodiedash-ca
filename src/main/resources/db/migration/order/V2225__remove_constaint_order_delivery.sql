@@ -1,2 +1,0 @@
-ALTER TABLE order_deliveries
-DROP CONSTRAINT fk_delivery_driver;

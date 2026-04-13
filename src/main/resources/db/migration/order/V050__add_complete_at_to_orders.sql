@@ -1,2 +1,3 @@
 ALTER TABLE orders
     ADD COLUMN complete_at TIMESTAMP NULL;
+
