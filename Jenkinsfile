@@ -71,8 +71,22 @@ pipeline {
             steps {
                 sh '''
                 set -e
-                sleep 10
-                curl -fsS "http://localhost:${SERVER_PORT}/actuator/health"
+                HEALTH_URL="http://localhost:${SERVER_PORT}/actuator/health"
+                MAX_ATTEMPTS=36
+                SLEEP_SECONDS=10
+
+                for i in $(seq 1 ${MAX_ATTEMPTS}); do
+                  if curl -fsS "${HEALTH_URL}" > /dev/null; then
+                    echo "Backend is healthy."
+                    exit 0
+                  fi
+
+                  echo "Waiting for backend... attempt ${i}/${MAX_ATTEMPTS}"
+                  sleep ${SLEEP_SECONDS}
+                done
+
+                echo "Backend did not become healthy in time."
+                exit 1
                 '''
             }
         }
