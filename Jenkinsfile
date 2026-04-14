@@ -1,8 +1,15 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
     environment {
         APP_NAME = "foodiedash"
+        COMPOSE_FILE = "docker-compose.yaml"
+        SERVER_PORT = "9090"
     }
 
     triggers {
@@ -11,11 +18,9 @@ pipeline {
 
     stages {
 
-        stage('Checkout latest code') {
+        stage('Checkout') {
             steps {
-                echo "Pulling latest code from main branch..."
-                git branch: 'main',
-                    url: 'https://github.com/huynhsown/foodiedash-ca.git'
+                checkout scm
             }
         }
 
@@ -23,8 +28,14 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'foodiedash-env', variable: 'ENV_FILE')]) {
                     sh '''
+                    set -e
                     echo "Injecting .env file..."
                     cp $ENV_FILE .env
+                    if grep -q '^SERVER_PORT=' .env; then
+                      sed -i "s/^SERVER_PORT=.*/SERVER_PORT=${SERVER_PORT}/" .env
+                    else
+                      echo "SERVER_PORT=${SERVER_PORT}" >> .env
+                    fi
                     '''
                 }
             }
@@ -33,14 +44,17 @@ pipeline {
         stage('Build images') {
             steps {
                 echo "Building Docker images..."
-                sh "docker compose build backend"
+                sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" build backend'
             }
         }
 
         stage('Deploy stack') {
             steps {
                 echo "Starting containers..."
-                sh "docker compose up -d --build"
+                sh '''
+                docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" down --remove-orphans || true
+                docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" up -d --build
+                '''
             }
         }
 
@@ -48,8 +62,9 @@ pipeline {
             steps {
                 echo "Checking backend health..."
                 sh '''
+                set -e
                 sleep 10
-                curl -f http://localhost:8080 || exit 1
+                curl -f "http://localhost:${SERVER_PORT}/actuator/health" || exit 1
                 '''
             }
         }
@@ -62,6 +77,7 @@ pipeline {
 
         failure {
             echo "❌ Deployment FAILED!"
+            sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" logs --tail=200 || true'
         }
     }
 }
