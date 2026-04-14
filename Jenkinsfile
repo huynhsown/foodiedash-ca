@@ -71,12 +71,13 @@ pipeline {
             steps {
                 sh '''
                 set -e
-                HEALTH_URL="http://localhost:${SERVER_PORT}/actuator/health"
+                HEALTH_URL="http://backend:9090/actuator/health"
+                COMPOSE_NETWORK="${APP_NAME}_default"
                 MAX_ATTEMPTS=36
                 SLEEP_SECONDS=10
 
                 for i in $(seq 1 ${MAX_ATTEMPTS}); do
-                  if curl -fsS "${HEALTH_URL}" > /dev/null; then
+                  if docker run --rm --network "${COMPOSE_NETWORK}" curlimages/curl:8.7.1 -fsS "${HEALTH_URL}" > /dev/null; then
                     echo "Backend is healthy."
                     exit 0
                   fi
