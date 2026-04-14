@@ -4,6 +4,7 @@ pipeline {
     options {
         timestamps()
         disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
     }
 
     environment {
@@ -17,10 +18,20 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Preflight') {
+            steps {
+                sh '''
+                set -e
+                command -v docker >/dev/null 2>&1 || { echo "Docker CLI not found"; exit 1; }
+                docker --version
+                docker compose version
+                '''
             }
         }
 
@@ -29,8 +40,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'foodiedash-env', variable: 'ENV_FILE')]) {
                     sh '''
                     set -e
-                    echo "Injecting .env file..."
-                    cp $ENV_FILE .env
+                    cp "${ENV_FILE}" .env
                     if grep -q '^SERVER_PORT=' .env; then
                       sed -i "s/^SERVER_PORT=.*/SERVER_PORT=${SERVER_PORT}/" .env
                     else
@@ -43,15 +53,14 @@ pipeline {
 
         stage('Build images') {
             steps {
-                echo "Building Docker images..."
                 sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" build backend'
             }
         }
 
         stage('Deploy stack') {
             steps {
-                echo "Starting containers..."
                 sh '''
+                set -e
                 docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" down --remove-orphans || true
                 docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" up -d --build
                 '''
@@ -60,11 +69,10 @@ pipeline {
 
         stage('Health check') {
             steps {
-                echo "Checking backend health..."
                 sh '''
                 set -e
                 sleep 10
-                curl -f "http://localhost:${SERVER_PORT}/actuator/health" || exit 1
+                curl -fsS "http://localhost:${SERVER_PORT}/actuator/health"
                 '''
             }
         }
@@ -72,11 +80,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment SUCCESS!"
+            sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" ps'
         }
 
         failure {
-            echo "❌ Deployment FAILED!"
             sh 'docker compose -p "${APP_NAME}" -f "${COMPOSE_FILE}" logs --tail=200 || true'
         }
     }
