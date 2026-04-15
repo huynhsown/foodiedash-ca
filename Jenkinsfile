@@ -72,7 +72,7 @@ pipeline {
                 sh '''
                 set -e
                 HEALTH_URL="http://backend:9090/actuator/health"
-                COMPOSE_NETWORK="${APP_NAME}_default"
+                COMPOSE_NETWORK="app-network"
                 MAX_ATTEMPTS=36
                 SLEEP_SECONDS=10
 
