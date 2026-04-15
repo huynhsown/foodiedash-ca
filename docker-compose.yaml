@@ -4,8 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "${SERVER_PORT}:9090"
     env_file:
       - .env
     depends_on:
@@ -15,6 +13,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - app_network
+    expose:
+      - "9090"   # chỉ internal, Nginx VPS sẽ gọi vào
 
   postgres:
     image: postgres:16
@@ -25,15 +27,17 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
     volumes:
       - foodiedash_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
+    networks:
+      - app_network
+    expose:
+      - "5432"
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
@@ -42,9 +46,6 @@ services:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
     volumes:
       - foodiedash_elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
@@ -52,30 +53,43 @@ services:
       interval: 10s
       timeout: 5s
       retries: 15
+    networks:
+      - app_network
+    expose:
+      - "9200"
+      - "9300"
+
+  redis:
+    image: redis:8
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - foodiedash_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - app_network
+    expose:
+      - "6379"
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.4
     restart: unless-stopped
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-    ports:
-      - "5601:5601"
     depends_on:
       - elasticsearch
+    networks:
+      - app_network
+    expose:
+      - "5601"
 
-  redis:
-    image: redis:8
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - foodiedash_redis_data:/data
-    command: ["redis-server", "--appendonly", "yes"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
   foodiedash_postgres_data:
