@@ -2,6 +2,7 @@ package com.ute.foodiedash.application.menu.usecase;
 
 import com.ute.foodiedash.application.menu.command.CreateMenuItemCommand;
 import com.ute.foodiedash.application.menu.port.ImageUploadPort;
+import com.ute.foodiedash.application.menu.port.MenuItemSearchIndexPort;
 import com.ute.foodiedash.application.menu.query.MenuItemQueryResult;
 import com.ute.foodiedash.domain.common.exception.BadRequestException;
 import com.ute.foodiedash.domain.common.exception.NotFoundException;
@@ -23,6 +24,7 @@ public class CreateMenuItemUseCase {
     private final MenuRepository menuRepository;
     private final MenuItemRepository menuItemRepository;
     private final ImageUploadPort imageUploadPort;
+    private final MenuItemSearchIndexPort menuItemSearchIndexPort;
 
     @Transactional
     public MenuItemQueryResult execute(CreateMenuItemCommand command, MultipartFile image) {
@@ -56,6 +58,7 @@ public class CreateMenuItemUseCase {
         }
 
         MenuItem saved = menuItemRepository.save(menuItem);
+        menuItemSearchIndexPort.indexMenuItem(saved.getId());
 
         return new MenuItemQueryResult(
             saved.getId(),

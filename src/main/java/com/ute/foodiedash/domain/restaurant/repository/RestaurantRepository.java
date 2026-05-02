@@ -8,6 +8,7 @@ public interface RestaurantRepository {
     Restaurant save(Restaurant restaurant);
     Optional<Restaurant> findById(Long id);
     Optional<Restaurant> findByIdAndDeletedAtIsNull(Long id);
+    List<Restaurant> findByIdInAndDeletedAtIsNull(List<Long> restaurantIds);
     Optional<Restaurant> findBySlug(String slug);
     List<Restaurant> findAllActive();
     boolean existsById(Long id);

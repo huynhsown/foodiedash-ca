@@ -9,6 +9,7 @@ public interface MenuItemRepository {
     Optional<MenuItem> findById(Long id);
     Optional<MenuItem> findByOptionId(Long optionId);
     boolean existsById(Long id);
+    List<MenuItem> findByIdInAndDeletedAtIsNull(List<Long> menuItemIds);
     List<MenuItem> findByMenuIdInAndDeletedAtIsNull(List<Long> menuIds);
     List<MenuItem> findByMenuId(Long menuId, boolean includeDeleted);
     List<MenuItem> findByRestaurantId(Long restaurantId, boolean includeDeleted);

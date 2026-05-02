@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface MenuJpaRepository extends JpaRepository<MenuJpaEntity, Long> {
 
+    List<MenuJpaEntity> findByIdInAndDeletedAtIsNull(List<Long> menuIds);
+
     List<MenuJpaEntity> findByRestaurantId(Long restaurantId);
 
     @Modifying

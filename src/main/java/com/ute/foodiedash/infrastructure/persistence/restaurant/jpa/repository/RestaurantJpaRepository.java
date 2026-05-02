@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface RestaurantJpaRepository extends JpaRepository<RestaurantJpaEntity, Long> {
 
     Optional<RestaurantJpaEntity> findByIdAndDeletedAtIsNull(Long id);
+    List<RestaurantJpaEntity> findByIdInAndDeletedAtIsNull(List<Long> restaurantIds);
     List<RestaurantJpaEntity> findAllByDeletedAtIsNull();
 
     @Modifying

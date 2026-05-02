@@ -1,6 +1,7 @@
 package com.ute.foodiedash.infrastructure.util;
 
 import com.ute.foodiedash.domain.restaurant.model.RestaurantBusinessHour;
+import com.ute.foodiedash.domain.menu.model.Menu;
 import com.ute.foodiedash.domain.restaurant.repository.RestaurantBusinessHourRepository;
 import com.ute.foodiedash.infrastructure.search.meilisearch.docs.RestaurantSearchDocument;
 import lombok.RequiredArgsConstructor;
@@ -128,5 +129,21 @@ public class RestaurantUtils {
 
         double prep = prepTimeAvg != null ? prepTimeAvg : 0.0;
         return (int) Math.round(travelMinutes + prep);
+    }
+
+    public static boolean isMenuAvailableNow(Menu menu) {
+        if (menu == null || menu.getStartTime() == null || menu.getEndTime() == null) {
+            return false;
+        }
+
+        LocalTime now = LocalTime.now();
+        LocalTime start = menu.getStartTime();
+        LocalTime end = menu.getEndTime();
+
+        if (start.isBefore(end)) {
+            return !now.isBefore(start) && !now.isAfter(end);
+        }
+
+        return !now.isBefore(start) || !now.isAfter(end);
     }
 }
